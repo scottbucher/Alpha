@@ -1,3 +1,3 @@
-# Discord TypeScript Sharding Template
+# Alpha Discord Bot
 
-A TypeScript Discord bot with multi-machine sharding and bot-site support.
+A TypeScript all in one bot.

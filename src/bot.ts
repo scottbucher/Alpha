@@ -1,0 +1,110 @@
+import { Client, Guild, GuildMember, Message, User } from 'discord.js';
+
+import { GuildJoinHandler } from './events/guild-join-handler';
+import { GuildRepo } from './services/database/repos/guild-repo';
+import { Logger } from './services';
+import { MessageHandler } from './events/message-handler';
+import { TrackVoiceXp } from './jobs/trackVoiceXp';
+import { UserJoinHandler } from './events/user-join-handler';
+import { UserRepo } from './services/database/repos/user-repo';
+import { runInThisContext } from 'vm';
+import schedule from 'node-schedule';
+
+let Config = require('../config/config.json');
+let Logs = require('../lang/logs.json');
+let Debug = require('../config/debug.json');
+
+export class Bot {
+    private ready = false;
+
+    constructor(
+        private token: string,
+        private client: Client,
+        private trackVoiceXpJob: TrackVoiceXp,
+        private messageHandler: MessageHandler,
+        private guildJoinHandler: GuildJoinHandler,
+        private userJoinHandler: UserJoinHandler,
+        private guildRepo: GuildRepo,
+        private userRepo: UserRepo
+    ) {}
+
+    public async start(): Promise<void> {
+        this.registerListeners();
+        await this.login(this.token);
+    }
+
+    private registerListeners(): void {
+        this.client.on('ready', () => this.onReady());
+        this.client.on('shardReady', (shardId: number) => this.onShardReady(shardId));
+        this.client.on('message', (msg: Message) => this.onMessage(msg));
+        this.client.on('guildCreate', (guild: Guild) => this.onGuildJoin(guild));
+        this.client.on('guildMemberAdd', (member: GuildMember, ) => this.onUserJoin(member));
+    }
+
+    private startJobs(): void {
+        let voiceXpSchedule =
+            Debug.enabled && Debug.overridePostScheduleEnabled
+                ? Debug.overridePostScheduleEnabled
+                : Config.postSchedule;
+        schedule.scheduleJob(voiceXpSchedule, async () => {
+            try {
+                await this.trackVoiceXpJob.run();
+            } catch (error) {
+                Logger.error(Logs.error.trackVoiceXp, error);
+                return;
+            }
+        });
+    }
+
+    private async login(token: string): Promise<void> {
+        try {
+            await this.client.login(token);
+        } catch (error) {
+            Logger.error(Logs.error.login, error);
+            return;
+        }
+    }
+
+    private onReady(): void {
+        let userTag = this.client.user.tag;
+        Logger.info(Logs.info.login.replace('{USER_TAG}', userTag));
+
+        this.setupDatabase(this.client, this.guildRepo, this.userRepo);
+        Logger.info(Logs.info.databaseReady);
+
+        this.startJobs();
+        Logger.info(Logs.info.startedVoiceXpJob);
+
+        this.ready = true;
+    }
+
+    private onShardReady(shardId: number): void {
+        Logger.setShardId(shardId);
+    }
+
+    private onMessage(msg: Message): void {
+        if (!this.ready) {
+            return;
+        }
+
+        this.messageHandler.process(msg);
+    }
+
+    private onGuildJoin(guild: Guild) {
+        if (!this.ready) return;
+        this.guildJoinHandler.process(guild);
+    }
+
+    private onUserJoin(event: any) {
+        if (!this.ready) return;
+        this.userJoinHandler.process(event);
+    }
+
+    private async setupDatabase(client: Client, guildRepo: GuildRepo, userRepo: UserRepo): Promise<void> {
+        let guilds = client.guilds.cache;
+
+        for (let guild of guilds.array()) {
+            guildRepo.syncGuild(guild.id, guild.members.cache.keyArray());
+        }
+    }
+}

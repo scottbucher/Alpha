@@ -1,0 +1,7 @@
+{
+    "enabled": false,
+    "overrideShardCount": false,
+    "shardCount": 2,
+    "overridePostScheduleEnabled": false,
+    "overridePostSchedule": "*/10 * * * * *"
+}

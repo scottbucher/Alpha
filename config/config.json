@@ -1,0 +1,58 @@
+{
+    "prefix": "!",
+    "token": "<BOT_TOKEN>",
+    "defaultColor": "0x4EEFFF",
+    "successColor": "0x1CFE86",
+    "errorColor": "0xff0000",
+    "mysql": {
+        "host": "<HOST>",
+        "database": "<DATABASE>",
+        "user": "<USERNAME>",
+        "password": "<PASSWORD>",
+        "charset": "utf8mb4",
+        "connectionLimit": 10
+    },
+    "postSchedule": "0 * * * * *",
+    "listPageSize": 5,
+    "promptExpireTime": 120,
+    "xp": {
+        "textXpMin": 15,
+        "textXpMax": 25,
+        "voiceXp": 3
+    },
+    "ownerIds":  [
+        "478288246858711040",
+        "212772875793334272"
+    ],
+    "intents": ["GUILDS", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_MESSAGES", "DIRECT_MESSAGES"],
+    "sharding": {
+        "machineId": 0,
+        "machineCount": 1,
+        "serversPerShard": 1000,
+        "spawnDelay": 5,
+        "spawnTimeout": 60
+    },
+    "updateInterval": 300,
+    "botSites": {
+        "topGg": {
+            "enabled": false,
+            "url": "https://top.gg/api/bots/<BOT_ID>/stats",
+            "token": "<TOKEN>"
+        },
+        "botsOnDiscordXyz": {
+            "enabled": false,
+            "url": "https://bots.ondiscord.xyz/bot-api/bots/<BOT_ID>/guilds",
+            "token": "<TOKEN>"
+        },
+        "discordBotsGg": {
+            "enabled": false,
+            "url": "https://discord.bots.gg/api/v1/bots/<BOT_ID>/stats",
+            "token": "<TOKEN>"
+        },
+        "discordBotListCom": {
+            "enabled": false,
+            "url": "https://discordbotlist.com/api/bots/<BOT_ID>/stats",
+            "token": "Bot <TOKEN>"
+        }
+    }
+}

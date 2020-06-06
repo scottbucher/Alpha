@@ -1,0 +1,16 @@
+export enum Procedure {
+    Guild_Get = 'Guild_Get',
+    Guild_Sync = 'Guild_Sync',
+    Guild_AddReward = 'Guild_AddReward',
+    Guild_ClearLevelRewards = 'Guild_ClearLevelRewards',
+    Guild_GetLevelRewards = 'Guild_GetLevelRewards',
+    Guild_AddRoleCall = 'Guild_AddRoleCall',
+    Guild_RemoveRoleCall = 'Guild_RemoveRoleCall',
+    Guild_GetRoleCalls = 'Guild_GetRoleCalls',
+    Guild_UpdateLevelingChannel = 'Guild_UpdateLevelingChannel',
+    Guild_GetLevelingChannel = 'Guild_GetLevelingChannel',
+    User_Get = 'User_Get',
+    User_Update = 'User_Update',
+    User_GetAll = 'User_GetAll',
+    User_Sync = 'User_Sync',
+}
