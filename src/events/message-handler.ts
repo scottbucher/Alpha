@@ -7,7 +7,7 @@ import {
     TextChannel,
 } from 'discord.js';
 
-import { Command } from '../commands/command';
+import { Command } from '../commands';
 import { EventHandler } from './event-handler';
 import { GuildRepo } from '../services/database/repos/guild-repo';
 import { Logger } from '../services';
