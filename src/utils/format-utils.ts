@@ -24,7 +24,7 @@ export abstract class FormatUtils {
     }
 
     public static getPercent(decimal: number): string {
-        return decimal*100 +'%';
+        return Math.floor(decimal*100) +'%';
     }
 
     public static resolvePage(input: string, maxPageNumber: number): number {
