@@ -11,7 +11,7 @@ export class XpCommand implements Command {
     public name: string = 'xp';
     public guildOnly = true;
     public adminOnly = false;
-    public ownerOnly = false;
+    public ownerOnly = true;
     public help: string = 'Shows the user their current Xp and Level.';
 
     constructor(
@@ -46,7 +46,7 @@ export class XpCommand implements Command {
         let playerLevelXp = XpUtils.getLevelXp(playerLevel); // How much Xp does total is needed for the next level
         let xpTowardsNextLevel = XpUtils.getXpTowardsNextLevel(playerXp); // How much xp towards the next level does the user have
 
-        let progressPercent = FormatUtils.getPercent(Math.floor((xpTowardsNextLevel / playerLevelXp)));
+        let progressPercent = FormatUtils.getPercent(xpTowardsNextLevel / playerLevelXp);
 
         const totalBars = 10;
 
@@ -56,7 +56,7 @@ export class XpCommand implements Command {
 
         let embed = new MessageEmbed();
         embed.setTitle(`**${target.displayName}**'s Leveling Progress`)
-            .addField('Player Level', `1`)
+            .addField('Player Level', `${playerLevel}`)
             .addField('Player Experience', `${playerXp}`)
             .addField('Level Progress', `${xpTowardsNextLevel} / ${playerLevelXp} XP (*${progressPercent}*) \n\n**${playerLevel} |** ${progressBar} **| ${playerLevel+1}**`)
             .setThumbnail(target.user.avatarURL())
