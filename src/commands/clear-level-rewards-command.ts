@@ -16,7 +16,7 @@ export class ClearLevelRewardsCommand implements Command {
     constructor(private rewardRepo: RewardRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-        // Need atleast 2 arguments
+        // Need at least 2 arguments
         if (args.length < 2) {
             let embed = new MessageEmbed()
                 .setDescription('Please provide a level you want to clear.')
