@@ -30,11 +30,19 @@ export class CreateRoleCallCommand implements Command {
         }
 
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
+        if (roleCallData.length === 0) {
+            // Need at least one rolecall saved
+            let embed = new MessageEmbed()
+                .setDescription('Could not find any saved roles.')
+                .setColor(Config.colors.error);
+            await channel.send(embed);
+            return;
+        }
 
         msg.delete();
 
         let message = await channel.send(
-            await FormatUtils.getRoleCallEmbed(msg, channel, roleCallData)
+            await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData)
         );
 
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
