@@ -7,7 +7,7 @@ let Config = require('../../config/config.json');
 export class GoodMorningCommand implements Command {
     public name: string = 'goodmorning';
     public aliases = ['gm'];
-    public trigger = /good morning/i;
+    public trigger = /good\s*morning/i;
     public guildOnly: boolean = false;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
