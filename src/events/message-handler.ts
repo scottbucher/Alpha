@@ -6,12 +6,12 @@ import {
     Permissions,
     TextChannel,
 } from 'discord.js';
-
-import { Command } from '../commands';
-import { Logger } from '../services';
 import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
 import { MessageUtils, XpUtils } from '../utils';
+
+import { Command } from '../commands';
 import { EventHandler } from './event-handler';
+import { Logger } from '../services';
 
 let Config = require('../../config/config.json');
 
@@ -148,6 +148,10 @@ export class MessageHandler implements EventHandler {
         for (let cmd of this.commands) {
             if (cmd.name === userCommand.toLowerCase()) {
                 return cmd;
+            }
+
+            if (command.aliases.includes(userCommand)) {
+                return command;
             }
         }
     }

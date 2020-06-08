@@ -1,13 +1,14 @@
 import { EmojiResolvable, Message, MessageEmbed, Role, TextChannel } from 'discord.js';
-
-import { RoleCallRepo } from '../services/database/repos';
 import { FormatUtils, MessageUtils } from '../utils';
+
 import { Command } from './command';
+import { RoleCallRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
 export class AddRoleCallCommand implements Command {
     public name: string = 'addrolecall';
+    public aliases = [];
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

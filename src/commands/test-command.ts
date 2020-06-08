@@ -1,12 +1,13 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { MessageUtils } from '../utils';
 import { Command } from './command';
+import { MessageUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
 export class TestCommand implements Command {
     public name: string = 'test';
+    public aliases = ['yeet'];
     public guildOnly: boolean = false;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;

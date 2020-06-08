@@ -2,6 +2,7 @@ import { DMChannel, Message, TextChannel } from 'discord.js';
 
 export interface Command {
     name: string;
+    aliases: string[];
     guildOnly: boolean;
     adminOnly: boolean;
     ownerOnly: boolean;
