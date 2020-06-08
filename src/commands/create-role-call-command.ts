@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class CreateRoleCallCommand implements Command {
     public name: string = 'createrolecall';
     public aliases = ['updaterolecall'];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

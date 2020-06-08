@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class XpLeaderboardCommand implements Command {
     public name: string = 'lb';
     public aliases = ['leaderboard', 'top'];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = false;
     public ownerOnly = false;

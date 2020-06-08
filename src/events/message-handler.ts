@@ -64,6 +64,13 @@ export class MessageHandler implements EventHandler {
 
         let guildData = await this.guildRepo.getGuild(msg.guild.id);
 
+        for (let cmd of this.commands) {
+            if (cmd.trigger && cmd.trigger.test(msg.content)) {
+                await cmd.execute(args, msg, channel);
+                return;
+            }
+        }
+
         if (!args[0].toLowerCase().startsWith(guildData.Prefix)) return;
 
         if (args[0].toLowerCase() === guildData.Prefix) {

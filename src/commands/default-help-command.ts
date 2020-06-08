@@ -8,6 +8,7 @@ let Config = require('../../config/config.json');
 export class DefaultHelpCommand implements Command {
     public name: string = 'help';
     public aliases = ['?'];
+    public trigger = null;
     public guildOnly: boolean = false;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;

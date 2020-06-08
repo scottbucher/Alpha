@@ -8,6 +8,7 @@ let Config = require('../../config/config.json');
 export class TestCommand implements Command {
     public name: string = 'test';
     public aliases = ['yeet'];
+    public trigger = null;
     public guildOnly: boolean = false;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
