@@ -2,12 +2,8 @@ import { Client, ClientOptions, PartialTypes } from 'discord.js';
 
 import { Bot } from './bot';
 import { DataAccess } from './services/database/data-access';
-import { GuildJoinHandler } from './events/guild-join-handler';
 import { GuildRepo } from './services/database/repos/guild-repo';
 import { Logger } from './services';
-import { MessageHandler } from './events/message-handler';
-import { ReactionAddHandler } from './events/reaction-add-handler';
-import { ReactionRemoveHandler } from './events/reaction-remove-handler';
 import { RewardRepo } from './services/database/repos/reward-repo';
 import { RoleCallRepo } from './services/database/repos/rolecall-repo';
 import {
@@ -22,8 +18,14 @@ import {
     CreateRoleCallCommand,
 } from './commands';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { UserJoinHandler } from './events/user-join-handler';
 import { UserRepo } from './services/database/repos/user-repo';
+import {
+    MessageHandler,
+    GuildJoinHandler,
+    UserJoinHandler,
+    ReactionAddHandler,
+    ReactionRemoveHandler,
+} from './events';
 
 let Config = require('../config/config.json');
 

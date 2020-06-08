@@ -1,15 +1,17 @@
 import { Client, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
 
-import { GuildJoinHandler } from './events/guild-join-handler';
 import { GuildRepo } from './services/database/repos/guild-repo';
 import { Logger } from './services';
-import { MessageHandler } from './events/message-handler';
-import { ReactionAddHandler } from './events/reaction-add-handler';
-import { ReactionRemoveHandler } from './events/reaction-remove-handler';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { UserJoinHandler } from './events/user-join-handler';
 import { UserRepo } from './services/database/repos/user-repo';
 import schedule from 'node-schedule';
+import {
+    MessageHandler,
+    GuildJoinHandler,
+    UserJoinHandler,
+    ReactionAddHandler,
+    ReactionRemoveHandler,
+} from './events';
 
 let Config = require('../config/config.json');
 let Logs = require('../lang/logs.json');
