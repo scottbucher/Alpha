@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, TextChannel, DMChannel } from 'discord.js';
 
 import { Command } from './command';
 
@@ -12,7 +12,7 @@ export class GoodMorningCommand implements Command {
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
 
-    public async execute(args: string[], msg: Message, channel: TextChannel) {
+    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
         let embed = new MessageEmbed()
             .setDescription(`Good morning ${msg.author.toString()}!`)
             .setColor(Config.colors.default);
