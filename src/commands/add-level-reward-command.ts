@@ -13,12 +13,11 @@ export class AddLevelingRewardCommand implements Command {
     public ownerOnly = false;
     public help: string = 'Add a level reward.';
 
-    constructor(
-        private rewardRepo: RewardRepo
-    ) {}
+    constructor(private rewardRepo: RewardRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-        if (args.length < 3) { // Need at least 3 arguments
+        // Need at least 3 arguments
+        if (args.length < 3) {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Usage. Please provide a level and role.')
                 .setColor(Config.colors.error);
@@ -40,13 +39,16 @@ export class AddLevelingRewardCommand implements Command {
         let roleInput: Role = msg.mentions.roles.first();
 
         if (!roleInput) {
-            roleInput = msg.guild.roles.cache
-                .find(role =>
-                    role.name.toLowerCase().includes(args[2].toLowerCase())
-                );
+            roleInput = msg.guild.roles.cache.find(role =>
+                role.name.toLowerCase().includes(args[2].toLowerCase())
+            );
         }
 
-        if (!roleInput || roleInput.guild.id !== msg.guild.id || args[2].toLowerCase() === 'everyone') {
+        if (
+            !roleInput ||
+            roleInput.guild.id !== msg.guild.id ||
+            args[2].toLowerCase() === 'everyone'
+        ) {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.colors.error);
@@ -57,11 +59,14 @@ export class AddLevelingRewardCommand implements Command {
         await this.rewardRepo.addLevelReward(msg.guild.id, roleInput.id, level);
 
         let embed = new MessageEmbed()
-            .setDescription(`Successfully added the ${MessageUtils.getRoleName(roleInput.id, msg.guild)} role as a reward for level **${level}**!`)
+            .setDescription(
+                `Successfully added the ${MessageUtils.getRoleName(
+                    roleInput.id,
+                    msg.guild
+                )} role as a reward for level **${level}**!`
+            )
             .setColor(Config.colors.success);
 
         await channel.send(embed);
-
-
     }
 }

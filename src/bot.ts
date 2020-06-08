@@ -41,9 +41,13 @@ export class Bot {
         this.client.on('shardReady', (shardId: number) => this.onShardReady(shardId));
         this.client.on('message', (msg: Message) => this.onMessage(msg));
         this.client.on('guildCreate', (guild: Guild) => this.onGuildJoin(guild));
-        this.client.on('guildMemberAdd', (member: GuildMember, ) => this.onUserJoin(member));
-        this.client.on('messageReactionAdd', (reaction: MessageReaction, user: User) => this.onReactionAdd(reaction, user));
-        this.client.on('messageReactionRemove', (reaction: MessageReaction, user: User) => this.onReactionRemove(reaction, user));
+        this.client.on('guildMemberAdd', (member: GuildMember) => this.onUserJoin(member));
+        this.client.on('messageReactionAdd', (reaction: MessageReaction, user: User) =>
+            this.onReactionAdd(reaction, user)
+        );
+        this.client.on('messageReactionRemove', (reaction: MessageReaction, user: User) =>
+            this.onReactionRemove(reaction, user)
+        );
     }
 
     private startJobs(): void {
@@ -114,7 +118,11 @@ export class Bot {
         this.reactionRemoveHandler.process(event, user);
     }
 
-    private async setupDatabase(client: Client, guildRepo: GuildRepo, userRepo: UserRepo): Promise<void> {
+    private async setupDatabase(
+        client: Client,
+        guildRepo: GuildRepo,
+        userRepo: UserRepo
+    ): Promise<void> {
         let guilds = client.guilds.cache;
 
         for (let guild of guilds.array()) {

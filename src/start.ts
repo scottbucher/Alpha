@@ -70,12 +70,12 @@ async function start(): Promise<void> {
             addRoleCallCommand,
             removeRoleCallCommand,
             createRoleCallCommand,
-            testCommand
+            testCommand,
         ],
         guildRepo,
         userRepo,
         rewardRepo
-        );
+    );
     let guildJoinHandler = new GuildJoinHandler(guildRepo);
     let userJoinHandler = new UserJoinHandler(userRepo);
     let reactionAddHandler = new ReactionAddHandler(roleCallRepo);
@@ -86,7 +86,8 @@ async function start(): Promise<void> {
 
     let bot = new Bot(
         Config.token,
-        client, trackVoiceXpJob,
+        client,
+        trackVoiceXpJob,
         messageHandler,
         guildJoinHandler,
         userJoinHandler,
@@ -94,7 +95,7 @@ async function start(): Promise<void> {
         reactionRemoveHandler,
         guildRepo,
         userRepo
-        );
+    );
 
     await bot.start();
 }

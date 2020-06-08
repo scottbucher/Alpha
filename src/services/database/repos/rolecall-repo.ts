@@ -6,8 +6,18 @@ import { SQLUtils } from '../../../utils';
 export class RoleCallRepo {
     constructor(private dataAccess: DataAccess) {}
 
-    public async addRoleCall(guildId: string, roleId: string, emoteId: string, category: string,): Promise<void> {
-        await this.dataAccess.executeProcedure(Procedure.Guild_AddRoleCall, [guildId, roleId, emoteId, category]);
+    public async addRoleCall(
+        guildId: string,
+        roleId: string,
+        emoteId: string,
+        category: string
+    ): Promise<void> {
+        await this.dataAccess.executeProcedure(Procedure.Guild_AddRoleCall, [
+            guildId,
+            roleId,
+            emoteId,
+            category,
+        ]);
     }
 
     public async removeRoleCall(roleId: string): Promise<void> {
@@ -16,7 +26,7 @@ export class RoleCallRepo {
 
     public async getRoleCalls(guildId: string): Promise<RoleCallData[]> {
         let results = await this.dataAccess.executeProcedure(Procedure.Guild_GetRoleCalls, [
-            guildId
+            guildId,
         ]);
 
         return SQLUtils.getFirstResult(results);

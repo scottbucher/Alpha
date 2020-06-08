@@ -13,9 +13,7 @@ export class RemoveRoleCallCommand implements Command {
     public ownerOnly = false;
     public help: string = 'Remove a role from role call';
 
-    constructor(
-        private roleCallRepo: RoleCallRepo
-    ) {}
+    constructor(private roleCallRepo: RoleCallRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
         if (args.length < 2) {
@@ -30,13 +28,16 @@ export class RemoveRoleCallCommand implements Command {
         let roleInput: Role = msg.mentions.roles.first();
 
         if (!roleInput) {
-            roleInput = msg.guild.roles.cache
-                .find(role =>
-                    role.name.toLowerCase().includes(args[1].toLowerCase())
-                );
+            roleInput = msg.guild.roles.cache.find(role =>
+                role.name.toLowerCase().includes(args[1].toLowerCase())
+            );
         }
 
-        if (!roleInput || roleInput.guild.id !== msg.guild.id || args[1].toLowerCase() === 'everyone') {
+        if (
+            !roleInput ||
+            roleInput.guild.id !== msg.guild.id ||
+            args[1].toLowerCase() === 'everyone'
+        ) {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.colors.error);
@@ -47,10 +48,14 @@ export class RemoveRoleCallCommand implements Command {
         await this.roleCallRepo.removeRoleCall(roleInput.id);
 
         let embed = new MessageEmbed()
-            .setDescription(`Successfully removed the ${MessageUtils.getRoleName(roleInput.id, msg.guild)} from role-call!`)
+            .setDescription(
+                `Successfully removed the ${MessageUtils.getRoleName(
+                    roleInput.id,
+                    msg.guild
+                )} from role-call!`
+            )
             .setColor(Config.colors.success);
 
         await channel.send(embed);
-
     }
 }

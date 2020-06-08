@@ -9,9 +9,7 @@ let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');
 
 export class ReactionRemoveHandler implements EventHandler {
-    constructor(
-        private roleCallRepo: RoleCallRepo
-    ) {}
+    constructor(private roleCallRepo: RoleCallRepo) {}
 
     public async process(messageReaction: MessageReaction, author: User): Promise<void> {
         if (author.bot) return;
@@ -33,20 +31,21 @@ export class ReactionRemoveHandler implements EventHandler {
 
         if (!(channel instanceof TextChannel)) return;
 
-
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
-
         for (let emote of roleCallEmotes) {
-            let emoji: EmojiResolvable = FormatUtils.findGuildEmoji(emote, msg.guild) || FormatUtils.findUnicodeEmoji(emote);
+            let emoji: EmojiResolvable =
+                FormatUtils.findGuildEmoji(emote, msg.guild) || FormatUtils.findUnicodeEmoji(emote);
 
             if (!emoji) continue;
 
             let guildEmoteValue = FormatUtils.findGuildEmoji(emote, msg.guild);
 
             if (reactedEmoji === emoji || reactedEmoji === guildEmoteValue?.name) {
-                let check = msg.reactions.cache.find(reaction => (reaction.emoji.name === Config.refreshEmote) && (reaction.me));
+                let check = msg.reactions.cache.find(
+                    reaction => reaction.emoji.name === Config.refreshEmote && reaction.me
+                );
                 if (check) {
                     let roleCallRoles = roleCallData // Get an array of Roles under this category
                         .filter(roleCall => roleCall.Emote === emote)
@@ -60,8 +59,6 @@ export class ReactionRemoveHandler implements EventHandler {
                     return;
                 }
             }
-
         }
-
     }
 }

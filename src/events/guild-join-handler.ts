@@ -6,10 +6,7 @@ import { Logger } from '../services';
 let Logs = require('../../lang/logs.json');
 
 export class GuildJoinHandler implements EventHandler {
-
-    constructor(
-        private guildRepo: GuildRepo
-    ) {}
+    constructor(private guildRepo: GuildRepo) {}
 
     public async process(guild: Guild): Promise<void> {
         Logger.info(

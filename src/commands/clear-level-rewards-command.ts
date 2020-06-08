@@ -13,12 +13,11 @@ export class ClearLevelRewardsCommand implements Command {
     public ownerOnly = false;
     public help: string = 'Remove all role rewards for this level.';
 
-    constructor(
-        private rewardRepo: RewardRepo
-    ) {}
+    constructor(private rewardRepo: RewardRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-        if (args.length < 2) { // Need atleast 2 arguments
+        // Need atleast 2 arguments
+        if (args.length < 2) {
             let embed = new MessageEmbed()
                 .setDescription('Please provide a level you want to clear.')
                 .setColor(Config.colors.error);

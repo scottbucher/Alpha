@@ -32,7 +32,9 @@ export class CreateRoleCallCommand implements Command {
 
         msg.delete();
 
-        let message = await channel.send(await FormatUtils.getRoleCallEmbed(msg, channel, roleCallData));
+        let message = await channel.send(
+            await FormatUtils.getRoleCallEmbed(msg, channel, roleCallData)
+        );
 
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 

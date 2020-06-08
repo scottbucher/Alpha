@@ -11,14 +11,11 @@ export class SetLevelingChannelCommand implements Command {
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;
-    public help: string = 'Sets the Leveling Channel.'
+    public help: string = 'Sets the Leveling Channel.';
 
-    constructor(
-        private guildRepo: GuildRepo
-    ) {}
+    constructor(private guildRepo: GuildRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-
         if (args.length === 1) {
             this.guildRepo.updateGuildLevelingChannel(msg.guild.id, channel.id); // Update Leveling Channel
             let embed = new MessageEmbed()
@@ -36,10 +33,8 @@ export class SetLevelingChannelCommand implements Command {
             channelInput = msg.guild.channels.cache
                 .filter(channel => channel instanceof TextChannel)
                 .map(channel => channel as TextChannel)
-                .find(channel =>
-                    channel.name.toLowerCase().includes(args[1].toLowerCase())
-                );
-            }
+                .find(channel => channel.name.toLowerCase().includes(args[1].toLowerCase()));
+        }
 
         if (!channelInput || channelInput.guild.id !== msg.guild.id) {
             let embed = new MessageEmbed()

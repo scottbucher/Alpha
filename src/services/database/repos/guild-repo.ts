@@ -1,4 +1,4 @@
-import { DataAccess } from '../data-access'
+import { DataAccess } from '../data-access';
 import { GuildData } from '../../../models/database/guild-models';
 import { Procedure } from '../procedure';
 import { RewardData } from '../../../models/database/reward-models';
@@ -15,12 +15,14 @@ export class GuildRepo {
     public async syncGuild(guildId: string, discordIds: string[]): Promise<void> {
         await this.dataAccess.executeProcedure(Procedure.Guild_Sync, [
             guildId,
-            discordIds.join(',')
+            discordIds.join(','),
         ]);
     }
 
     public async updateGuildLevelingChannel(guildId: string, channelId: string): Promise<void> {
-        await this.dataAccess.executeProcedure(Procedure.Guild_UpdateLevelingChannel, [guildId, channelId]);
+        await this.dataAccess.executeProcedure(Procedure.Guild_UpdateLevelingChannel, [
+            guildId,
+            channelId,
+        ]);
     }
-
 }

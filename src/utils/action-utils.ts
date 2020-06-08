@@ -3,7 +3,7 @@ import { Guild, GuildMember, Role } from 'discord.js';
 export abstract class ActionUtils {
     public static giveRole(member: GuildMember, role: Role) {
         try {
-            member.roles.add(role)
+            member.roles.add(role);
         } catch (error) {
             // Can't give that role
         }

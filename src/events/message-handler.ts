@@ -43,7 +43,8 @@ export class MessageHandler implements EventHandler {
         if (channel instanceof TextChannel) {
             let userData = await this.userRepo.getUser(msg.author.id, msg.guild.id);
 
-            if (XpUtils.canGetXp(userData.LastUpdated)) { // Can get xp?
+            if (XpUtils.canGetXp(userData.LastUpdated)) {
+                // Can get xp?
                 let playerXp = userData.XpAmount;
                 let currentLevel = XpUtils.getLevelFromXp(playerXp); // Get current level
 
@@ -163,5 +164,4 @@ export class MessageHandler implements EventHandler {
         }
         return true;
     }
-
 }

@@ -8,7 +8,7 @@ export abstract class SQLUtils {
     }
 
     public static typeCast(param: any): any {
-        return (typeof param === 'boolean') ? +param : param;
+        return typeof param === 'boolean' ? +param : param;
     }
 
     public static getFirstResult(results: any): any {
@@ -17,6 +17,6 @@ export abstract class SQLUtils {
 
     public static getFirstResultFirstRow(results: any): any {
         let firstResult = this.getFirstResult(results);
-        return (!firstResult) ? null : firstResult[0];
+        return !firstResult ? null : firstResult[0];
     }
 }

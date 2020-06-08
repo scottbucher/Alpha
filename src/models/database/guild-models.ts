@@ -1,4 +1,4 @@
 export interface GuildData {
-    Prefix: string,
-    LevelingChannelId: string
+    Prefix: string;
+    LevelingChannelId: string;
 }
