@@ -1,3 +1,3 @@
 # Alpha Discord Bot
 
-A TypeScript all in one bot.
+A TypeScript all-in-one bot.
