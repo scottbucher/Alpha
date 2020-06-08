@@ -1,16 +1,7 @@
-import {
-    Emoji,
-    EmojiResolvable,
-    GuildEmoji,
-    Message,
-    MessageEmbed,
-    Role,
-    TextChannel,
-} from 'discord.js';
-import { FormatUtils, MessageUtils, ParseUtils } from '../utils';
+import { EmojiResolvable, Message, MessageEmbed, Role, TextChannel } from 'discord.js';
+import { FormatUtils, MessageUtils } from '../utils';
 
 import { Command } from './command';
-import { Logger } from '../services';
 import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
 
 let Config = require('../../config/config.json');

@@ -1,11 +1,8 @@
 import {
-    Client,
     DMChannel,
-    Guild,
     GuildMember,
     Message,
     MessageEmbed,
-    NewsChannel,
     Permissions,
     TextChannel,
 } from 'discord.js';

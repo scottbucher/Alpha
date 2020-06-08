@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Role } from 'discord.js';
+import { GuildMember, Role } from 'discord.js';
 
 export abstract class ActionUtils {
     public static giveRole(member: GuildMember, role: Role) {

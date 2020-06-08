@@ -1,4 +1,4 @@
-import { FormatUtils, MessageUtils, ParseUtils, PermissionUtils } from '../utils';
+import { FormatUtils, MessageUtils, ParseUtils } from '../utils';
 import { Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 
 import { Command } from './command';

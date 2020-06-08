@@ -1,7 +1,6 @@
 import { DataAccess } from '../data-access';
 import { GuildData } from '../../../models/database/guild-models';
 import { Procedure } from '../procedure';
-import { RewardData } from '../../../models/database/reward-models';
 import { SQLUtils } from '../../../utils';
 
 export class GuildRepo {

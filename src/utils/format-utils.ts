@@ -3,7 +3,6 @@ import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'dis
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
 import { RoleCallData } from '../models/database/rolecall-models';
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
 import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');

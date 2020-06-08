@@ -1,4 +1,4 @@
-import { Guild, GuildMember, User } from 'discord.js';
+import { GuildMember } from 'discord.js';
 
 import { EventHandler } from './event-handler';
 import { Logger } from '../services';

@@ -1,4 +1,4 @@
-import { Permissions, Role, TextChannel } from 'discord.js';
+import { Permissions, TextChannel } from 'discord.js';
 
 export abstract class PermissionUtils {
     public static canSend(channel: TextChannel): boolean {

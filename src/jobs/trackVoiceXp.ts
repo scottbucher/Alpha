@@ -1,4 +1,4 @@
-import { Client, VoiceChannel, VoiceState, VoiceStateManager, VoiceStatus } from 'discord.js';
+import { Client } from 'discord.js';
 
 import { GuildRepo } from '../services/database/repos/guild-repo';
 import { Job } from './job';
