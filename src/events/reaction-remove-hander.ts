@@ -55,7 +55,7 @@ export class ReactionRemoveHandler implements EventHandler {
                     for (let role of roleCallRoles) {
                         let giveRole = msg.guild.roles.resolve(role);
 
-                        ActionUtils.removeRole(reactor, giveRole);
+                        await ActionUtils.removeRole(reactor, giveRole);
                     }
                     return;
                 }
