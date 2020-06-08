@@ -13,4 +13,5 @@ export enum Procedure {
     User_Update = 'User_Update',
     User_GetAll = 'User_GetAll',
     User_Sync = 'User_Sync',
+    User_GetLeaderBoardUsers = 'User_GetLeaderBoardUsers',
 }

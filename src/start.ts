@@ -1,6 +1,3 @@
-import { Client, ClientOptions, PartialTypes } from 'discord.js';
-
-import { Bot } from './bot';
 import {
     AddLevelingRewardCommand,
     AddRoleCallCommand,
@@ -13,6 +10,7 @@ import {
     TestCommand,
     XpCommand,
 } from './commands';
+import { Client, ClientOptions, PartialTypes } from 'discord.js';
 import {
     GuildJoinHandler,
     MessageHandler,
@@ -20,10 +18,13 @@ import {
     ReactionRemoveHandler,
     UserJoinHandler,
 } from './events';
-import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { Logger } from './services';
-import { DataAccess } from './services/database/data-access';
 import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/database/repos';
+
+import { Bot } from './bot';
+import { DataAccess } from './services/database/data-access';
+import { Logger } from './services';
+import { TrackVoiceXp } from './jobs/trackVoiceXp';
+import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
 
 let Config = require('../config/config.json');
 
@@ -50,6 +51,7 @@ async function start(): Promise<void> {
 
     // Commands
     let xpCommand = new XpCommand(userRepo);
+    let xpLeaderBoardCommand = new XpLeaderboardCommand(userRepo);
 
     let setLevelingChannelCommand = new SetLevelingChannelCommand(guildRepo);
     let addLevelingRewardCommand = new AddLevelingRewardCommand(rewardRepo);
@@ -68,6 +70,7 @@ async function start(): Promise<void> {
         defaultHelpCommand,
         [
             xpCommand,
+            xpLeaderBoardCommand,
             setLevelingChannelCommand,
             addLevelingRewardCommand,
             clearLevelRewardsCommand,
