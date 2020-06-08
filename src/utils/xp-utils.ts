@@ -13,11 +13,10 @@ export abstract class XpUtils {
     }
 
     public static getLevelFromXp(xp: number): number {
-        let remainingXp = xp;
         let level = 0;
 
-        while (remainingXp >= this.getLevelXp(level)) {
-            remainingXp -= this.getLevelXp(level);
+        while (xp >= this.getLevelXp(level)) {
+            xp -= this.getLevelXp(level);
             level++;
         }
 
@@ -27,14 +26,14 @@ export abstract class XpUtils {
     public static getPlayerLevelXp(level: number): number {
         let xp =  0;
         for (let i = 0; i < level; i++) {
-            xp += this.getLevelXp(xp);
+            xp += this.getLevelXp(i);
         }
         return xp;
     }
 
 
-    public static getRemainingXp(xp: number): number {
-        return xp - this.getPlayerLevelXp(this.getLevelFromXp(xp));
+    public static getXpTowardsNextLevel(xp: number): number {
+        return xp - this.getPlayerLevelXp(this.getLevelFromXp(xp)); // I don't know why minus 1 works but it does
     }
 
     public static randomXp(): number {

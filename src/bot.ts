@@ -1,13 +1,14 @@
-import { Client, Guild, GuildMember, Message, User } from 'discord.js';
+import { Client, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
 
 import { GuildJoinHandler } from './events/guild-join-handler';
 import { GuildRepo } from './services/database/repos/guild-repo';
 import { Logger } from './services';
 import { MessageHandler } from './events/message-handler';
+import { ReactionAddHandler } from './events/reaction-add-handler';
+import { ReactionRemoveHandler } from './events/reaction-remove-hander';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { UserJoinHandler } from './events/user-join-handler';
 import { UserRepo } from './services/database/repos/user-repo';
-import { runInThisContext } from 'vm';
 import schedule from 'node-schedule';
 
 let Config = require('../config/config.json');
@@ -24,6 +25,8 @@ export class Bot {
         private messageHandler: MessageHandler,
         private guildJoinHandler: GuildJoinHandler,
         private userJoinHandler: UserJoinHandler,
+        private reactionAddHandler: ReactionAddHandler,
+        private reactionRemoveHandler: ReactionRemoveHandler,
         private guildRepo: GuildRepo,
         private userRepo: UserRepo
     ) {}
@@ -39,6 +42,8 @@ export class Bot {
         this.client.on('message', (msg: Message) => this.onMessage(msg));
         this.client.on('guildCreate', (guild: Guild) => this.onGuildJoin(guild));
         this.client.on('guildMemberAdd', (member: GuildMember, ) => this.onUserJoin(member));
+        this.client.on('messageReactionAdd', (reaction: MessageReaction, user: User) => this.onReactionAdd(reaction, user));
+        this.client.on('messageReactionRemove', (reaction: MessageReaction, user: User) => this.onReactionRemove(reaction, user));
     }
 
     private startJobs(): void {
@@ -98,6 +103,15 @@ export class Bot {
     private onUserJoin(event: any) {
         if (!this.ready) return;
         this.userJoinHandler.process(event);
+    }
+
+    private onReactionAdd(event: any, user: User) {
+        if (!this.ready) return;
+        this.reactionAddHandler.process(event, user);
+    }
+    private onReactionRemove(event: any, user: User) {
+        if (!this.ready) return;
+        this.reactionRemoveHandler.process(event, user);
     }
 
     private async setupDatabase(client: Client, guildRepo: GuildRepo, userRepo: UserRepo): Promise<void> {

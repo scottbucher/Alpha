@@ -1,13 +1,16 @@
-import { Guild, GuildEmoji, Util } from 'discord.js';
+import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'discord.js';
 
-import { Logger } from '../services';
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
+import { RoleCallData } from '../models/database/rolecall-models';
+import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { isNumber } from 'util';
 
+let Config = require('../../config/config.json');
 const emojiRegex = require('emoji-regex/text.js');
 
 export abstract class FormatUtils {
-    public static getRoleName(roleDiscordId: string, guild: Guild): string {
+    public static getRoleName(guild: Guild, roleDiscordId: string): string {
         return roleDiscordId ? guild.roles.resolve(roleDiscordId)?.toString() || '**Unknown**' : '**None**';
     }
 
@@ -43,6 +46,11 @@ export abstract class FormatUtils {
         return emoteData[emoteData.length-1];
     }
 
+    public static getNameFromEmojiString(input: string): string {
+        let emoteData = input.replace('<', '').replace('>', '').split(':');
+        return emoteData[emoteData.length-2];
+    }
+
     public static findGuildEmoji(input: string, guild: Guild): GuildEmoji {
         return guild.emojis.resolve(this.getIdFromEmojiString(input));
     }
@@ -52,6 +60,76 @@ export abstract class FormatUtils {
     }
 
     public static findUnicodeEmoji(input: string): string {
-        return emojiRegex().exec(input)[0];
+        if (input.length > 2) return null;
+        let emote = emojiRegex().exec(input)[0];
+        return isNumber(emote) ? null : emote;
+    }
+
+    public static getFieldList(guild: Guild, roleIds: string[], emotes: string[]): string {
+        let fieldList = '';
+        for (let i = 0; i < roleIds.length; i++) {
+            if (!this.getEmoteDisplay(guild, emotes[i]) || !this.getRoleDisplay(guild, roleIds[i])) continue; // Skip if either the role or emote are invalid
+            fieldList += `${this.getEmoteDisplay(guild, emotes[i])} ${this.getRoleName(guild, roleIds[i])}\n`; // Add to list
+        }
+        return fieldList;
+    }
+
+    public static getEmoteDisplay(guild: Guild, emote: string): string {
+        let guildEmote = guild.emojis.resolve(emote);
+        if (guildEmote) return guildEmote.toString();
+        else if (this.isUnicodeEmoji(emote)) return emote;
+        else return null;
+    }
+
+    public static getRoleDisplay(guild: Guild, roleDiscordId: string): string {
+        return guild.roles.resolve(roleDiscordId)?.name;
+    }
+
+    public static async getRoleCallEmbed(msg: Message, channel: TextChannel, roleCallData: RoleCallData[]): Promise<MessageEmbed> {
+        let roleCallCategories = Array.from( // Removes duplicate categories
+            new Set(roleCallData.map(roleCall => roleCall.Category))
+        )
+
+        if (roleCallData.length === 0) {
+            // Need at least one rolecall saved
+            let embed = new MessageEmbed()
+                .setDescription('Could not find any saved roles.')
+                .setColor(Config.errorColor);
+            await channel.send(embed);
+            return;
+        }
+
+        let roleCallEmbed = new MessageEmbed() // Enter Default Values (Eventually make these customizable)
+            .setTitle('Role Manager')
+            .addField(
+                'Use this to obtain your roles.',
+                'React with emotes to the corresponding roles you would like.'
+            )
+            .setFooter(
+                'To remove a role, simply remove your reaction of the corresponding role.',
+                msg.client.user.avatarURL()
+            )
+            .setColor(Config.defaultColor);
+
+        for (let category of roleCallCategories) {
+            // Go through all of the categories
+
+            let roleCallRoles = roleCallData // Get an array of Roles under this category
+                .filter(roleCall => roleCall.Category === category)
+                .map(roleCall => roleCall.RoleDiscordId);
+
+            let roleCallEmotes = roleCallData // Get an array of Emotes under this category
+                .filter(roleCall => roleCall.Category === category)
+                .map(roleCall => roleCall.Emote);
+
+            let list = FormatUtils.getFieldList(msg.guild, roleCallRoles, roleCallEmotes); // Returns a formatted list of Emotes and Role names
+            let categoryName = category || 'Roles';
+            if (!list) continue; // If all emotes or roles are invalid in this category, list will be null
+            roleCallEmbed.addField(categoryName, list);
+        }
+
+        roleCallEmbed.addField('Administration', '♻️ Refresh Message'); // Add Administrative refresh button
+
+        return roleCallEmbed;
     }
 }

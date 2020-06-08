@@ -10,8 +10,8 @@ export class RoleCallRepo {
         await this.dataAccess.executeProcedure(Procedure.Guild_AddRoleCall, [guildId, roleId, emoteId, category]);
     }
 
-    public async removeRoleCall(guildId: string, emoteId: string): Promise<void> {
-        await this.dataAccess.executeProcedure(Procedure.Guild_RemoveRoleCall, [guildId, emoteId]);
+    public async removeRoleCall(roleId: string): Promise<void> {
+        await this.dataAccess.executeProcedure(Procedure.Guild_RemoveRoleCall, [roleId]);
     }
 
     public async getRoleCalls(guildId: string): Promise<RoleCallData[]> {

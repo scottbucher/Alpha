@@ -15,7 +15,8 @@
         "object-literal-sort-keys": false,
         "arrow-parens": false,
         "no-shadowed-variable": false,
-        "radix": false
+        "radix": false,
+        "max-classes-per-file": false
     },
     "rulesDirectory": []
 }

@@ -1,5 +1,5 @@
 export interface RoleCallData {
     RoleDiscordId: string,
-    EmoteDiscordId: string,
+    Emote: string,
     Category: string,
 }

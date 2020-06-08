@@ -46,7 +46,7 @@ export class AddLevelingRewardCommand implements Command {
                 );
         }
 
-        if (!roleInput || roleInput.guild.id !== msg.guild.id) {
+        if (!roleInput || roleInput.guild.id !== msg.guild.id || args[2].toLowerCase() === 'everyone') {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.errorColor);

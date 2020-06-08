@@ -4,6 +4,7 @@
     "defaultColor": "0x4EEFFF",
     "successColor": "0x1CFE86",
     "errorColor": "0xff0000",
+    "refreshEmote": "♻️",
     "mysql": {
         "host": "<HOST>",
         "database": "<DATABASE>",
@@ -54,5 +55,11 @@
             "url": "https://discordbotlist.com/api/bots/<BOT_ID>/stats",
             "token": "Bot <TOKEN>"
         }
+    },
+    "clientOptions": {
+        "messageCacheMaxSize": 20,
+        "messageCacheLifetime": 120,
+        "messageSweepInterval": 60,
+        "partials": ["MESSAGE", "REACTION"]
     }
 }

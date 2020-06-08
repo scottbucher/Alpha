@@ -1,4 +1,5 @@
 import {
+    Client,
     DMChannel,
     Guild,
     GuildMember,
@@ -30,6 +31,8 @@ export class MessageHandler implements EventHandler {
     ) {}
 
     public async process(msg: Message): Promise<void> {
+        if (msg.partial) return;
+
         // Ignore bots & System messages
         if (msg.author.bot || msg.system) return;
 
@@ -62,7 +65,7 @@ export class MessageHandler implements EventHandler {
             }
         }
 
-        let args = msg.content.split(' ');
+        let args = msg.content.split(/\s+/); // Splits consecutive number of whitespace
 
         let guildData = await this.guildRepo.getGuild(msg.guild.id);
 
@@ -110,6 +113,7 @@ export class MessageHandler implements EventHandler {
             return;
         }
 
+        channel.startTyping();
         try {
             if (channel instanceof TextChannel) {
                 let member = msg.member;
@@ -124,7 +128,6 @@ export class MessageHandler implements EventHandler {
                     await channel.send(embed);
                     return;
                 }
-
                 await command.execute(args, msg, channel);
             }
         } catch (error) {
@@ -143,6 +146,7 @@ export class MessageHandler implements EventHandler {
                 // ignored
             }
         }
+        channel.stopTyping();
     }
 
     private getCommand(userCommand: string) {
@@ -159,4 +163,5 @@ export class MessageHandler implements EventHandler {
         }
         return true;
     }
+
 }

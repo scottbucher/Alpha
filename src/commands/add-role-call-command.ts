@@ -1,4 +1,4 @@
-import { Emoji, GuildEmoji, Message, MessageEmbed, Role, TextChannel } from 'discord.js';
+import { Emoji, EmojiResolvable, GuildEmoji, Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 import { FormatUtils, MessageUtils, ParseUtils } from '../utils';
 
 import { Command } from './command';
@@ -28,7 +28,7 @@ export class AddRoleCallCommand implements Command {
         }
 
         // Find mentioned role
-        let roleInput: Role = msg.mentions.roles.first();
+         let roleInput: Role = msg.mentions.roles.first();
 
         if (!roleInput) {
             roleInput = msg.guild.roles.cache
@@ -37,7 +37,7 @@ export class AddRoleCallCommand implements Command {
                 );
         }
 
-        if (!roleInput || roleInput.guild.id !== msg.guild.id) {
+        if (!roleInput || roleInput.guild.id !== msg.guild.id || args[1].toLowerCase() === 'everyone') {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.errorColor);
@@ -45,39 +45,41 @@ export class AddRoleCallCommand implements Command {
             return;
         }
 
-        // Find Emote
-        let guildEmote = FormatUtils.findGuildEmoji(args[2], msg.guild);
-        let emoteInput: string;
-        let emoteOutput = args[2];
-
-        if (!guildEmote) {
-
-            if(!FormatUtils.isUnicodeEmoji(args[2])) {
-                let embed = new MessageEmbed()
-                .setDescription('Invalid Emote!')
-                .setColor(Config.errorColor);
-            await channel.send(embed);
-            return;
-            } else {
-                FormatUtils.findUnicodeEmoji(args[2]);
-                emoteInput = args[2];
-            }
-        } else {
-            emoteOutput = msg.guild.emojis.cache.get(guildEmote.id).toString();
-            emoteInput = guildEmote.id;
-        }
-
-        if (!emoteInput) {
+        if (roleInput.managed) {
             let embed = new MessageEmbed()
-                .setDescription('Invalid Emote.')
-                .setDescription('You cannot use an emote from another guild!')
+                .setTitle(`Invalid Role!`)
+                .setDescription('That role is managed by an external service!')
                 .setColor(Config.errorColor);
             await channel.send(embed);
             return;
         }
 
-        let category = 'MISC';
-        Logger.info(args.toString());
+        if (args[2] === '♻️') {
+            let embed = new MessageEmbed()
+                .setTitle('Invalid Emote!')
+                .setDescription('Sorry, ♻️ is a reserved emote!')
+                .setColor(Config.errorColor);
+            await channel.send(embed);
+            return;
+        }
+
+        // Find Emote
+        let emoji: EmojiResolvable = FormatUtils.findGuildEmoji(args[2], msg.guild) || FormatUtils.findUnicodeEmoji(args[2]);
+
+        if (!emoji) {
+            let embed = new MessageEmbed()
+                .setTitle('Invalid Emote.')
+                .setDescription('You must use a valid unicode emote or a custom emote from this guild!')
+                .setColor(Config.errorColor);
+            await channel.send(embed);
+            return;
+        }
+
+        let emoteInput = FormatUtils.findGuildEmoji(args[2], msg.guild)?.id || emoji.toString();
+        let emoteOutput = FormatUtils.findGuildEmoji(args[2], msg.guild)?.toString() || emoji.toString();
+
+        let category: string;
+
         if (args.length > 3) {
             if (args[3].length > 30) {
                 // Too Long
@@ -102,8 +104,10 @@ export class AddRoleCallCommand implements Command {
         }
 
         let embed = new MessageEmbed()
-            .setDescription(`Successfully assigned the role ${MessageUtils.getRoleName(roleInput.id, msg.guild)} to the emote ${emoteOutput} in the category **${category}**!`)
             .setColor(Config.successColor);
+        if (args.length === 3) embed.setDescription(`Successfully assigned the role ${MessageUtils.getRoleName(roleInput.id, msg.guild)} to the emote ${emoteOutput}!`)
+        else embed.setDescription(`Successfully assigned the role ${MessageUtils.getRoleName(roleInput.id, msg.guild)} to the emote ${emoteOutput} in the category **${category}**!`)
+
         await channel.send(embed);
     }
 }

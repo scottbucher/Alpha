@@ -19,6 +19,7 @@
         "updateServerCount": "An error occurred while updating the server count.",
         "updateServerCountSite": "An error occurred while updating the server count on '{BOT_SITE}'.",
         "login": "An error occurred while the client attempted to login.",
-        "trackVoiceXp": "The job: TrackVoiceXp, failed."
+        "trackVoiceXp": "The job: TrackVoiceXp, failed.",
+        "retrievePartialReactionMessageError": "An error occurred while fetching a partial reaction message."
     }
 }

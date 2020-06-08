@@ -44,7 +44,7 @@ export class XpCommand implements Command {
         let playerXp = userData.XpAmount;
         let playerLevel = XpUtils.getLevelFromXp(playerXp) // Calculate their Level
         let playerLevelXp = XpUtils.getLevelXp(playerLevel); // How much Xp does total is needed for the next level
-        let xpTowardsNextLevel = XpUtils.getRemainingXp(playerXp); // How much xp towards the next level does the user have
+        let xpTowardsNextLevel = XpUtils.getXpTowardsNextLevel(playerXp); // How much xp towards the next level does the user have
 
         let progressPercent = FormatUtils.getPercent(Math.floor((xpTowardsNextLevel / playerLevelXp)));
 
@@ -55,13 +55,12 @@ export class XpCommand implements Command {
         let progressBar = `${'🟩'.repeat(progress)}${'⬛'.repeat(remainingBars)}`;
 
         let embed = new MessageEmbed();
-        embed.setTitle(`** ${target.displayName}**'s Leveling Progress`)
+        embed.setTitle(`**${target.displayName}**'s Leveling Progress`)
             .addField('Player Level', `1`)
             .addField('Player Experience', `${playerXp}`)
             .addField('Level Progress', `${xpTowardsNextLevel} / ${playerLevelXp} XP (*${progressPercent}*) \n\n**${playerLevel} |** ${progressBar} **| ${playerLevel+1}**`)
             .setThumbnail(target.user.avatarURL())
             .setColor(Config.defaultColor);
-
         await channel.send(embed);
     }
 }
