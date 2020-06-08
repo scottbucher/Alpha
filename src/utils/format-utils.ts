@@ -91,23 +91,13 @@ export abstract class FormatUtils {
     }
 
     public static async getRoleCallEmbed(
-        msg: Message,
-        channel: TextChannel,
+        guild: Guild,
         roleCallData: RoleCallData[]
     ): Promise<MessageEmbed> {
         let roleCallCategories = Array.from(
             // Removes duplicate categories
             new Set(roleCallData.map(roleCall => roleCall.Category))
         );
-
-        if (roleCallData.length === 0) {
-            // Need at least one rolecall saved
-            let embed = new MessageEmbed()
-                .setDescription('Could not find any saved roles.')
-                .setColor(Config.colors.error);
-            await channel.send(embed);
-            return;
-        }
 
         let roleCallEmbed = new MessageEmbed() // Enter Default Values (Eventually make these customizable)
             .setTitle('Role Manager')
@@ -117,7 +107,7 @@ export abstract class FormatUtils {
             )
             .setFooter(
                 'To remove a role, simply remove your reaction of the corresponding role.',
-                msg.client.user.avatarURL()
+                guild.me.user.avatarURL()
             )
             .setColor(Config.colors.default);
 
@@ -132,7 +122,7 @@ export abstract class FormatUtils {
                 .filter(roleCall => roleCall.Category === category)
                 .map(roleCall => roleCall.Emote);
 
-            let list = FormatUtils.getFieldList(msg.guild, roleCallRoles, roleCallEmotes); // Returns a formatted list of Emotes and Role names
+            let list = FormatUtils.getFieldList(guild, roleCallRoles, roleCallEmotes); // Returns a formatted list of Emotes and Role names
             let categoryName = category || 'Roles';
             if (!list) continue; // If all emotes or roles are invalid in this category, list will be null
             roleCallEmbed.addField(categoryName, list);

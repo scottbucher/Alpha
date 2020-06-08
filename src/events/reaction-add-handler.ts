@@ -42,7 +42,7 @@ export class ReactionAddHandler implements EventHandler {
                 // check if it's me is not working
                 // Refresh the role-call
 
-                let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg, channel, roleCallData);
+                let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
                 msg = await msg.edit('', roleCallEmbed);
             }
 
