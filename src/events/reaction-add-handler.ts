@@ -1,7 +1,7 @@
 import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
 
 import { Logger } from '../services';
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { RoleCallRepo } from '../services/database/repos';
 import { ActionUtils, FormatUtils } from '../utils';
 import { EventHandler } from './event-handler';
 

@@ -1,9 +1,7 @@
 import { Client } from 'discord.js';
 
 import { Logger } from '../services';
-import { GuildRepo } from '../services/database/repos/guild-repo';
-import { RewardRepo } from '../services/database/repos/reward-repo';
-import { UserRepo } from '../services/database/repos/user-repo';
+import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
 import { XpUtils } from '../utils';
 import { Job } from './job';
 

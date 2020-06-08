@@ -1,6 +1,6 @@
 import { EmojiResolvable, Message, MessageEmbed, Permissions, TextChannel } from 'discord.js';
 
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { RoleCallRepo } from '../services/database/repos';
 import { FormatUtils } from '../utils';
 import { Command } from './command';
 

@@ -1,7 +1,7 @@
 import { GuildMember } from 'discord.js';
 
 import { Logger } from '../services';
-import { UserRepo } from '../services/database/repos/user-repo';
+import { UserRepo } from '../services/database/repos';
 import { EventHandler } from './event-handler';
 
 export class UserJoinHandler implements EventHandler {

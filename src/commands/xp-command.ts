@@ -1,6 +1,6 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { UserRepo } from '../services/database/repos/user-repo';
+import { UserRepo } from '../services/database/repos';
 import { FormatUtils, XpUtils } from '../utils';
 import { Command } from './command';
 

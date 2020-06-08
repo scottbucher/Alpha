@@ -10,8 +10,7 @@ import {
 } from './events';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { Logger } from './services';
-import { GuildRepo } from './services/database/repos/guild-repo';
-import { UserRepo } from './services/database/repos/user-repo';
+import { GuildRepo, UserRepo } from './services/database/repos';
 
 let Config = require('../config/config.json');
 let Logs = require('../lang/logs.json');

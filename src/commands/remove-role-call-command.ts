@@ -1,6 +1,6 @@
 import { Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { RoleCallRepo } from '../services/database/repos';
 import { MessageUtils } from '../utils';
 import { Command } from './command';
 

@@ -1,6 +1,6 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { RewardRepo } from '../services/database/repos/reward-repo';
+import { RewardRepo } from '../services/database/repos';
 import { FormatUtils, ParseUtils } from '../utils';
 import { Command } from './command';
 

@@ -22,10 +22,7 @@ import {
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { Logger } from './services';
 import { DataAccess } from './services/database/data-access';
-import { GuildRepo } from './services/database/repos/guild-repo';
-import { RewardRepo } from './services/database/repos/reward-repo';
-import { RoleCallRepo } from './services/database/repos/rolecall-repo';
-import { UserRepo } from './services/database/repos/user-repo';
+import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/database/repos';
 
 let Config = require('../config/config.json');
 

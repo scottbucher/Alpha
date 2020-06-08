@@ -1,11 +1,10 @@
 import { GuildMember, TextChannel } from 'discord.js';
 
+import moment from 'moment';
+import { GuildRepo, RewardRepo } from '../services/database/repos';
 import { ActionUtils } from './action-utils';
 import { FormatUtils } from './format-utils';
-import { GuildRepo } from '../services/database/repos/guild-repo';
 import { MessageUtils } from './message-utils';
-import { RewardRepo } from '../services/database/repos/reward-repo';
-import moment from 'moment';
 
 export abstract class XpUtils {
     public static getLevelXp(level: number): number {
