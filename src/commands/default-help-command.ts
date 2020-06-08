@@ -13,9 +13,9 @@ export class DefaultHelpCommand implements Command {
 
     public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
         let embed = new MessageEmbed()
-            .setAuthor('Krypto Help', msg.client.user.avatarURL())
+            .setAuthor('Alpha Help', msg.client.user.avatarURL())
             .setDescription(
-                'Krypto is a fun all in one bot, in this help menu you will find the general commands and information you need to properly use the bot.' +
+                'Alpha is a fun all-in-one bot, in this help menu you will find the general commands and information you need to properly use the bot.' +
                     '\n' +
                     "\n**!xp [@User]** - View your or another user's xp!" +
                     '\n**!lb [size]** - View the xp leader board! (Default size: 10, Max: 25)' +
