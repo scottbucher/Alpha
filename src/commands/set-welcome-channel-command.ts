@@ -8,6 +8,7 @@ let Config = require('../../config/config.json');
 
 export class SetWelcomeChannelCommand implements Command {
     public name: string = 'setwelcomechannel';
+    public aliases = ['updatewelcomechannel'];
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = true;

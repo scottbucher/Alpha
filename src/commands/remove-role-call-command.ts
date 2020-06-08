@@ -1,13 +1,14 @@
 import { Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 
-import { RoleCallRepo } from '../services/database/repos';
-import { MessageUtils } from '../utils';
 import { Command } from './command';
+import { MessageUtils } from '../utils';
+import { RoleCallRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
 export class RemoveRoleCallCommand implements Command {
     public name: string = 'removerolecall';
+    public aliases = ['deleterolecall'];
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;
