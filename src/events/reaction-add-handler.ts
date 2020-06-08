@@ -1,9 +1,9 @@
-import { ActionUtils, FormatUtils } from '../utils';
 import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
 
-import { EventHandler } from './event-handler';
 import { Logger } from '../services';
 import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { ActionUtils, FormatUtils } from '../utils';
+import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');

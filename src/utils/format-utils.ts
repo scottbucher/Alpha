@@ -1,9 +1,9 @@
 import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'discord.js';
+import { isNumber } from 'util';
 
+import { RoleCallData } from '../models/database/rolecall-models';
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
-import { RoleCallData } from '../models/database/rolecall-models';
-import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
 const emojiRegex = require('emoji-regex/text.js');

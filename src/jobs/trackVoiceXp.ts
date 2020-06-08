@@ -1,11 +1,11 @@
 import { Client } from 'discord.js';
 
-import { GuildRepo } from '../services/database/repos/guild-repo';
-import { Job } from './job';
 import { Logger } from '../services';
+import { GuildRepo } from '../services/database/repos/guild-repo';
 import { RewardRepo } from '../services/database/repos/reward-repo';
 import { UserRepo } from '../services/database/repos/user-repo';
 import { XpUtils } from '../utils';
+import { Job } from './job';
 
 export class TrackVoiceXp implements Job {
     constructor(

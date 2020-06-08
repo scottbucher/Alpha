@@ -1,7 +1,7 @@
-import { DataAccess } from '../data-access';
-import { Procedure } from '../procedure';
 import { RoleCallData } from '../../../models/database/rolecall-models';
 import { SQLUtils } from '../../../utils';
+import { DataAccess } from '../data-access';
+import { Procedure } from '../procedure';
 
 export class RoleCallRepo {
     constructor(private dataAccess: DataAccess) {}

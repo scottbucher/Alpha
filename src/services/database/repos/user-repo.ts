@@ -1,7 +1,7 @@
+import { UserData } from '../../../models/database/user-models';
+import { SQLUtils } from '../../../utils';
 import { DataAccess } from '../data-access';
 import { Procedure } from '../procedure';
-import { SQLUtils } from '../../../utils';
-import { UserData } from '../../../models/database/user-models';
 
 export class UserRepo {
     constructor(private dataAccess: DataAccess) {}

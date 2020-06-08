@@ -1,7 +1,7 @@
-import { DataAccess } from '../data-access';
-import { Procedure } from '../procedure';
 import { RewardData } from '../../../models/database/reward-models';
 import { SQLUtils } from '../../../utils';
+import { DataAccess } from '../data-access';
+import { Procedure } from '../procedure';
 
 export class RewardRepo {
     constructor(private dataAccess: DataAccess) {}

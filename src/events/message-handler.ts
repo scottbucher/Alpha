@@ -8,12 +8,12 @@ import {
 } from 'discord.js';
 
 import { Command } from '../commands';
-import { EventHandler } from './event-handler';
-import { GuildRepo } from '../services/database/repos/guild-repo';
 import { Logger } from '../services';
-import { MessageUtils, XpUtils } from '../utils';
+import { GuildRepo } from '../services/database/repos/guild-repo';
 import { RewardRepo } from '../services/database/repos/reward-repo';
 import { UserRepo } from '../services/database/repos/user-repo';
+import { MessageUtils, XpUtils } from '../utils';
+import { EventHandler } from './event-handler';
 
 let Config = require('../../config/config.json');
 

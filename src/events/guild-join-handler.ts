@@ -1,7 +1,8 @@
-import { EventHandler } from './event-handler';
 import { Guild } from 'discord.js';
-import { GuildRepo } from '../services/database/repos/guild-repo';
+
 import { Logger } from '../services';
+import { GuildRepo } from '../services/database/repos/guild-repo';
+import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 
