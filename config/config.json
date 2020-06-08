@@ -21,10 +21,7 @@
         "textXpMax": 25,
         "voiceXp": 3
     },
-    "ownerIds":  [
-        "478288246858711040",
-        "212772875793334272"
-    ],
+    "ownerIds": ["478288246858711040", "212772875793334272"],
     "intents": ["GUILDS", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_MESSAGES", "DIRECT_MESSAGES"],
     "sharding": {
         "machineId": 0,
