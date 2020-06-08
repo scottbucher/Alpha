@@ -1,17 +1,16 @@
 import { GuildMember, TextChannel } from 'discord.js';
 
+import moment from 'moment';
+import { GuildRepo, RewardRepo } from '../services/database/repos';
 import { ActionUtils } from './action-utils';
 import { FormatUtils } from './format-utils';
-import { GuildRepo } from '../services/database/repos/guild-repo';
 import { MessageUtils } from './message-utils';
-import { RewardRepo } from '../services/database/repos/reward-repo';
-import moment from 'moment';
 
 let Config = require('../../config/config.json');
 
 export abstract class XpUtils {
     public static getLevelXp(level: number): number {
-        return ((5 * (level*level)) + (50 * level) + 100);
+        return 5 * (level * level) + 50 * level + 100;
     }
 
     public static getLevelFromXp(xp: number): number {
@@ -26,13 +25,12 @@ export abstract class XpUtils {
     }
 
     public static getPlayerLevelXp(level: number): number {
-        let xp =  0;
+        let xp = 0;
         for (let i = 0; i < level; i++) {
             xp += this.getLevelXp(i);
         }
         return xp;
     }
-
 
     public static getXpTowardsNextLevel(xp: number): number {
         return xp - this.getPlayerLevelXp(this.getLevelFromXp(xp)); // I don't know why minus 1 works but it does
@@ -46,7 +44,7 @@ export abstract class XpUtils {
         return moment().isAfter(moment(LastUpdated).add(1, 'minute'));
     }
 
-    public static isLevelUp(currentLevel, newLevel: number):boolean {
+    public static isLevelUp(currentLevel, newLevel: number): boolean {
         return newLevel > currentLevel;
     }
 
@@ -95,5 +93,4 @@ export abstract class XpUtils {
             `**Congratulations** <@${member.id}> you've reached level __**${newLevel}**__ and have unlocked the following role(s): ${newRolesList}!`
         );
     }
-
 }

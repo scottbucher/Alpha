@@ -1,9 +1,11 @@
 {
     "prefix": "!",
     "token": "<BOT_TOKEN>",
-    "defaultColor": "0x4EEFFF",
-    "successColor": "0x1CFE86",
-    "errorColor": "0xff0000",
+    "colors": {
+        "default": "0x4EEFFF",
+        "success": "0x1CFE86",
+        "error": "0xff0000"
+    },
     "refreshEmote": "♻️",
     "mysql": {
         "host": "<HOST>",
@@ -21,10 +23,7 @@
         "textXpMax": 25,
         "voiceXp": 3
     },
-    "ownerIds":  [
-        "478288246858711040",
-        "212772875793334272"
-    ],
+    "ownerIds": ["478288246858711040", "212772875793334272"],
     "intents": ["GUILDS", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_MESSAGES", "DIRECT_MESSAGES"],
     "sharding": {
         "machineId": 0,

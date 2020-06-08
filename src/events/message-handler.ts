@@ -7,14 +7,11 @@ import {
     TextChannel,
 } from 'discord.js';
 
-import { Command } from '../commands/command';
-import { EventHandler } from './event-handler';
-import { GuildRepo } from '../services/database/repos/guild-repo';
+import { Command } from '../commands';
 import { Logger } from '../services';
-import { MessageUtils } from '../utils/message-utils';
-import { RewardRepo } from '../services/database/repos/reward-repo';
-import { UserRepo } from '../services/database/repos/user-repo';
-import { XpUtils } from '../utils/xp-utils';
+import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
+import { MessageUtils, XpUtils } from '../utils';
+import { EventHandler } from './event-handler';
 
 let Config = require('../../config/config.json');
 
@@ -40,7 +37,8 @@ export class MessageHandler implements EventHandler {
         if (channel instanceof TextChannel) {
             let userData = await this.userRepo.getUser(msg.author.id, msg.guild.id);
 
-            if (XpUtils.canGetXp(userData.LastUpdated)) { // Can get xp?
+            if (XpUtils.canGetXp(userData.LastUpdated)) {
+                // Can get xp?
                 let playerXp = userData.XpAmount;
                 let currentLevel = XpUtils.getLevelFromXp(playerXp); // Get current level
 
@@ -95,7 +93,7 @@ export class MessageHandler implements EventHandler {
         if (command.ownerOnly && !Config.ownerIds.includes(msg.author.id)) {
             let embed = new MessageEmbed()
                 .setDescription('This command can only be used by the bot owner!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
 
             if (channel instanceof TextChannel) await channel.send(embed);
             else MessageUtils.sendDm(channel, embed);
@@ -105,7 +103,7 @@ export class MessageHandler implements EventHandler {
         if (command.guildOnly && channel instanceof DMChannel) {
             let embed = new MessageEmbed()
                 .setDescription('This command can only be used in a discord server!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             MessageUtils.sendDm(channel, embed);
             return;
         }
@@ -121,7 +119,7 @@ export class MessageHandler implements EventHandler {
                         .setDescription(
                             'You do not have the required permission to run this command!'
                         )
-                        .setColor(Config.errorColor);
+                        .setColor(Config.colors.error);
                     await channel.send(embed);
                     return;
                 }
@@ -135,7 +133,7 @@ export class MessageHandler implements EventHandler {
                     .setDescription('Error encountered, something went wrong!')
                     .addField('Error code', msg.id)
                     .addField('Please contact support', '__**Stqlth#0001**__')
-                    .setColor(Config.errorColor);
+                    .setColor(Config.colors.error);
 
                 if (channel instanceof TextChannel) await channel.send(embed);
                 else MessageUtils.sendDm(channel, embed);
@@ -160,5 +158,4 @@ export class MessageHandler implements EventHandler {
         }
         return true;
     }
-
 }

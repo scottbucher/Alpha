@@ -1,8 +1,8 @@
 import { EmojiResolvable, Message, MessageEmbed, Permissions, TextChannel } from 'discord.js';
 
-import { Command } from './command';
+import { RoleCallRepo } from '../services/database/repos';
 import { FormatUtils } from '../utils';
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -23,7 +23,7 @@ export class CreateRoleCallCommand implements Command {
         ) {
             let embed = new MessageEmbed()
                 .setDescription('I require the `ADD_REACTIONS` & `MANAGE_MESSAGES` to do this!`')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -32,7 +32,9 @@ export class CreateRoleCallCommand implements Command {
 
         msg.delete();
 
-        let message = await channel.send(await FormatUtils.getRoleCallEmbed(msg, channel, roleCallData));
+        let message = await channel.send(
+            await FormatUtils.getRoleCallEmbed(msg, channel, roleCallData)
+        );
 
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 

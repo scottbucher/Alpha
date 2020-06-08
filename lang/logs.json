@@ -5,7 +5,7 @@
         "login": "Logged in as '{USER_TAG}'!",
         "updatedServerCount": "Updated server count. Connected to {SERVER_COUNT} total servers.",
         "updateServerCountSite": "Updated server count on '{BOT_SITE}'.",
-        "startedVoiceXpJob": "Begun tracking Voice XP.",
+        "startedVoiceXpJob": "Started tracking Voice XP.",
         "databaseReady": "Database Ready!",
         "syncingGuild": "Syncing Guild: {GUILD_NAME} (ID: {GUILD_ID})",
         "syncedGuild": "Synced Guild: {GUILD_NAME} (ID: {GUILD_ID})"

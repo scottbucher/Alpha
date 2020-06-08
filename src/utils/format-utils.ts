@@ -1,17 +1,18 @@
 import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'discord.js';
+import { isNumber } from 'util';
 
+import { RoleCallData } from '../models/database/rolecall-models';
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
-import { RoleCallData } from '../models/database/rolecall-models';
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
-import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
 const emojiRegex = require('emoji-regex/text.js');
 
 export abstract class FormatUtils {
     public static getRoleName(guild: Guild, roleDiscordId: string): string {
-        return roleDiscordId ? guild.roles.resolve(roleDiscordId)?.toString() || '**Unknown**' : '**None**';
+        return roleDiscordId
+            ? guild.roles.resolve(roleDiscordId)?.toString() || '**Unknown**'
+            : '**None**';
     }
 
     public static getMemberDisplayName(memberDiscordId: string, guild: Guild): string {
@@ -24,14 +25,14 @@ export abstract class FormatUtils {
     }
 
     public static getPercent(decimal: number): string {
-        return Math.floor(decimal*100) +'%';
+        return Math.floor(decimal * 100) + '%';
     }
 
     public static resolvePage(input: string, maxPageNumber: number): number {
         return MathUtils.clamp(ParseUtils.parseInt(input) || 1, 1, maxPageNumber);
     }
 
-    public static isLevel(input: number) {
+    public static isLevel(input: number): boolean {
         return Number.isInteger(input) && input >= 0 && input <= 1000;
     }
 
@@ -43,12 +44,12 @@ export abstract class FormatUtils {
 
     public static getIdFromEmojiString(input: string): string {
         let emoteData = input.replace('<', '').replace('>', '').split(':');
-        return emoteData[emoteData.length-1];
+        return emoteData[emoteData.length - 1];
     }
 
     public static getNameFromEmojiString(input: string): string {
         let emoteData = input.replace('<', '').replace('>', '').split(':');
-        return emoteData[emoteData.length-2];
+        return emoteData[emoteData.length - 2];
     }
 
     public static findGuildEmoji(input: string, guild: Guild): GuildEmoji {
@@ -68,8 +69,12 @@ export abstract class FormatUtils {
     public static getFieldList(guild: Guild, roleIds: string[], emotes: string[]): string {
         let fieldList = '';
         for (let i = 0; i < roleIds.length; i++) {
-            if (!this.getEmoteDisplay(guild, emotes[i]) || !this.getRoleDisplay(guild, roleIds[i])) continue; // Skip if either the role or emote are invalid
-            fieldList += `${this.getEmoteDisplay(guild, emotes[i])} ${this.getRoleName(guild, roleIds[i])}\n`; // Add to list
+            if (!this.getEmoteDisplay(guild, emotes[i]) || !this.getRoleDisplay(guild, roleIds[i]))
+                continue; // Skip if either the role or emote are invalid
+            fieldList += `${this.getEmoteDisplay(guild, emotes[i])} ${this.getRoleName(
+                guild,
+                roleIds[i]
+            )}\n`; // Add to list
         }
         return fieldList;
     }
@@ -85,16 +90,21 @@ export abstract class FormatUtils {
         return guild.roles.resolve(roleDiscordId)?.name;
     }
 
-    public static async getRoleCallEmbed(msg: Message, channel: TextChannel, roleCallData: RoleCallData[]): Promise<MessageEmbed> {
-        let roleCallCategories = Array.from( // Removes duplicate categories
+    public static async getRoleCallEmbed(
+        msg: Message,
+        channel: TextChannel,
+        roleCallData: RoleCallData[]
+    ): Promise<MessageEmbed> {
+        let roleCallCategories = Array.from(
+            // Removes duplicate categories
             new Set(roleCallData.map(roleCall => roleCall.Category))
-        )
+        );
 
         if (roleCallData.length === 0) {
             // Need at least one rolecall saved
             let embed = new MessageEmbed()
                 .setDescription('Could not find any saved roles.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -109,7 +119,7 @@ export abstract class FormatUtils {
                 'To remove a role, simply remove your reaction of the corresponding role.',
                 msg.client.user.avatarURL()
             )
-            .setColor(Config.defaultColor);
+            .setColor(Config.colors.default);
 
         for (let category of roleCallCategories) {
             // Go through all of the categories

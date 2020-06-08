@@ -1,8 +1,8 @@
-import { FormatUtils, ParseUtils } from '../utils';
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
+import { RewardRepo } from '../services/database/repos';
+import { FormatUtils, ParseUtils } from '../utils';
 import { Command } from './command';
-import { RewardRepo } from '../services/database/repos/reward-repo';
 
 let Config = require('../../config/config.json');
 
@@ -13,15 +13,14 @@ export class ClearLevelRewardsCommand implements Command {
     public ownerOnly = false;
     public help: string = 'Remove all role rewards for this level.';
 
-    constructor(
-        private rewardRepo: RewardRepo
-    ) {}
+    constructor(private rewardRepo: RewardRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-        if (args.length < 2) { // Need atleast 2 arguments
+        // Need at least 2 arguments
+        if (args.length < 2) {
             let embed = new MessageEmbed()
                 .setDescription('Please provide a level you want to clear.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -31,7 +30,7 @@ export class ClearLevelRewardsCommand implements Command {
         if (!FormatUtils.isLevel(level)) {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Level!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -40,7 +39,7 @@ export class ClearLevelRewardsCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully removed all role rewards from level **${level}**!`)
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
 
         await channel.send(embed);
     }

@@ -1,4 +1,4 @@
 export interface UserData {
-    XpAmount: number,
-    LastUpdated: string
+    XpAmount: number;
+    LastUpdated: string;
 }

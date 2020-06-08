@@ -1,15 +1,13 @@
-import { EventHandler } from './event-handler';
 import { Guild } from 'discord.js';
-import { GuildRepo } from '../services/database/repos/guild-repo';
+
 import { Logger } from '../services';
+import { GuildRepo } from '../services/database/repos';
+import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 
 export class GuildJoinHandler implements EventHandler {
-
-    constructor(
-        private guildRepo: GuildRepo
-    ) {}
+    constructor(private guildRepo: GuildRepo) {}
 
     public async process(guild: Guild): Promise<void> {
         Logger.info(

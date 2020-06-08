@@ -13,17 +13,14 @@ export class SetWelcomeChannelCommand implements Command {
     public ownerOnly = true;
     public help: string = 'Sets the Welcome CHannel.';
 
-    constructor(
-        private guildRepo: GuildRepo
-    ) {}
+    constructor(private guildRepo: GuildRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-
         if (args.length === 1) {
             this.guildRepo.updateGuildWelcomeChannel(msg.guild.id, channel.id); // Update Leveling Channel
             let embed = new MessageEmbed()
                 .setDescription(`Successfully set the welcome channel to <#${channel.id}>!`)
-                .setColor(Config.successColor);
+                .setColor(Config.colors.success);
 
             await channel.send(embed); // Send confirmation of completion
             return;
@@ -36,15 +33,13 @@ export class SetWelcomeChannelCommand implements Command {
             channelInput = msg.guild.channels.cache
                 .filter(channel => channel instanceof TextChannel)
                 .map(channel => channel as TextChannel)
-                .find(channel =>
-                    channel.name.toLowerCase().includes(args[1].toLowerCase())
-                );
-            }
+                .find(channel => channel.name.toLowerCase().includes(args[1].toLowerCase()));
+        }
 
         if (!channelInput || channelInput.guild.id !== msg.guild.id) {
             let embed = new MessageEmbed()
                 .setDescription('Invalid channel!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
 
             await channel.send(embed);
             return;
@@ -53,7 +48,7 @@ export class SetWelcomeChannelCommand implements Command {
         if (!PermissionUtils.canSend(channel)) {
             let embed = new MessageEmbed()
                 .setDescription(`I don't have permission to send messages in <#${channel.id}>!`)
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -62,8 +57,7 @@ export class SetWelcomeChannelCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully set the welcome channel to <#${channelInput.id}>!`)
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
         await channel.send(embed); // Send confirmation of completion
     }
-
 }

@@ -1,11 +1,9 @@
-import { Client, VoiceChannel, VoiceState, VoiceStateManager, VoiceStatus } from 'discord.js';
+import { Client } from 'discord.js';
 
-import { GuildRepo } from '../services/database/repos/guild-repo';
-import { Job } from './job';
 import { Logger } from '../services';
-import { RewardRepo } from '../services/database/repos/reward-repo';
-import { UserRepo } from '../services/database/repos/user-repo';
-import { XpUtils } from '../utils/xp-utils';
+import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
+import { XpUtils } from '../utils';
+import { Job } from './job';
 
 let Config = require('../../config/config.json');
 
@@ -15,52 +13,51 @@ export class TrackVoiceXp implements Job {
         private guildRepo: GuildRepo,
         private userRepo: UserRepo,
         private rewardRepo: RewardRepo
-        ) {}
+    ) {}
 
     public async run(): Promise<void> {
-            let guildList = this.client.guilds.cache;
+        let guildList = this.client.guilds.cache;
 
-            // Get guild data from database
+        // Get guild data from database
 
-            for (let guild of guildList.array()) {
-                try {
-                    // let guildVoiceStates = guild.voiceStates.cache.array();
-                    let guildVoiceStates = guild.voiceStates.cache
-                        .array()
-                        .filter(
-                            voiceState =>
-                                !voiceState.member.user.bot &&
-                                voiceState.channel !== guild.afkChannel
-                        ); // Filter out the bots and afk channels first
+        for (let guild of guildList.array()) {
+            try {
+                // let guildVoiceStates = guild.voiceStates.cache.array();
+                let guildVoiceStates = guild.voiceStates.cache
+                    .array()
+                    .filter(
+                        voiceState =>
+                            !voiceState.member.user.bot && voiceState.channel !== guild.afkChannel
+                    ); // Filter out the bots and afk channels first
 
-                    for (let memberVoiceState of guildVoiceStates) {
-                        let member = memberVoiceState.member;
+                for (let memberVoiceState of guildVoiceStates) {
+                    let member = memberVoiceState.member;
 
-                        if (memberVoiceState.channel != null) {
-                            let userData = await this.userRepo.getUser(member.id, guild.id);
+                    if (memberVoiceState.channel != null) {
+                        let userData = await this.userRepo.getUser(member.id, guild.id);
 
-                            let playerXp = userData.XpAmount;
-                            let currentLevel = XpUtils.getLevelFromXp(playerXp); // Get current level
+                        let playerXp = userData.XpAmount;
+                        let currentLevel = XpUtils.getLevelFromXp(playerXp); // Get current level
 
-                            playerXp += Config.xp.voiceXp;
+                        playerXp += Config.xp.voiceXp;
 
-                            // Update User
-                            await this.userRepo.updateUser(member.id, guild.id, playerXp);
+                        // Update User
+                        await this.userRepo.updateUser(member.id, guild.id, playerXp);
 
-                            let newLevel = XpUtils.getLevelFromXp(playerXp); // Get new level
-                            if (XpUtils.isLevelUp(currentLevel, newLevel)) {
-                                // xpLevelup instance
-                                XpUtils.onLevelUp(member, newLevel, this.guildRepo, this.rewardRepo);
-                            }
+                        let newLevel = XpUtils.getLevelFromXp(playerXp); // Get new level
+                        if (XpUtils.isLevelUp(currentLevel, newLevel)) {
+                            // xpLevelup instance
+                            XpUtils.onLevelUp(member, newLevel, this.guildRepo, this.rewardRepo);
                         }
                     }
-                } catch (error) {
-                    Logger.error(
-                        `Failed while giving xp to members in the guild: ${guild.name} (ID: ${guild.id})`,
-                        error
-                    );
-                    continue;
                 }
+            } catch (error) {
+                Logger.error(
+                    `Failed while giving xp to members in the guild: ${guild.name} (ID: ${guild.id})`,
+                    error
+                );
+                continue;
             }
+        }
     }
 }

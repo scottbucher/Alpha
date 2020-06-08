@@ -1,28 +1,29 @@
 import { Client, ClientOptions, PartialTypes } from 'discord.js';
 
-import { AddLevelingRewardCommand } from './commands/add-level-reward-command';
-import { AddRoleCallCommand } from './commands/add-role-call-command';
 import { Bot } from './bot';
-import { ClearLevelRewardsCommand } from './commands/clear-level-rewards-command';
-import { CreateRoleCallCommand } from './commands/create-role-call-command';
-import { DataAccess } from './services/database/data-access';
-import { DefaultHelpCommand } from './commands/default-help-command';
-import { GuildJoinHandler } from './events/guild-join-handler';
-import { GuildRepo } from './services/database/repos/guild-repo';
-import { Logger } from './services';
-import { MessageHandler } from './events/message-handler';
-import { ReactionAddHandler } from './events/reaction-add-handler';
-import { ReactionRemoveHandler } from './events/reaction-remove-hander';
-import { RemoveRoleCallCommand } from './commands/remove-role-call-command';
-import { RewardRepo } from './services/database/repos/reward-repo';
-import { RoleCallRepo } from './services/database/repos/rolecall-repo';
-import { SetLevelingChannelCommand } from './commands/set-leveling-channel-command';
-import { SetWelcomeChannelCommand } from './commands/set-welcome-channel-command';
-import { TestCommand } from './commands';
+import {
+    AddLevelingRewardCommand,
+    AddRoleCallCommand,
+    ClearLevelRewardsCommand,
+    CreateRoleCallCommand,
+    DefaultHelpCommand,
+    RemoveRoleCallCommand,
+    SetLevelingChannelCommand,
+    SetWelcomeChannelCommand,
+    TestCommand,
+    XpCommand,
+} from './commands';
+import {
+    GuildJoinHandler,
+    MessageHandler,
+    ReactionAddHandler,
+    ReactionRemoveHandler,
+    UserJoinHandler,
+} from './events';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { UserJoinHandler } from './events/user-join-handler';
-import { UserRepo } from './services/database/repos/user-repo';
-import { XpCommand } from './commands/xp-command';
+import { Logger } from './services';
+import { DataAccess } from './services/database/data-access';
+import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/database/repos';
 
 let Config = require('../config/config.json');
 
@@ -74,12 +75,12 @@ async function start(): Promise<void> {
             removeRoleCallCommand,
             createRoleCallCommand,
             setWelcomeChannelCommand,
-            testCommand
+            testCommand,
         ],
         guildRepo,
         userRepo,
         rewardRepo
-        );
+    );
     let guildJoinHandler = new GuildJoinHandler(guildRepo);
     let userJoinHandler = new UserJoinHandler(guildRepo, userRepo);
     let reactionAddHandler = new ReactionAddHandler(roleCallRepo);
@@ -90,7 +91,8 @@ async function start(): Promise<void> {
 
     let bot = new Bot(
         Config.token,
-        client, trackVoiceXpJob,
+        client,
+        trackVoiceXpJob,
         messageHandler,
         guildJoinHandler,
         userJoinHandler,
@@ -98,7 +100,7 @@ async function start(): Promise<void> {
         reactionRemoveHandler,
         guildRepo,
         userRepo
-        );
+    );
 
     await bot.start();
 }

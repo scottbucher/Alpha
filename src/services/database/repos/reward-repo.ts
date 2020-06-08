@@ -1,7 +1,7 @@
-import { DataAccess } from '../data-access';
-import { Procedure } from '../procedure';
 import { RewardData } from '../../../models/database/reward-models';
 import { SQLUtils } from '../../../utils';
+import { DataAccess } from '../data-access';
+import { Procedure } from '../procedure';
 
 export class RewardRepo {
     constructor(private dataAccess: DataAccess) {}
@@ -17,7 +17,7 @@ export class RewardRepo {
     public async getLevelRewards(guildId: string, level: number): Promise<RewardData[]> {
         let results = await this.dataAccess.executeProcedure(Procedure.Guild_GetLevelRewards, [
             guildId,
-            level
+            level,
         ]);
 
         return SQLUtils.getFirstResult(results);

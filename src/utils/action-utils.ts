@@ -1,9 +1,9 @@
-import { Guild, GuildMember, Role } from 'discord.js';
+import { GuildMember, Role } from 'discord.js';
 
 export abstract class ActionUtils {
     public static async giveRole(member: GuildMember, role: Role): Promise<void> {
         try {
-           await member.roles.add(role)
+            await member.roles.add(role);
         } catch (error) {
             // Can't give that role
         }

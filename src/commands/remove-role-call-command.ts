@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 
-import { Command } from './command';
+import { RoleCallRepo } from '../services/database/repos';
 import { MessageUtils } from '../utils';
-import { RoleCallRepo } from '../services/database/repos/rolecall-repo';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -13,15 +13,13 @@ export class RemoveRoleCallCommand implements Command {
     public ownerOnly = false;
     public help: string = 'Remove a role from role call';
 
-    constructor(
-        private roleCallRepo: RoleCallRepo
-    ) {}
+    constructor(private roleCallRepo: RoleCallRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
         if (args.length < 2) {
             let embed = new MessageEmbed()
                 .setDescription('Please supply a role you would like to clear.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -30,16 +28,19 @@ export class RemoveRoleCallCommand implements Command {
         let roleInput: Role = msg.mentions.roles.first();
 
         if (!roleInput) {
-            roleInput = msg.guild.roles.cache
-                .find(role =>
-                    role.name.toLowerCase().includes(args[1].toLowerCase())
-                );
+            roleInput = msg.guild.roles.cache.find(role =>
+                role.name.toLowerCase().includes(args[1].toLowerCase())
+            );
         }
 
-        if (!roleInput || roleInput.guild.id !== msg.guild.id || args[1].toLowerCase() === 'everyone') {
+        if (
+            !roleInput ||
+            roleInput.guild.id !== msg.guild.id ||
+            args[1].toLowerCase() === 'everyone'
+        ) {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -47,10 +48,14 @@ export class RemoveRoleCallCommand implements Command {
         await this.roleCallRepo.removeRoleCall(roleInput.id);
 
         let embed = new MessageEmbed()
-            .setDescription(`Successfully removed the ${MessageUtils.getRoleName(roleInput.id, msg.guild)} from role-call!`)
-            .setColor(Config.successColor);
+            .setDescription(
+                `Successfully removed the ${MessageUtils.getRoleName(
+                    roleInput.id,
+                    msg.guild
+                )} from role-call!`
+            )
+            .setColor(Config.colors.success);
 
         await channel.send(embed);
-
     }
 }
