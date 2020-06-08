@@ -1,31 +1,31 @@
 import { Client, ClientOptions, PartialTypes } from 'discord.js';
 
 import { Bot } from './bot';
-import { DataAccess } from './services/database/data-access';
-import { GuildRepo } from './services/database/repos/guild-repo';
-import { Logger } from './services';
-import { RewardRepo } from './services/database/repos/reward-repo';
-import { RoleCallRepo } from './services/database/repos/rolecall-repo';
 import {
-    TestCommand,
-    DefaultHelpCommand,
-    XpCommand,
-    SetLevelingChannelCommand,
     AddLevelingRewardCommand,
-    ClearLevelRewardsCommand,
     AddRoleCallCommand,
-    RemoveRoleCallCommand,
+    ClearLevelRewardsCommand,
     CreateRoleCallCommand,
+    DefaultHelpCommand,
+    RemoveRoleCallCommand,
+    SetLevelingChannelCommand,
+    TestCommand,
+    XpCommand,
 } from './commands';
-import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { UserRepo } from './services/database/repos/user-repo';
 import {
-    MessageHandler,
     GuildJoinHandler,
-    UserJoinHandler,
+    MessageHandler,
     ReactionAddHandler,
     ReactionRemoveHandler,
+    UserJoinHandler,
 } from './events';
+import { TrackVoiceXp } from './jobs/trackVoiceXp';
+import { Logger } from './services';
+import { DataAccess } from './services/database/data-access';
+import { GuildRepo } from './services/database/repos/guild-repo';
+import { RewardRepo } from './services/database/repos/reward-repo';
+import { RoleCallRepo } from './services/database/repos/rolecall-repo';
+import { UserRepo } from './services/database/repos/user-repo';
 
 let Config = require('../config/config.json');
 
