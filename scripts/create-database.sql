@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 08, 2020 at 05:18 PM
+-- Generation Time: Jun 08, 2020 at 05:57 PM
 -- Server version: 5.7.24
 -- PHP Version: 7.4.1
 
@@ -84,11 +84,11 @@ WHERE `GuildId` = @GuildId AND `Level` = IN_Level;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_Get` (IN `IN_DiscordId` VARCHAR(20))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_Get` (IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
 
 SELECT *
-FROM Guild
-WHERE GuildDiscordId = IN_DiscordId;
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
 
 END$$
 
@@ -130,11 +130,11 @@ WHERE GuildId = @GuildId;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetSome` (IN `IN_DiscordIds` MEDIUMTEXT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetSome` (IN `IN_GuildDiscordIds` MEDIUMTEXT)  BEGIN
 
 SELECT *
-FROM Guild
-WHERE FIND_IN_SET(GuildDiscordId, IN_DiscordIds) > 0;
+FROM `guild`
+WHERE FIND_IN_SET(GuildDiscordId, IN_GuildDiscordIds) > 0;
 
 END$$
 
