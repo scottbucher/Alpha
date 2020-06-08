@@ -12,7 +12,7 @@ import { GuildRepo } from './services/database/repos/guild-repo';
 import { Logger } from './services';
 import { MessageHandler } from './events/message-handler';
 import { ReactionAddHandler } from './events/reaction-add-handler';
-import { ReactionRemoveHandler } from './events/reaction-remove-hander';
+import { ReactionRemoveHandler } from './events/reaction-remove-handler';
 import { RemoveRoleCallCommand } from './commands/remove-role-call-command';
 import { RewardRepo } from './services/database/repos/reward-repo';
 import { RoleCallRepo } from './services/database/repos/rolecall-repo';

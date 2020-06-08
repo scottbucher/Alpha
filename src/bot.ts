@@ -5,7 +5,7 @@ import { GuildRepo } from './services/database/repos/guild-repo';
 import { Logger } from './services';
 import { MessageHandler } from './events/message-handler';
 import { ReactionAddHandler } from './events/reaction-add-handler';
-import { ReactionRemoveHandler } from './events/reaction-remove-hander';
+import { ReactionRemoveHandler } from './events/reaction-remove-handler';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { UserJoinHandler } from './events/user-join-handler';
 import { UserRepo } from './services/database/repos/user-repo';
