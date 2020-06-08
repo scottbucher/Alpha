@@ -32,7 +32,7 @@ export abstract class FormatUtils {
         return MathUtils.clamp(ParseUtils.parseInt(input) || 1, 1, maxPageNumber);
     }
 
-    public static isLevel(input: number) {
+    public static isLevel(input: number): boolean {
         return Number.isInteger(input) && input >= 0 && input <= 1000;
     }
 

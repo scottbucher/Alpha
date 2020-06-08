@@ -1,17 +1,17 @@
 import { GuildMember, Role } from 'discord.js';
 
 export abstract class ActionUtils {
-    public static giveRole(member: GuildMember, role: Role) {
+    public static async giveRole(member: GuildMember, role: Role): Promise<void> {
         try {
-            member.roles.add(role);
+            await member.roles.add(role);
         } catch (error) {
             // Can't give that role
         }
     }
 
-    public static removeRole(member: GuildMember, role: Role) {
+    public static async removeRole(member: GuildMember, role: Role): Promise<void> {
         try {
-            member.roles.remove(role);
+            await member.roles.remove(role);
         } catch (error) {
             // Can't take that role
         }
