@@ -145,13 +145,14 @@ export class MessageHandler implements EventHandler {
     }
 
     private getCommand(userCommand: string) {
+        userCommand = userCommand.toLowerCase();
         for (let cmd of this.commands) {
             if (cmd.name === userCommand.toLowerCase()) {
                 return cmd;
             }
 
-            if (command.aliases.includes(userCommand)) {
-                return command;
+            if (cmd.aliases.includes(userCommand)) {
+                return cmd;
             }
         }
     }

@@ -1,9 +1,11 @@
 import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'discord.js';
-import { isNumber } from 'util';
 
-import { RoleCallData } from '../models/database/rolecall-models';
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
+import { RoleCallData } from '../models/database/rolecall-models';
+import { UserData } from '../models/database/user-models';
+import { XpUtils } from './xp-utils';
+import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
 const emojiRegex = require('emoji-regex/text.js');
@@ -131,5 +133,28 @@ export abstract class FormatUtils {
         roleCallEmbed.addField('Administration', '♻️ Refresh Message'); // Add Administrative refresh button
 
         return roleCallEmbed;
+    }
+
+    public static async getXpLeaderBoardEmbed(
+        guild: Guild,
+        userData: UserData[],
+        page: number,
+        pageSize: number
+    ): Promise<MessageEmbed> {
+        let embed = new MessageEmbed()
+            .setTitle(`__**Xp Leaderboard**__ **| Page ${page}**`)
+            .setThumbnail(guild.iconURL())
+            .setColor(Config.colors.default)
+            .setFooter('Talk in Text & Voice Channels to level up!', guild.iconURL())
+            .setTimestamp();
+
+            let i = ((page-1) * pageSize) + 1;
+
+            for (let user of userData) {
+                embed.addField(`#${i}: ${guild.members.resolve(user.UserDiscordId).displayName}`, `Level: ${XpUtils.getLevelFromXp(user.XpAmount)} (Total XP: ${user.XpAmount})`);
+                i++;
+            }
+
+        return embed;
     }
 }
