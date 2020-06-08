@@ -23,7 +23,7 @@ export class SetLevelingChannelCommand implements Command {
             this.guildRepo.updateGuildLevelingChannel(msg.guild.id, channel.id); // Update Leveling Channel
             let embed = new MessageEmbed()
                 .setDescription(`Successfully set the leveling channel to <#${channel.id}>!`)
-                .setColor(Config.successColor);
+                .setColor(Config.colors.success);
 
             await channel.send(embed); // Send confirmation of completion
             return;
@@ -44,7 +44,7 @@ export class SetLevelingChannelCommand implements Command {
         if (!channelInput || channelInput.guild.id !== msg.guild.id) {
             let embed = new MessageEmbed()
                 .setDescription('Invalid channel!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
 
             await channel.send(embed);
             return;
@@ -53,7 +53,7 @@ export class SetLevelingChannelCommand implements Command {
         if (!PermissionUtils.canSend(channel)) {
             let embed = new MessageEmbed()
                 .setDescription(`I don't have permission to send messages in <#${channel.id}>!`)
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -62,7 +62,7 @@ export class SetLevelingChannelCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully set the leveling channel to <#${channelInput.id}>!`)
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
         await channel.send(embed); // Send confirmation of completion
     }
 }

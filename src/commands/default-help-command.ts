@@ -28,7 +28,7 @@ export class DefaultHelpCommand implements Command {
                 + '\n**!poll create <Question>;<Option 1>;<Option 2>...** - Start a poll!'
 
                 )
-                .setColor(Config.defaultColor)
+                .setColor(Config.colors.default)
 
                 if (channel instanceof TextChannel) await channel.send(embed);
                     else MessageUtils.sendDm(channel, embed);

@@ -23,7 +23,7 @@ export class CreateRoleCallCommand implements Command {
         ) {
             let embed = new MessageEmbed()
                 .setDescription('I require the `ADD_REACTIONS` & `MANAGE_MESSAGES` to do this!`')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }

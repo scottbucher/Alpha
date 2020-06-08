@@ -34,7 +34,7 @@ export class XpCommand implements Command {
         if (!target) {
             let embed = new MessageEmbed()
                 .setDescription('Could not find that user!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -60,7 +60,7 @@ export class XpCommand implements Command {
             .addField('Player Experience', `${playerXp}`)
             .addField('Level Progress', `${xpTowardsNextLevel} / ${playerLevelXp} XP (*${progressPercent}*) \n\n**${playerLevel} |** ${progressBar} **| ${playerLevel+1}**`)
             .setThumbnail(target.user.avatarURL())
-            .setColor(Config.defaultColor);
+            .setColor(Config.colors.default);
         await channel.send(embed);
     }
 }

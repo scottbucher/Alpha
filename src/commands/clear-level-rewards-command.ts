@@ -21,7 +21,7 @@ export class ClearLevelRewardsCommand implements Command {
         if (args.length < 2) { // Need atleast 2 arguments
             let embed = new MessageEmbed()
                 .setDescription('Please provide a level you want to clear.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -31,7 +31,7 @@ export class ClearLevelRewardsCommand implements Command {
         if (!FormatUtils.isLevel(level)) {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Level!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -40,7 +40,7 @@ export class ClearLevelRewardsCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully removed all role rewards from level **${level}**!`)
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
 
         await channel.send(embed);
     }

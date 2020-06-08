@@ -21,7 +21,7 @@ export class TestCommand implements Command {
         .addField('Do I know what I am doing?', 'Nope')
         .addField('Am I here anyways?', 'yup')
         .setAuthor('Testing Bot Command', msg.client.user.avatarURL())
-        .setColor(Config.defaultColor);
+        .setColor(Config.colors.default);
 
         if (channel instanceof TextChannel) await channel.send(embed);
             else MessageUtils.sendDm(channel, embed);

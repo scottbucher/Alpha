@@ -21,7 +21,7 @@ export class RemoveRoleCallCommand implements Command {
         if (args.length < 2) {
             let embed = new MessageEmbed()
                 .setDescription('Please supply a role you would like to clear.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -39,7 +39,7 @@ export class RemoveRoleCallCommand implements Command {
         if (!roleInput || roleInput.guild.id !== msg.guild.id || args[1].toLowerCase() === 'everyone') {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -48,7 +48,7 @@ export class RemoveRoleCallCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully removed the ${MessageUtils.getRoleName(roleInput.id, msg.guild)} from role-call!`)
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
 
         await channel.send(embed);
 

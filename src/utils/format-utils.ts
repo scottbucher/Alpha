@@ -94,7 +94,7 @@ export abstract class FormatUtils {
             // Need at least one rolecall saved
             let embed = new MessageEmbed()
                 .setDescription('Could not find any saved roles.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -109,7 +109,7 @@ export abstract class FormatUtils {
                 'To remove a role, simply remove your reaction of the corresponding role.',
                 msg.client.user.avatarURL()
             )
-            .setColor(Config.defaultColor);
+            .setColor(Config.colors.default);
 
         for (let category of roleCallCategories) {
             // Go through all of the categories

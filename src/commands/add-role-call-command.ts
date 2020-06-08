@@ -22,7 +22,7 @@ export class AddRoleCallCommand implements Command {
         if (args.length < 3) { // Needs at least 3 arguments
             let embed = new MessageEmbed()
                 .setDescription('Invalid Usage. Please provide a role and emote')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -40,7 +40,7 @@ export class AddRoleCallCommand implements Command {
         if (!roleInput || roleInput.guild.id !== msg.guild.id || args[1].toLowerCase() === 'everyone') {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -49,7 +49,7 @@ export class AddRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setTitle(`Invalid Role!`)
                 .setDescription('That role is managed by an external service!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -58,7 +58,7 @@ export class AddRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setTitle('Invalid Emote!')
                 .setDescription('Sorry, ♻️ is a reserved emote!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -70,7 +70,7 @@ export class AddRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setTitle('Invalid Emote.')
                 .setDescription('You must use a valid unicode emote or a custom emote from this guild!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -85,7 +85,7 @@ export class AddRoleCallCommand implements Command {
                 // Too Long
                 let embed = new MessageEmbed()
                     .setDescription('Category name is too long.')
-                    .setColor(Config.errorColor);
+                    .setColor(Config.colors.error);
                 await channel.send(embed);
                 return;
             }
@@ -98,13 +98,13 @@ export class AddRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setTitle('Duplicate Entry! ')
                 .setDescription('Each role can only be assigned to one emote!\nEmotes __can__ assign more than one role.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
 
         let embed = new MessageEmbed()
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
         if (args.length === 3) embed.setDescription(`Successfully assigned the role ${MessageUtils.getRoleName(roleInput.id, msg.guild)} to the emote ${emoteOutput}!`)
         else embed.setDescription(`Successfully assigned the role ${MessageUtils.getRoleName(roleInput.id, msg.guild)} to the emote ${emoteOutput} in the category **${category}**!`)
 

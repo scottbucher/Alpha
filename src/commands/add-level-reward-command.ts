@@ -21,7 +21,7 @@ export class AddLevelingRewardCommand implements Command {
         if (args.length < 3) { // Need at least 3 arguments
             let embed = new MessageEmbed()
                 .setDescription('Invalid Usage. Please provide a level and role.')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -31,7 +31,7 @@ export class AddLevelingRewardCommand implements Command {
         if (!FormatUtils.isLevel(level)) {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Level!')
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -49,7 +49,7 @@ export class AddLevelingRewardCommand implements Command {
         if (!roleInput || roleInput.guild.id !== msg.guild.id || args[2].toLowerCase() === 'everyone') {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
-                .setColor(Config.errorColor);
+                .setColor(Config.colors.error);
             await channel.send(embed);
             return;
         }
@@ -58,7 +58,7 @@ export class AddLevelingRewardCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully added the ${MessageUtils.getRoleName(roleInput.id, msg.guild)} role as a reward for level **${level}**!`)
-            .setColor(Config.successColor);
+            .setColor(Config.colors.success);
 
         await channel.send(embed);
 
