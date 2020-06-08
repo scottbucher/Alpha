@@ -1,12 +1,13 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { MessageUtils } from '../utils';
 import { Command } from './command';
+import { MessageUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
 export class DefaultHelpCommand implements Command {
     public name: string = 'help';
+    public aliases = ['?'];
     public guildOnly: boolean = false;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;

@@ -1,13 +1,14 @@
+import { FormatUtils, XpUtils } from '../utils';
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { UserRepo } from '../services/database/repos';
-import { FormatUtils, XpUtils } from '../utils';
 import { Command } from './command';
+import { UserRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
 export class XpCommand implements Command {
     public name: string = 'xp';
+    public aliases = ['level'];
     public guildOnly = true;
     public adminOnly = false;
     public ownerOnly = true;

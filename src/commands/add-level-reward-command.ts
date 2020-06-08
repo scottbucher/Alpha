@@ -1,13 +1,14 @@
+import { FormatUtils, MessageUtils, ParseUtils } from '../utils';
 import { Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 
-import { RewardRepo } from '../services/database/repos';
-import { FormatUtils, MessageUtils, ParseUtils } from '../utils';
 import { Command } from './command';
+import { RewardRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
 export class AddLevelingRewardCommand implements Command {
     public name: string = 'addlevelreward';
+    public aliases = [];
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

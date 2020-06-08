@@ -1,13 +1,14 @@
+import { FormatUtils, ParseUtils } from '../utils';
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { RewardRepo } from '../services/database/repos';
-import { FormatUtils, ParseUtils } from '../utils';
 import { Command } from './command';
+import { RewardRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
 export class ClearLevelRewardsCommand implements Command {
     public name: string = 'clearlevelrewards';
+    public aliases = ['removelevelrewards'];
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;
