@@ -1,7 +1,7 @@
 {
     "apps": [
         {
-            "name": "my-bot",
+            "name": "alpha",
             "script": "dist/app.js",
             "log_date_format": "YYYY-MM-DD HH:mm:ss"
         }
