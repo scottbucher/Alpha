@@ -11,7 +11,7 @@ export class SetLevelingChannelCommand implements Command {
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;
-    public help: string = 'Sets the Leveling Channel.'
+    public help: string = 'Sets the Leveling Channel.';
 
     constructor(
         private guildRepo: GuildRepo
