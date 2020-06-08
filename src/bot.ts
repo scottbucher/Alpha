@@ -118,7 +118,7 @@ export class Bot {
         let guilds = client.guilds.cache;
 
         for (let guild of guilds.array()) {
-            guildRepo.syncGuild(guild.id, guild.members.cache.keyArray());
+            guildRepo.syncGuild(guild.id, guild.members.cache.filter(member => !member.user.bot).keyArray());
         }
     }
 }
