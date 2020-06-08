@@ -17,6 +17,7 @@ import { RemoveRoleCallCommand } from './commands/remove-role-call-command';
 import { RewardRepo } from './services/database/repos/reward-repo';
 import { RoleCallRepo } from './services/database/repos/rolecall-repo';
 import { SetLevelingChannelCommand } from './commands/set-leveling-channel-command';
+import { SetWelcomeChannelCommand } from './commands/set-welcome-channel-command';
 import { TestCommand } from './commands';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { UserJoinHandler } from './events/user-join-handler';
@@ -57,6 +58,8 @@ async function start(): Promise<void> {
     let removeRoleCallCommand = new RemoveRoleCallCommand(roleCallRepo);
     let createRoleCallCommand = new CreateRoleCallCommand(roleCallRepo);
 
+    let setWelcomeChannelCommand = new SetWelcomeChannelCommand(guildRepo);
+
     let testCommand = new TestCommand();
 
     // Events handlers
@@ -70,6 +73,7 @@ async function start(): Promise<void> {
             addRoleCallCommand,
             removeRoleCallCommand,
             createRoleCallCommand,
+            setWelcomeChannelCommand,
             testCommand
         ],
         guildRepo,
@@ -77,7 +81,7 @@ async function start(): Promise<void> {
         rewardRepo
         );
     let guildJoinHandler = new GuildJoinHandler(guildRepo);
-    let userJoinHandler = new UserJoinHandler(userRepo);
+    let userJoinHandler = new UserJoinHandler(guildRepo, userRepo);
     let reactionAddHandler = new ReactionAddHandler(roleCallRepo);
     let reactionRemoveHandler = new ReactionRemoveHandler(roleCallRepo);
 
