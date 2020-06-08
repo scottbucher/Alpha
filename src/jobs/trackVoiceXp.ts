@@ -5,7 +5,7 @@ import { Job } from './job';
 import { Logger } from '../services';
 import { RewardRepo } from '../services/database/repos/reward-repo';
 import { UserRepo } from '../services/database/repos/user-repo';
-import { XpUtils } from '../utils/xp-utils';
+import { XpUtils } from '../utils';
 
 export class TrackVoiceXp implements Job {
     constructor(

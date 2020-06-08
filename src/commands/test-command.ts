@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
 import { Command } from './command';
-import { MessageUtils } from '../utils/message-utils';
+import { MessageUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 

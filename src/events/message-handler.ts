@@ -11,10 +11,9 @@ import { Command } from '../commands';
 import { EventHandler } from './event-handler';
 import { GuildRepo } from '../services/database/repos/guild-repo';
 import { Logger } from '../services';
-import { MessageUtils } from '../utils/message-utils';
+import { MessageUtils, XpUtils } from '../utils';
 import { RewardRepo } from '../services/database/repos/reward-repo';
 import { UserRepo } from '../services/database/repos/user-repo';
-import { XpUtils } from '../utils/xp-utils';
 
 let Config = require('../../config/config.json');
 

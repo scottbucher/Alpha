@@ -1,9 +1,8 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
 import { Command } from './command';
-import { FormatUtils } from '../utils';
+import { FormatUtils, XpUtils } from '../utils';
 import { UserRepo } from '../services/database/repos/user-repo';
-import { XpUtils } from '../utils/xp-utils';
 
 let Config = require('../../config/config.json');
 

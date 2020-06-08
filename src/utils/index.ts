@@ -6,3 +6,4 @@ export { ShardUtils } from './shard-utils';
 export { MathUtils } from './math-utils';
 export { PermissionUtils } from './permission-utils';
 export { ActionUtils } from './action-utils';
+export { XpUtils } from './xp-utils';
