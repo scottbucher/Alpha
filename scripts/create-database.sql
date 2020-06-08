@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 06, 2020 at 05:54 PM
+-- Generation Time: Jun 08, 2020 at 05:18 PM
 -- Server version: 5.7.24
 -- PHP Version: 7.4.1
 
@@ -115,6 +115,21 @@ WHERE GuildId = @GuildId AND Level = IN_Level;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetRoleCalls` (IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
+
+SET @GuildId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+SELECT *
+FROM `rolecall`
+WHERE GuildId = @GuildId;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetSome` (IN `IN_DiscordIds` MEDIUMTEXT)  BEGIN
 
 SELECT *
@@ -179,7 +194,15 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateLevelingChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_LevelingChannelId` VARCHAR(20))  BEGIN
 
 UPDATE `guild`
-SET `LevelingChannelId` = IN_LevelingChannelId
+SET LevelingChannelId = IN_LevelingChannelId
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateWelcomeChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_WelcomeChannelId` VARCHAR(20))  BEGIN
+
+UPDATE `guild`
+SET WelcomeChannelId = IN_WelcomeChannelId
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
 END$$
@@ -307,7 +330,8 @@ CREATE TABLE `guild` (
   `GuildId` int(11) NOT NULL,
   `GuildDiscordId` varchar(20) NOT NULL,
   `Prefix` varchar(100) NOT NULL DEFAULT '!',
-  `LevelingChannelId` varchar(20) DEFAULT '0'
+  `LevelingChannelId` varchar(20) DEFAULT '0',
+  `WelcomeChannelId` varchar(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -348,7 +372,7 @@ CREATE TABLE `rolecall` (
   `GuildId` int(11) NOT NULL,
   `RoleDiscordId` varchar(20) NOT NULL,
   `Emote` varchar(20) CHARACTER SET utf8mb4 NOT NULL,
-  `Category` varchar(30) CHARACTER SET utf8mb4 NOT NULL DEFAULT 'MISC'
+  `Category` varchar(30) CHARACTER SET utf8mb4 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -395,10 +419,6 @@ ALTER TABLE `reward`
 ALTER TABLE `rolecall`
   ADD PRIMARY KEY (`RoleCallId`),
   ADD UNIQUE KEY `UQ_RoleDiscordId` (`RoleDiscordId`) USING BTREE,
-  ADD UNIQUE KEY `UQ_RoleDiscordId_Emote` (`RoleDiscordId`,`Emote`) USING BTREE,
-  ADD UNIQUE KEY `UQ_RoleDiscordId_Emote_Category` (`RoleDiscordId`,`Emote`,`Category`) USING BTREE,
-  ADD UNIQUE KEY `UQ_Emote_Category` (`Emote`,`Category`) USING BTREE,
-  ADD UNIQUE KEY `UQ_RoleDiscordId_Category` (`RoleDiscordId`,`Category`) USING BTREE,
   ADD KEY `FK_RoleCall_GuildId` (`GuildId`) USING BTREE;
 
 --

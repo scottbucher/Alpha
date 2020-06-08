@@ -24,4 +24,11 @@ export class GuildRepo {
             channelId,
         ]);
     }
+
+    public async updateGuildWelcomeChannel(guildId: string, channelId: string): Promise<void> {
+        await this.dataAccess.executeProcedure(Procedure.Guild_UpdateWelcomeChannel, [
+            guildId,
+            channelId,
+        ]);
+    }
 }

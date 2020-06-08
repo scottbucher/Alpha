@@ -6,6 +6,8 @@ import { ActionUtils } from './action-utils';
 import { FormatUtils } from './format-utils';
 import { MessageUtils } from './message-utils';
 
+let Config = require('../../config/config.json');
+
 export abstract class XpUtils {
     public static getLevelXp(level: number): number {
         return 5 * (level * level) + 50 * level + 100;
@@ -35,7 +37,7 @@ export abstract class XpUtils {
     }
 
     public static randomXp(): number {
-        return Math.round(Math.random() * (25 - 15) + 15);
+        return Math.round(Math.random() * (Config.xp.textXpMax - Config.xp.textXpMin) + Config.xp.textXpMin);
     }
 
     public static canGetXp(LastUpdated: string): boolean {

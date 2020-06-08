@@ -85,7 +85,7 @@ export class ReactionAddHandler implements EventHandler {
                     for (let role of roleCallRoles) {
                         let giveRole = msg.guild.roles.resolve(role);
 
-                        ActionUtils.giveRole(reactor, giveRole);
+                        await ActionUtils.giveRole(reactor, giveRole);
                     }
                     return;
                 }

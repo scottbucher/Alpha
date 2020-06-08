@@ -6,5 +6,6 @@ export { CreateRoleCallCommand } from './create-role-call-command';
 export { DefaultHelpCommand } from './default-help-command';
 export { RemoveRoleCallCommand } from './remove-role-call-command';
 export { SetLevelingChannelCommand } from './set-leveling-channel-command';
+export { SetWelcomeChannelCommand } from './set-welcome-channel-command';
 export { TestCommand } from './test-command';
 export { XpCommand } from './xp-command';

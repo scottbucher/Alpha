@@ -90,10 +90,10 @@ export class MessageHandler implements EventHandler {
             return;
         }
 
-        if (command.ownerOnly && !Config.ownerIds.include(msg.author.id)) {
+        if (command.ownerOnly && !Config.ownerIds.includes(msg.author.id)) {
             let embed = new MessageEmbed()
                 .setDescription('This command can only be used by the bot owner!')
-                .setColor(0xff0000);
+                .setColor(Config.colors.error);
 
             if (channel instanceof TextChannel) await channel.send(embed);
             else MessageUtils.sendDm(channel, embed);
@@ -103,7 +103,7 @@ export class MessageHandler implements EventHandler {
         if (command.guildOnly && channel instanceof DMChannel) {
             let embed = new MessageEmbed()
                 .setDescription('This command can only be used in a discord server!')
-                .setColor(0xff0000);
+                .setColor(Config.colors.error);
             MessageUtils.sendDm(channel, embed);
             return;
         }
@@ -119,7 +119,7 @@ export class MessageHandler implements EventHandler {
                         .setDescription(
                             'You do not have the required permission to run this command!'
                         )
-                        .setColor(0xff0000);
+                        .setColor(Config.colors.error);
                     await channel.send(embed);
                     return;
                 }
@@ -132,8 +132,8 @@ export class MessageHandler implements EventHandler {
                 let embed = new MessageEmbed()
                     .setDescription('Error encountered, something went wrong!')
                     .addField('Error code', msg.id)
-                    .addField('Please contact support', '<@478288246858711040>')
-                    .setColor(0xff0000);
+                    .addField('Please contact support', '__**Stqlth#0001**__')
+                    .setColor(Config.colors.error);
 
                 if (channel instanceof TextChannel) await channel.send(embed);
                 else MessageUtils.sendDm(channel, embed);
@@ -141,7 +141,7 @@ export class MessageHandler implements EventHandler {
                 // ignored
             }
         }
-        channel.stopTyping();
+        channel.stopTyping(true);
     }
 
     private getCommand(userCommand: string) {

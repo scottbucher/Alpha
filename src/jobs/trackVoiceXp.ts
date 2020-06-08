@@ -5,6 +5,8 @@ import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
 import { XpUtils } from '../utils';
 import { Job } from './job';
 
+let Config = require('../../config/config.json');
+
 export class TrackVoiceXp implements Job {
     constructor(
         private client: Client,
@@ -37,7 +39,7 @@ export class TrackVoiceXp implements Job {
                         let playerXp = userData.XpAmount;
                         let currentLevel = XpUtils.getLevelFromXp(playerXp); // Get current level
 
-                        playerXp += 3;
+                        playerXp += Config.xp.voiceXp;
 
                         // Update User
                         await this.userRepo.updateUser(member.id, guild.id, playerXp);
