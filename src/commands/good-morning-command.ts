@@ -13,7 +13,7 @@ export class GoodMorningCommand implements Command {
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
 
-    public emojis = ['🔅', '🔆', '☀️', '🌅', '🌄', '☕', '🥞'];
+    private emojis = ['🔅', '🔆', '☀️', '🌅', '🌄', '☕', '🥞'];
 
     public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
         let emoji = ArrayUtils.chooseRandom(this.emojis);
