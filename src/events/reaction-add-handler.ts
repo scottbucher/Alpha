@@ -1,9 +1,9 @@
+import { ActionUtils, FormatUtils } from '../utils';
 import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
 
+import { EventHandler } from './event-handler';
 import { Logger } from '../services';
 import { RoleCallRepo } from '../services/database/repos';
-import { ActionUtils, FormatUtils } from '../utils';
-import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');
@@ -49,6 +49,21 @@ export class ReactionAddHandler implements EventHandler {
             await msg.reactions.removeAll();
 
             for (let emote of roleCallEmotes) {
+                let roleCallRoles = roleCallData // Get an array of Roles under this category
+                .filter(roleCall => roleCall.Emote === emote)
+                .map(roleCall => roleCall.RoleDiscordId);
+
+                let roleCheck = false;
+
+                for (let role of roleCallRoles) {
+                    let giveRole = msg.guild.roles.resolve(role);
+
+                    if (!giveRole) continue;
+                    else roleCheck = true;
+                }
+
+                if (!roleCheck) continue;
+
                 let emoji: EmojiResolvable =
                     FormatUtils.findGuildEmoji(emote, msg.guild) ||
                     FormatUtils.findUnicodeEmoji(emote);

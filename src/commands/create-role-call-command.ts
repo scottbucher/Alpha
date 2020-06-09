@@ -49,6 +49,21 @@ export class CreateRoleCallCommand implements Command {
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
         for (let emote of roleCallEmotes) {
+            let roleCallRoles = roleCallData // Get an array of Roles under this category
+            .filter(roleCall => roleCall.Emote === emote)
+            .map(roleCall => roleCall.RoleDiscordId);
+
+            let roleCheck = false;
+
+            for (let role of roleCallRoles) {
+                let giveRole = msg.guild.roles.resolve(role);
+
+                if (!giveRole) continue;
+                else roleCheck = true;
+            }
+
+            if (!roleCheck) continue;
+
             let emoji: EmojiResolvable =
                 FormatUtils.findGuildEmoji(emote, msg.guild) || FormatUtils.findUnicodeEmoji(emote);
             if (!emoji) continue; // Continue if there is no emoji
