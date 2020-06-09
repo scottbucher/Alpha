@@ -50,8 +50,8 @@ export class ReactionAddHandler implements EventHandler {
 
             for (let emote of roleCallEmotes) {
                 let roleCallRoles = roleCallData // Get an array of Roles under this category
-                .filter(roleCall => roleCall.Emote === emote)
-                .map(roleCall => roleCall.RoleDiscordId);
+                    .filter(roleCall => roleCall.Emote === emote)
+                    .map(roleCall => roleCall.RoleDiscordId);
 
                 let roleCheck = false;
 
