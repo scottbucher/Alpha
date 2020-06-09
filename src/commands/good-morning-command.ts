@@ -18,9 +18,7 @@ export class GoodMorningCommand implements Command {
     public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
         let emoji = ArrayUtils.chooseRandom(this.emojis);
         let embed = new MessageEmbed()
-            .setDescription(
-                `${emoji}\u2800 **Good morning ${msg.author.toString()}!** \u2800${emoji}` // U+2800 = Braille Blank
-            )
+            .setDescription(`${emoji} **Good morning ${msg.author.toString()}!** ${emoji}`)
             .setColor(Config.colors.default);
         await channel.send(embed);
     }
