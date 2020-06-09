@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class SetLevelingChannelCommand implements Command {
     public name: string = 'setlevelingchannel';
     public aliases = ['updatelevelingchannel'];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

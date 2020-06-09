@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class ClearLevelRewardsCommand implements Command {
     public name: string = 'clearlevelrewards';
     public aliases = ['removelevelrewards'];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

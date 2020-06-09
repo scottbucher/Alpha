@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class AddLevelingRewardCommand implements Command {
     public name: string = 'addlevelreward';
     public aliases = [];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class RemoveRoleCallCommand implements Command {
     public name: string = 'removerolecall';
     public aliases = ['deleterolecall'];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = false;

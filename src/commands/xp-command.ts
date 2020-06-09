@@ -9,6 +9,7 @@ let Config = require('../../config/config.json');
 export class XpCommand implements Command {
     public name: string = 'xp';
     public aliases = ['level'];
+    public trigger = null;
     public guildOnly = true;
     public adminOnly = false;
     public ownerOnly = true;
