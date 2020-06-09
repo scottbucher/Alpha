@@ -1,6 +1,7 @@
 import { Message, MessageEmbed, TextChannel, DMChannel } from 'discord.js';
 
 import { Command } from './command';
+import { ArrayUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
@@ -12,11 +13,15 @@ export class GoodMorningCommand implements Command {
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
 
-    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
-        let embed = new MessageEmbed()
-            .setDescription(`Good morning ${msg.author.toString()}!`)
-            .setColor(Config.colors.default);
+    public emojis = ['🔅', '🔆', '☀️', '🌅', '🌄', '☕', '🥞'];
 
+    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
+        let emoji = ArrayUtils.chooseRandom(this.emojis);
+        let embed = new MessageEmbed()
+            .setDescription(
+                `${emoji}\u2800 **Good morning ${msg.author.toString()}!** \u2800${emoji}` // U+2800 = Braille Blank
+            )
+            .setColor(Config.colors.default);
         await channel.send(embed);
     }
 }
