@@ -23,7 +23,7 @@ export class QuoteCommand implements Command {
 
         if (!quoteChannel) {
             let embed = new MessageEmbed()
-                .setDescription('This guild doesn\'t have a quote channel set!')
+                .setDescription("This guild doesn't have a quote channel set!")
                 .setColor(Config.colors.error);
             await channel.send(embed);
             return;
@@ -98,7 +98,6 @@ export class QuoteCommand implements Command {
             }
 
             // Get data and send
-
             let quote = args.slice(2, args.length).join(' ');
             await quoteChannel.send(
                 await FormatUtils.getQuoteEmbed(target.user, msg.member, quote)
