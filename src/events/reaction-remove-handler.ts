@@ -43,10 +43,10 @@ export class ReactionRemoveHandler implements EventHandler {
             let guildEmoteValue = FormatUtils.findGuildEmoji(emote, msg.guild);
 
             if (reactedEmoji === emoji || reactedEmoji === guildEmoteValue?.name) {
-                let check = msg.reactions.cache.find(
+                let checkRefresh = msg.reactions.cache.find(
                     reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
                 );
-                if (check) {
+                if (checkRefresh) {
                     let roleCallRoles = roleCallData // Get an array of Roles under this category
                         .filter(roleCall => roleCall.Emote === emote)
                         .map(roleCall => roleCall.RoleDiscordId);
