@@ -1,4 +1,5 @@
 import {
+    AboutCommand,
     AddLevelingRewardCommand,
     AddRoleCallCommand,
     ClearLevelRewardsCommand,
@@ -7,9 +8,10 @@ import {
     GoodMorningCommand,
     GoodnightCommand,
     RemoveRoleCallCommand,
+    ServerInfoCommand,
     SetLevelingChannelCommand,
     SetWelcomeChannelCommand,
-    TestCommand,
+    SetXpCommand,
     XpCommand,
 } from './commands';
 import { Client, ClientOptions, PartialTypes } from 'discord.js';
@@ -55,6 +57,7 @@ async function start(): Promise<void> {
     // Commands
     let xpCommand = new XpCommand(userRepo);
     let xpLeaderBoardCommand = new XpLeaderboardCommand(userRepo);
+    let setXpCommand = new SetXpCommand(userRepo);
 
     let setLevelingChannelCommand = new SetLevelingChannelCommand(guildRepo);
     let addLevelingRewardCommand = new AddLevelingRewardCommand(rewardRepo);
@@ -70,7 +73,8 @@ async function start(): Promise<void> {
     let goodNightCommand = new GoodnightCommand();
 
     let eightBallCommand = new EightBallCommand();
-    let testCommand = new TestCommand();
+    let aboutCommand = new AboutCommand(guildRepo);
+    let serverInfoCommand = new ServerInfoCommand(guildRepo);
 
     // Events handlers
     let messageHandler = new MessageHandler(
@@ -78,6 +82,7 @@ async function start(): Promise<void> {
         [
             xpCommand,
             xpLeaderBoardCommand,
+            setXpCommand,
             setLevelingChannelCommand,
             addLevelingRewardCommand,
             clearLevelRewardsCommand,
@@ -88,7 +93,8 @@ async function start(): Promise<void> {
             goodMorningCommand,
             goodNightCommand,
             eightBallCommand,
-            testCommand,
+            aboutCommand,
+            serverInfoCommand,
         ],
         guildRepo,
         userRepo,
