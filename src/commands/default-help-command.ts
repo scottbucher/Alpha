@@ -26,7 +26,7 @@ export class DefaultHelpCommand implements Command {
                     '\n**!shard** - View your current shard!' +
                     // '\n**!ping** - View your current ping to the bot!' +
                     // '\n**!quote <MessageId>** - Quote a message!' +
-                    '\n**!8ball <Question>** - Ask the 8ball!' //+
+                    '\n**!8ball <Question>** - Ask the 8ball!' // +
                     // '\n**!poll create <Question>;<Option 1>;<Option 2>...** - Start a poll!'
             )
             .setColor(Config.colors.default);
