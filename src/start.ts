@@ -96,7 +96,7 @@ async function start(): Promise<void> {
     );
     let guildJoinHandler = new GuildJoinHandler(guildRepo);
     let userJoinHandler = new UserJoinHandler(guildRepo, userRepo);
-    let reactionAddHandler = new ReactionAddHandler(roleCallRepo);
+    let reactionAddHandler = new ReactionAddHandler(userRepo, roleCallRepo);
     let reactionRemoveHandler = new ReactionRemoveHandler(roleCallRepo);
 
     // Jobs

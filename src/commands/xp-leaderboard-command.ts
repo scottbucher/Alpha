@@ -7,7 +7,6 @@ import { UserDataResults } from '../models/database/user-data-results-models';
 import { UserRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
-const pageSize = 10;
 
 export class XpLeaderboardCommand implements Command {
     public name: string = 'lb';
@@ -32,8 +31,9 @@ export class XpLeaderboardCommand implements Command {
             if (!page) page = 1;
         }
 
+        let pageSize = Config.lbPageSize;
+
         let users = msg.guild.members.cache.filter(member => !member.user.bot).keyArray();
-        Logger.info(users.toString());
 
         let userDataResults = await this.userRepo.getLeaderBoardUsers(
             msg.guild.id,
@@ -41,6 +41,8 @@ export class XpLeaderboardCommand implements Command {
             pageSize,
             page
         );
+
+        if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
         let message = await channel.send(
             await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize)

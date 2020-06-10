@@ -1,15 +1,15 @@
-import { ActionUtils, FormatUtils } from '../utils';
+import { ActionUtils, FormatUtils, ParseUtils } from '../utils';
 import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
+import { RoleCallRepo, UserRepo } from '../services/database/repos';
 
 import { EventHandler } from './event-handler';
 import { Logger } from '../services';
-import { RoleCallRepo } from '../services/database/repos';
 
 let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');
 
 export class ReactionAddHandler implements EventHandler {
-    constructor(private roleCallRepo: RoleCallRepo) {}
+    constructor(private userRepo: UserRepo, private roleCallRepo: RoleCallRepo) {}
 
     public async process(messageReaction: MessageReaction, author: User): Promise<void> {
         if (author.bot) return;
@@ -34,11 +34,17 @@ export class ReactionAddHandler implements EventHandler {
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
-        let check = msg.reactions.cache.find(
-            reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
+        let checkRefresh = msg.reactions.cache.find(
+            reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me && reaction.users.resolve(reactor.id) !== null
+        );
+        let checkNextPage = msg.reactions.cache.find(
+            reaction => reaction.emoji.name === Config.emotes.nextPage && reaction.me && reaction.users.resolve(reactor.id) !== null
+        );
+        let checkPreviousPage = msg.reactions.cache.find(
+            reaction => reaction.emoji.name === Config.emotes.previousPage && reaction.me && reaction.users.resolve(reactor.id) !== null
         );
 
-        if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && check) {
+        if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
             // Refresh the role-call
 
             let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
@@ -69,6 +75,75 @@ export class ReactionAddHandler implements EventHandler {
                 msg.react(emoji); // React with the emote
             }
             msg.react(Config.emotes.refresh); // Add Administrative Recycle Emote
+        }
+
+        if (checkNextPage) {
+            let titleArgs = msg.embeds[0]?.title.split(' ');
+
+            let page = 1;
+
+            if (titleArgs[4]) {
+                try {
+                    page = ParseUtils.parseInt(titleArgs[4]) + 1;
+                } catch (error) {
+                    // Not A Number
+                }
+                if (!page) page = 1;
+            }
+
+            let pageSize = Config.lbPageSize;
+
+            let users = msg.guild.members.cache.filter(member => !member.user.bot).keyArray();
+
+            let userDataResults = await this.userRepo.getLeaderBoardUsers(
+                msg.guild.id,
+                users,
+                pageSize,
+                page
+            );
+
+            if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
+
+            msg.edit('', await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize));
+
+            await msg.reactions.removeAll();
+
+            if (page !== 1) await msg.react(Config.emotes.previousPage);
+            if (userDataResults.stats.TotalPages > page) await msg.react(Config.emotes.nextPage);
+        } else if (checkPreviousPage) {
+            let titleArgs = msg.embeds[0]?.title.split(' ');
+
+            let page = 1;
+
+            if (titleArgs[4]) {
+                try {
+                    page = ParseUtils.parseInt(titleArgs[4]) - 1;
+                } catch (error) {
+                    // Not A Number
+                }
+                if (!page) page = 1;
+            }
+
+            let pageSize = Config.lbPageSize;
+
+            let users = msg.guild.members.cache.filter(member => !member.user.bot).keyArray();
+
+            let userDataResults = await this.userRepo.getLeaderBoardUsers(
+                msg.guild.id,
+                users,
+                pageSize,
+                page
+            );
+
+            if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
+
+            msg.edit('', await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize));
+
+            await msg.reactions.removeAll();
+
+            if (page !== 1) await msg.react(Config.emotes.previousPage);
+            if (userDataResults.stats.TotalPages > page)
+                await msg.react(Config.emotes.nextPage);
         }
 
         if (
