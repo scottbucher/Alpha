@@ -1,5 +1,5 @@
-import { GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js';
 import { FormatUtils, MessageUtils } from '../utils';
+import { GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js';
 
 import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
@@ -66,17 +66,15 @@ export class QuoteCommand implements Command {
         }
 
         if (!(quote && author)) {
-            let target: GuildMember;
-
-            target =
-                msg.mentions.members.first() ||
+            author =
+                msg.mentions.members.first().user ||
                 msg.guild.members.cache.find(
                     member =>
                         member.displayName.toLowerCase().includes(args[1].toLowerCase()) ||
                         member.user.username.toLowerCase().includes(args[1].toLowerCase())
-                );
+                ).user;
 
-            if (!target) {
+            if (!author) {
                 let embed = new MessageEmbed()
                     .setTitle('Invalid Input!')
                     .setDescription('Please specify a valid message id, link, or user')
@@ -96,7 +94,6 @@ export class QuoteCommand implements Command {
 
             // Get data and send
             quote = args.slice(2, args.length).join(' ');
-            author = msg.author;
         }
 
         // Cannot find message!
