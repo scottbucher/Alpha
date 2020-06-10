@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jun 10, 2020 at 03:08 AM
+-- Generation Time: Jun 10, 2020 at 05:37 AM
 -- Server version: 10.3.22-MariaDB-0+deb10u1
 -- PHP Version: 7.3.14-1~deb10u1
 
@@ -297,7 +297,7 @@ ELSEIF (IN_Page > @TotalPages) THEN
 	SET IN_Page = @TotalPages;
 END IF;
 
-SET @StartRow = (IN_Page - 1) * IN_PageSize;
+SET @StartRow = ((IN_Page - 1) * IN_PageSize) + 1;
 SET @EndRow = IN_Page * IN_PageSize;
 
 SELECT *
