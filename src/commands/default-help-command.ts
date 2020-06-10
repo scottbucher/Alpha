@@ -19,7 +19,7 @@ export class DefaultHelpCommand implements Command {
             .setDescription(
                 'Alpha is a fun all-in-one bot, in this help menu you will find the general commands and information you need to properly use the bot.' +
                     '\n' +
-                    "\n**!xp [@User]** - View your or another user's xp!" +
+                    '\n**!xp [@User]** - View your or another user\'s xp!' +
                     '\n**!lb [size]** - View the xp leader board! (Default size: 10, Max: 25)' +
                     '\n**!about** - View information about the bot' +
                     '\n**!serverinfo** - View information about the server!' +
