@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 10, 2020 at 09:59 PM
+-- Generation Time: Jun 10, 2020 at 11:10 PM
 -- Server version: 5.7.24
 -- PHP Version: 7.4.1
 
@@ -311,17 +311,23 @@ SET @EndRow = IN_Page * IN_PageSize;
 SELECT *
 FROM (
     SELECT
-        GU.XpAmount, GU.LastUpdated, U.UserDiscordId,
+        *,
         @ROW_NUMBER := @ROW_NUMBER + 1 AS 'Position'
-    FROM temp AS T
-    JOIN `user` AS U
-        ON U.UserDiscordId = T.val 
-    JOIN `guilduser` AS GU
-        ON GU.UserId = U.UserId
-    WHERE
-        GU.GuildId = @GuildId AND
-        GU.XpAmount > 0
-    ORDER BY GU.XpAmount DESC
+    FROM (
+        SELECT
+            GU.XpAmount,
+            GU.LastUpdated,
+            U.UserDiscordId
+        FROM temp AS T
+        JOIN `user` AS U
+            ON U.UserDiscordId = T.val 
+        JOIN `guilduser` AS GU
+            ON GU.UserId = U.UserId
+        WHERE
+            GU.GuildId = @GuildId AND
+            GU.XpAmount > 0
+        ORDER BY GU.XpAmount DESC
+    ) AS UserData
 ) AS UserData
 WHERE
     UserData.Position >= @StartRow AND
@@ -331,7 +337,7 @@ SELECT
     @TotalItems AS 'TotalItems',
     @TotalPages as 'TotalPages';
     
-# DROP TEMPORARY TABLE IF EXISTS temp;
+DROP TEMPORARY TABLE IF EXISTS temp;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Sync` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_UserDiscordId` VARCHAR(20))  BEGIN
