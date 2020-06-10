@@ -181,7 +181,7 @@ export abstract class FormatUtils {
             .setDescription(quote)
             .setFooter(`Quoted by ${quoter.user.username}`)
             .setTimestamp()
-            .setColor(Config.color.default);
+            .setColor(Config.colors.default);
 
         return embed;
     }
