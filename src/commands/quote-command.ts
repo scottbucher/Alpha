@@ -117,6 +117,7 @@ export class QuoteCommand implements Command {
         let quote = await originChannel.messages.fetch(data.MessageId);
         let quoted = quote.author;
 
-        await quoteChannel.send(await FormatUtils.getQuoteEmbed(quoted, msg.member, quote.content));
+        let embed = await FormatUtils.getQuoteEmbed(quoted, msg.member, quote.content);
+        await quoteChannel.send(embed);
     }
 }
