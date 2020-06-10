@@ -47,11 +47,15 @@ export class QuoteCommand implements Command {
 
         if (!data) {
             for (let channel of channels.array()) {
-                let message = await channel.messages.fetch(args[1]);
-                if (message) {
-                    originChannel = channel;
-                    originMessage = message;
-                    break;
+                try {
+                    let message = await channel.messages.fetch(args[1]);
+                    if (message) {
+                        originChannel = channel;
+                        originMessage = message;
+                        break;
+                    }
+                } catch {
+                    // Ignore fetch failure
                 }
             }
         } else {
