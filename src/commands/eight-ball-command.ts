@@ -5,6 +5,8 @@ import { Command } from './command';
 let Config = require('../../config/config.json');
 let EightBall = require('../../config/eight-ball.json');
 
+const HUNTER_REGEX = /(hunter|draxi|reed).*smoke/i;
+
 export class EightBallCommand implements Command {
     public name: string = '8ball';
     public aliases: string[] = ['eightball', 'magicball', 'magiceightball', 'magic8ball', '8b'];
@@ -36,11 +38,7 @@ export class EightBallCommand implements Command {
             return;
         }
 
-        if (
-            msg.content
-                .toLowerCase()
-                .includes('does hunter smoke') /*&& msg.guild.id === '468268307573768194'*/
-        ) {
+        if (HUNTER_REGEX.test(msg.content)) {
             let embed = new MessageEmbed().setDescription('Yes.').setColor(Config.colors.success);
             await channel.send(embed);
             return;
