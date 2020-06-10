@@ -13,7 +13,7 @@ export class SetWelcomeChannelCommand implements Command {
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = true;
-    public help: string = 'Sets the Welcome CHannel.';
+    public help: string = 'Sets the Welcome Channel.';
 
     constructor(private guildRepo: GuildRepo) {}
 
