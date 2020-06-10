@@ -1,6 +1,4 @@
 import { Client, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
-import schedule from 'node-schedule';
-
 import {
     GuildJoinHandler,
     MessageHandler,
@@ -8,9 +6,11 @@ import {
     ReactionRemoveHandler,
     UserJoinHandler,
 } from './events';
-import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { Logger } from './services';
 import { GuildRepo, UserRepo } from './services/database/repos';
+
+import { Logger } from './services';
+import { TrackVoiceXp } from './jobs/trackVoiceXp';
+import schedule from 'node-schedule';
 
 let Config = require('../config/config.json');
 let Logs = require('../lang/logs.json');
@@ -127,7 +127,7 @@ export class Bot {
         let guilds = client.guilds.cache;
 
         for (let guild of guilds.array()) {
-            guildRepo.syncGuild(guild.id, guild.members.cache.filter(member => !member.user.bot).keyArray());
+            await guildRepo.syncGuild(guild.id, guild.members.cache.filter(member => !member.user.bot).keyArray());
         }
     }
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 08, 2020 at 05:57 PM
+-- Generation Time: Jun 10, 2020 at 01:22 AM
 -- Server version: 5.7.24
 -- PHP Version: 7.4.1
 
@@ -258,6 +258,72 @@ SELECT UserDiscordId
 FROM users
 WHERE FIND_IN_SET(UserDiscordId, IN_DiscordIds) > 0 AND GuildId = @GuildId;
 
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_GetLeaderBoardUsers` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_UserDiscordIds` MEDIUMTEXT, IN `IN_PageSize` INT, IN `IN_Page` INT)  BEGIN
+
+SET @GuildId = NULL;
+SET @TotalPages = NULL;
+SET @TotalItems = NULL;
+SET @StartRow = NULL;
+SET @EndRow = NULL;
+SET @ROW_NUMBER = 0;
+
+SELECT GuildId
+INTO @GuildId
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+DROP TEMPORARY TABLE IF EXISTS temp;
+CREATE TEMPORARY TABLE temp( val VARCHAR(20) );
+SET @SQL = CONCAT("INSERT INTO temp (val) values ('", REPLACE(IN_UserDiscordIds, ",", "'),('"),"');");
+
+PREPARE stmt1 FROM @sql;
+EXECUTE stmt1;
+
+SELECT COUNT(*) INTO @TotalItems
+FROM temp AS T
+JOIN `user`AS U
+	ON U.UserDiscordId = val = T.val
+JOIN `guilduser` AS GU
+	ON GU.UserId = U.UserId
+WHERE GU.GuildId = @GuildId AND GU.XpAmount > 0;
+
+SELECT CEILING(@TotalItems/IN_PageSize) INTO @TotalPages;
+
+IF (IN_Page < 0) THEN 
+	SET IN_Page = 1;
+ELSEIF (IN_Page > @TotalPages) THEN 
+	SET IN_Page = @TotalPages;
+END IF;
+
+SET @StartPosition = (IN_Page - 1) * IN_PageSize;
+SET @EndPosition = IN_Page * IN_PageSize;
+
+SELECT *
+FROM (
+    SELECT
+        GU.XpAmount, GU.LastUpdated, U.UserDiscordId,
+        @ROW_NUMBER := @ROW_NUMBER + 1 AS 'Position'
+    FROM temp AS T
+    JOIN `user` AS U
+        ON U.UserDiscordId = T.val 
+    JOIN `guilduser` AS GU
+        ON GU.UserId = U.UserId
+    WHERE
+        GU.GuildId = @GuildId AND
+        GU.XpAmount > 0
+    ORDER BY GU.XpAmount DESC
+) AS UserData
+WHERE
+    UserData.Position >= @StartRow AND
+    UserData.Position <= @EndRow;
+
+SELECT
+    @TotalItems AS 'TotalItems',
+    @TotalPages as 'TotalPages';
+    
+# DROP TEMPORARY TABLE IF EXISTS temp;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Sync` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_UserDiscordId` VARCHAR(20))  BEGIN

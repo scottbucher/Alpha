@@ -4,6 +4,7 @@ import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
 import { RoleCallData } from '../models/database/rolecall-models';
 import { UserData } from '../models/database/user-models';
+import { UserDataResults } from '../models/database/user-data-results-models';
 import { XpUtils } from './xp-utils';
 import { isNumber } from 'util';
 
@@ -137,7 +138,7 @@ export abstract class FormatUtils {
 
     public static async getXpLeaderBoardEmbed(
         guild: Guild,
-        userData: UserData[],
+        userDataResults: UserDataResults,
         page: number,
         pageSize: number
     ): Promise<MessageEmbed> {
@@ -148,12 +149,27 @@ export abstract class FormatUtils {
             .setFooter('Talk in Text & Voice Channels to level up!', guild.iconURL())
             .setTimestamp();
 
-            let i = ((page-1) * pageSize) + 1;
+        let i = (page - 1) * pageSize + 1;
 
-            for (let user of userData) {
-                embed.addField(`#${i}: ${guild.members.resolve(user.UserDiscordId).displayName}`, `Level: ${XpUtils.getLevelFromXp(user.XpAmount)} (Total XP: ${user.XpAmount})`);
-                i++;
-            }
+        if (userDataResults.userData.length === 0) {
+            let errorEmbed = new MessageEmbed()
+                .setDescription('No users in the database!')
+                .setColor(Config.colors.error);
+            return errorEmbed;
+        }
+
+        let description = '';
+
+        for (let userData of userDataResults.userData) {
+            description += `#${i}: ${
+                guild.members.resolve(userData.UserDiscordId)?.toString() || 'Unknown'
+            } \nLevel: **${XpUtils.getLevelFromXp(userData.XpAmount)}** (Total XP: **${
+                userData.XpAmount
+            }**)\n\n`;
+            i++;
+        }
+
+        embed.setDescription(description);
 
         return embed;
     }
