@@ -7,7 +7,7 @@ let EightBall = require('../../config/eightball.json');
 
 export class EightBallCommand implements Command {
     public name: string = '8ball';
-    public aliases: string[] = ['eightball', 'magicball', '8magiceightball', 'magic8ball', '8b'];
+    public aliases: string[] = ['eightball', 'magicball', 'magiceightball', 'magic8ball', '8b'];
     public trigger = null;
     public guildOnly = false;
     public adminOnly = false;
@@ -58,7 +58,9 @@ export class EightBallCommand implements Command {
         } else if (outCome === 1) {
             embed
                 .setDescription(
-                    EightBall.messages.yes[Math.floor(Math.random() * EightBall.messages.yes.length)]
+                    EightBall.messages.yes[
+                        Math.floor(Math.random() * EightBall.messages.yes.length)
+                    ]
                 )
                 .setColor(Config.colors.success);
         } else if (outCome === 2) {
