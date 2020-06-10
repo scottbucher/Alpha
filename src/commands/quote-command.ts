@@ -41,17 +41,31 @@ export class QuoteCommand implements Command {
         let channels = msg.guild.channels.cache.filter(
             channel => channel.type === 'text'
         ) as Collection<string, TextChannel>;
+
         let originChannel: TextChannel;
+        let originMessage: Message;
 
         if (!data) {
-            try {
-                originChannel = channels.find(channel => !!channel.messages.resolve(args[1]));
-                if (originChannel) data.MessageId = args[2];
-            } catch (error) {
-                // Invalid input
+            for (let channel of channels.array()) {
+                let message = await channel.messages.fetch(args[1]);
+                if (message) {
+                    originChannel = channel;
+                    originMessage = message;
+                    break;
+                }
             }
         } else {
-            originChannel = channels.find(channel => !!channel.messages.resolve(data.MessageId));
+            originChannel = channels.find(channel => channel.id === data.ChannelId);
+            originMessage = await originChannel?.messages.fetch(data.MessageId);
+        }
+
+        // Cannot find message!
+        if (!(originChannel && originMessage)) {
+            let embed = new MessageEmbed()
+                .setDescription('Could not find that message!')
+                .setColor(Config.colors.error);
+            await channel.send(embed);
+            return;
         }
 
         if (!data) {
