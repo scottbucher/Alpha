@@ -22,13 +22,20 @@ export class AboutCommand implements Command {
 
         let embed = new MessageEmbed()
             .setDescription(
-                'Hello! I am <@642088667615199242>, a bot built by [Scott Bucher](https://github.com/scottbucher/) with help from [Kevin Novak](https://github.com/KevinNovak)!'
-                + '\n\nMy prefix for this server is `' + guildData.Prefix + '`'
-                + '\n\nType `' + guildData.Prefix + 'help` and I\'ll display you a list of commands you can use!'
-                + '\n\nFor additional help contact Stqlth#0001 on discord or through github!'
+                `Hello! I am ${msg.client.user}, a bot built by [Scott Bucher](https://github.com/scottbucher/) with help from [Kevin Novak](https://github.com/KevinNovak)!` +
+                    '\n\nMy prefix for this server is `' +
+                    guildData.Prefix +
+                    '`' +
+                    '\n\nType `' +
+                    guildData.Prefix +
+                    'help` and I\'ll display you a list of commands you can use!' +
+                    '\n\nFor additional help contact Stqlth#0001 on discord or through github!'
             )
             .setAuthor('Alpha Bot', msg.client.user.avatarURL())
-            .setFooter('© 2020 Scott Bucher', msg.client.users.resolve('478288246858711040').avatarURL())
+            .setFooter(
+                `© ${new Date().getFullYear()} Scott Bucher`,
+                msg.client.users.resolve('478288246858711040').avatarURL()
+            )
             .setTimestamp()
             .setThumbnail(msg.client.user.avatarURL())
             .setColor(Config.colors.default);
