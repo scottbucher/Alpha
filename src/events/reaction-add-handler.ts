@@ -34,17 +34,15 @@ export class ReactionAddHandler implements EventHandler {
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
-        if (reactedEmoji === Config.refreshEmote) {
-            let check = msg.reactions.cache.find(
-                reaction => reaction.emoji.name === Config.refreshEmote && reaction.me
-            );
-            if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && check) {
-                // check if it's me is not working
-                // Refresh the role-call
+        let check = msg.reactions.cache.find(
+            reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
+        );
 
-                let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
-                msg = await msg.edit('', roleCallEmbed);
-            }
+        if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && check) {
+            // Refresh the role-call
+
+            let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
+            msg = await msg.edit('', roleCallEmbed);
 
             await msg.reactions.removeAll();
 
@@ -70,7 +68,7 @@ export class ReactionAddHandler implements EventHandler {
                 if (!emoji) continue; // Continue if there is no emoji
                 msg.react(emoji); // React with the emote
             }
-            msg.react(Config.refreshEmote); // Add Administrative Recycle Emote
+            msg.react(Config.emotes.refresh); // Add Administrative Recycle Emote
         }
 
         if (
@@ -90,7 +88,7 @@ export class ReactionAddHandler implements EventHandler {
 
             if (reactedEmoji === emoji || reactedEmoji === guildEmoteValue?.name) {
                 let check = msg.reactions.cache.find(
-                    reaction => reaction.emoji.name === Config.refreshEmote && reaction.me
+                    reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
                 ); // Try and find if the bot has also given this emote on this message
                 if (check) {
                     let roleCallRoles = roleCallData // Get an array of Roles under this category
