@@ -24,7 +24,7 @@ export abstract class MessageUtils {
             : '**None**';
     }
 
-    public static extractMessageId(input: string): MessageLinkData {
+    public static extractMessageLinkData(input: string): MessageLinkData {
         let match = MESSAGE_LINK_REGEX.exec(input);
         if (match) {
             return {

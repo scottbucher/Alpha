@@ -18,9 +18,7 @@ export class QuoteCommand implements Command {
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
         let guildData = await this.guildRepo.getGuild(msg.guild.id);
-
         let quoteChannel = msg.guild.channels.resolve(guildData.QuoteChannelId) as TextChannel;
-
         if (!quoteChannel) {
             let embed = new MessageEmbed()
                 .setDescription(`This guild doesn't have a quote channel set!`)
@@ -37,7 +35,7 @@ export class QuoteCommand implements Command {
             return;
         }
 
-        let data = MessageUtils.extractMessageId(args[1]);
+        let messageLinkData = MessageUtils.extractMessageLinkData(args[1]);
         let channels = msg.guild.channels.cache.filter(
             channel => channel.type === 'text'
         ) as Collection<string, TextChannel>;
@@ -45,7 +43,7 @@ export class QuoteCommand implements Command {
         let originChannel: TextChannel;
         let originMessage: Message;
 
-        if (!data) {
+        if (!messageLinkData) {
             for (let channel of channels.array()) {
                 try {
                     let message = await channel.messages.fetch(args[1]);
@@ -59,8 +57,8 @@ export class QuoteCommand implements Command {
                 }
             }
         } else {
-            originChannel = channels.find(channel => channel.id === data.ChannelId);
-            originMessage = await originChannel?.messages.fetch(data.MessageId);
+            originChannel = channels.find(channel => channel.id === messageLinkData.ChannelId);
+            originMessage = await originChannel?.messages.fetch(messageLinkData.MessageId);
         }
 
         if (!(originChannel && originMessage)) {
