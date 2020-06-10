@@ -23,7 +23,7 @@ export class QuoteCommand implements Command {
 
         if (!quoteChannel) {
             let embed = new MessageEmbed()
-                .setDescription('This guild doesn\'t have a quote channel set!')
+                .setDescription(`This guild doesn't have a quote channel set!`)
                 .setColor(Config.colors.error);
             await channel.send(embed);
             return;
