@@ -23,6 +23,7 @@ import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/databa
 
 import { Bot } from './bot';
 import { DataAccess } from './services/database/data-access';
+import { EightBallCommand } from './commands/eight-ball-command';
 import { Logger } from './services';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
@@ -65,6 +66,7 @@ async function start(): Promise<void> {
     let setWelcomeChannelCommand = new SetWelcomeChannelCommand(guildRepo);
 
     let goodMorningCommand = new GoodMorningCommand();
+    let eightBallCommand = new EightBallCommand();
     let testCommand = new TestCommand();
 
     // Events handlers
@@ -81,6 +83,7 @@ async function start(): Promise<void> {
             createRoleCallCommand,
             setWelcomeChannelCommand,
             goodMorningCommand,
+            eightBallCommand,
             testCommand,
         ],
         guildRepo,
