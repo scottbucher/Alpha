@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.5
+-- version 4.9.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jun 10, 2020 at 01:22 AM
--- Server version: 5.7.24
--- PHP Version: 7.4.1
+-- Host: localhost
+-- Generation Time: Jun 10, 2020 at 03:08 AM
+-- Server version: 10.3.22-MariaDB-0+deb10u1
+-- PHP Version: 7.3.14-1~deb10u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `alphadev`
+-- Database: `alpha`
 --
 
 DELIMITER $$
@@ -284,7 +284,7 @@ EXECUTE stmt1;
 SELECT COUNT(*) INTO @TotalItems
 FROM temp AS T
 JOIN `user`AS U
-	ON U.UserDiscordId = val = T.val
+	ON U.UserDiscordId = T.val
 JOIN `guilduser` AS GU
 	ON GU.UserId = U.UserId
 WHERE GU.GuildId = @GuildId AND GU.XpAmount > 0;
@@ -297,8 +297,8 @@ ELSEIF (IN_Page > @TotalPages) THEN
 	SET IN_Page = @TotalPages;
 END IF;
 
-SET @StartPosition = (IN_Page - 1) * IN_PageSize;
-SET @EndPosition = IN_Page * IN_PageSize;
+SET @StartRow = (IN_Page - 1) * IN_PageSize;
+SET @EndRow = IN_Page * IN_PageSize;
 
 SELECT *
 FROM (
@@ -410,8 +410,8 @@ CREATE TABLE `guilduser` (
   `GuildUserId` int(11) NOT NULL,
   `UserId` int(11) NOT NULL,
   `GuildId` int(11) NOT NULL,
-  `XpAmount` int(11) DEFAULT '0',
-  `LastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `XpAmount` int(11) DEFAULT 0,
+  `LastUpdated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
