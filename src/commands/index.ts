@@ -9,5 +9,7 @@ export { GoodnightCommand } from './goodnight-command';
 export { RemoveRoleCallCommand } from './remove-role-call-command';
 export { SetLevelingChannelCommand } from './set-leveling-channel-command';
 export { SetWelcomeChannelCommand } from './set-welcome-channel-command';
-export { TestCommand } from './test-command';
+export { AboutCommand } from './about-command';
 export { XpCommand } from './xp-command';
+export { ServerInfoCommand } from './server-info-command';
+export { SetXpCommand } from './set-xp-command';
