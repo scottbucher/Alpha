@@ -1,4 +1,4 @@
-import { Collection, GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
+import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 import { FormatUtils, MessageUtils } from '../utils';
 
 import { Command } from './command';
@@ -36,19 +36,19 @@ export class QuoteCommand implements Command {
         }
 
         let messageLinkData = MessageUtils.extractMessageLinkData(args[1]);
-        let channels = msg.guild.channels.cache.filter(
-            channel => channel.type === 'text'
-        ) as Collection<string, TextChannel>;
+        let textChannels = msg.guild.channels.cache
+            .filter(channel => channel instanceof TextChannel)
+            .map(channel => channel as TextChannel);
 
         let originChannel: TextChannel;
         let originMessage: Message;
 
         if (!messageLinkData) {
-            for (let channel of channels.array()) {
+            for (let textChannel of textChannels) {
                 try {
-                    let message = await channel.messages.fetch(args[1]);
+                    let message = await textChannel.messages.fetch(args[1]);
                     if (message) {
-                        originChannel = channel;
+                        originChannel = textChannel;
                         originMessage = message;
                         break;
                     }
@@ -57,7 +57,7 @@ export class QuoteCommand implements Command {
                 }
             }
         } else {
-            originChannel = channels.find(channel => channel.id === messageLinkData.ChannelId);
+            originChannel = textChannels.find(channel => channel.id === messageLinkData.ChannelId);
             originMessage = await originChannel?.messages.fetch(messageLinkData.MessageId);
         }
 
