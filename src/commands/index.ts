@@ -13,3 +13,5 @@ export { AboutCommand } from './about-command';
 export { XpCommand } from './xp-command';
 export { ServerInfoCommand } from './server-info-command';
 export { SetXpCommand } from './set-xp-command';
+export { SetQuoteChannelCommand } from './set-quote-channel';
+export { QuoteCommand } from './quote-command';

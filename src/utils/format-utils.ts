@@ -1,9 +1,8 @@
-import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'discord.js';
+import { Guild, GuildEmoji, GuildMember, MessageEmbed, User, Util } from 'discord.js';
 
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
 import { RoleCallData } from '../models/database/rolecall-models';
-import { UserData } from '../models/database/user-models';
 import { UserDataResults } from '../models/database/user-data-results-models';
 import { XpUtils } from './xp-utils';
 import { isNumber } from 'util';
@@ -172,5 +171,19 @@ export abstract class FormatUtils {
         embed.setDescription(description);
 
         return embed;
+    }
+
+    public static async getQuoteEmbed(
+        quoted: User,
+        quoter: GuildMember,
+        quote: string
+    ): Promise<MessageEmbed> {
+        return new MessageEmbed()
+            .setTitle(`Quote From ${quoted.username}`)
+            .setThumbnail(quoted.avatarURL())
+            .setDescription(quote)
+            .setFooter(`Quoted by ${quoter.user.username}`)
+            .setTimestamp()
+            .setColor(Config.colors.default);
     }
 }

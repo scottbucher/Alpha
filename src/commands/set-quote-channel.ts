@@ -6,22 +6,22 @@ import { PermissionUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
-export class SetWelcomeChannelCommand implements Command {
-    public name: string = 'setwelcomechannel';
-    public aliases = ['updatewelcomechannel'];
+export class SetQuoteChannelCommand implements Command {
+    public name: string = 'setquotechannel';
+    public aliases = ['updatequotechannel'];
     public trigger = null;
     public guildOnly = true;
     public adminOnly = true;
     public ownerOnly = true;
-    public help: string = 'Sets the Welcome Channel.';
+    public help: string = 'Sets the Quote Channel.';
 
     constructor(private guildRepo: GuildRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
         if (args.length === 1) {
-            this.guildRepo.updateGuildWelcomeChannel(msg.guild.id, channel.id); // Update Leveling Channel
+            this.guildRepo.updateGuildQuoteChannel(msg.guild.id, channel.id); // Update Leveling Channel
             let embed = new MessageEmbed()
-                .setDescription(`Successfully set the welcome channel to <#${channel.id}>!`)
+                .setDescription(`Successfully set the quote channel to <#${channel.id}>!`)
                 .setColor(Config.colors.success);
 
             await channel.send(embed); // Send confirmation of completion
@@ -55,10 +55,10 @@ export class SetWelcomeChannelCommand implements Command {
             return;
         }
 
-        this.guildRepo.updateGuildWelcomeChannel(msg.guild.id, channelInput.id); // Update Welcome Channel
+        this.guildRepo.updateGuildQuoteChannel(msg.guild.id, channelInput.id); // Update Quote Channel
 
         let embed = new MessageEmbed()
-            .setDescription(`Successfully set the welcome channel to <#${channelInput.id}>!`)
+            .setDescription(`Successfully set the quote channel to <#${channelInput.id}>!`)
             .setColor(Config.colors.success);
         await channel.send(embed); // Send confirmation of completion
     }

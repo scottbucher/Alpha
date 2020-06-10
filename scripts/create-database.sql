@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.2
+-- version 4.9.5
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Jun 10, 2020 at 05:37 AM
--- Server version: 10.3.22-MariaDB-0+deb10u1
--- PHP Version: 7.3.14-1~deb10u1
+-- Host: localhost:3306
+-- Generation Time: Jun 10, 2020 at 09:59 PM
+-- Server version: 5.7.24
+-- PHP Version: 7.4.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `alpha`
+-- Database: `alphadev`
 --
 
 DELIMITER $$
@@ -195,6 +195,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateLevelingChannel` (IN `I
 
 UPDATE `guild`
 SET LevelingChannelId = IN_LevelingChannelId
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateQuoteChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_QuoteChannelId` VARCHAR(20))  BEGIN
+
+UPDATE `guild`
+SET QuoteChannelId = IN_QuoteChannelId
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
 END$$
@@ -397,7 +405,8 @@ CREATE TABLE `guild` (
   `GuildDiscordId` varchar(20) NOT NULL,
   `Prefix` varchar(100) NOT NULL DEFAULT '!',
   `LevelingChannelId` varchar(20) DEFAULT '0',
-  `WelcomeChannelId` varchar(20) NOT NULL DEFAULT '0'
+  `WelcomeChannelId` varchar(20) NOT NULL DEFAULT '0',
+  `QuoteChannelId` varchar(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -410,8 +419,8 @@ CREATE TABLE `guilduser` (
   `GuildUserId` int(11) NOT NULL,
   `UserId` int(11) NOT NULL,
   `GuildId` int(11) NOT NULL,
-  `XpAmount` int(11) DEFAULT 0,
-  `LastUpdated` timestamp NOT NULL DEFAULT current_timestamp()
+  `XpAmount` int(11) DEFAULT '0',
+  `LastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

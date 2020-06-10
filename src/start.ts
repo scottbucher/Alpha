@@ -7,9 +7,11 @@ import {
     DefaultHelpCommand,
     GoodMorningCommand,
     GoodnightCommand,
+    QuoteCommand,
     RemoveRoleCallCommand,
     ServerInfoCommand,
     SetLevelingChannelCommand,
+    SetQuoteChannelCommand,
     SetWelcomeChannelCommand,
     SetXpCommand,
     XpCommand,
@@ -68,6 +70,7 @@ async function start(): Promise<void> {
     let createRoleCallCommand = new CreateRoleCallCommand(roleCallRepo);
 
     let setWelcomeChannelCommand = new SetWelcomeChannelCommand(guildRepo);
+    let setQuoteChannelCommand = new SetQuoteChannelCommand(guildRepo);
 
     let goodMorningCommand = new GoodMorningCommand();
     let goodNightCommand = new GoodnightCommand();
@@ -75,6 +78,7 @@ async function start(): Promise<void> {
     let eightBallCommand = new EightBallCommand();
     let aboutCommand = new AboutCommand(guildRepo);
     let serverInfoCommand = new ServerInfoCommand(guildRepo);
+    let quoteCommand = new QuoteCommand(guildRepo);
 
     // Events handlers
     let messageHandler = new MessageHandler(
@@ -90,11 +94,13 @@ async function start(): Promise<void> {
             removeRoleCallCommand,
             createRoleCallCommand,
             setWelcomeChannelCommand,
+            setQuoteChannelCommand,
             goodMorningCommand,
             goodNightCommand,
             eightBallCommand,
             aboutCommand,
             serverInfoCommand,
+            quoteCommand,
         ],
         guildRepo,
         userRepo,
