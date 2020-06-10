@@ -1,5 +1,6 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
+import { ArrayUtils } from '../utils';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
@@ -49,15 +50,15 @@ export class EightBallCommand implements Command {
 
         if (outCome === 0) {
             embed
-                .setDescription(EightBall.no[Math.floor(Math.random() * EightBall.no.length)])
+                .setDescription(ArrayUtils.chooseRandom(EightBall.no))
                 .setColor(Config.colors.error);
         } else if (outCome === 1) {
             embed
-                .setDescription(EightBall.yes[Math.floor(Math.random() * EightBall.yes.length)])
+                .setDescription(ArrayUtils.chooseRandom(EightBall.yes))
                 .setColor(Config.colors.success);
         } else if (outCome === 2) {
             embed
-                .setDescription(EightBall.maybe[Math.floor(Math.random() * EightBall.maybe.length)])
+                .setDescription(ArrayUtils.chooseRandom(EightBall.maybe))
                 .setColor(Config.colors.default);
         }
 
