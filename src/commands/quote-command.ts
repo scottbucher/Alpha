@@ -1,4 +1,4 @@
-import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
+import { GuildMember, Message, MessageEmbed, TextChannel, User } from 'discord.js';
 import { FormatUtils, MessageUtils } from '../utils';
 
 import { Command } from './command';
@@ -40,16 +40,16 @@ export class QuoteCommand implements Command {
             .filter(channel => channel instanceof TextChannel)
             .map(channel => channel as TextChannel);
 
-        let originChannel: TextChannel;
-        let originMessage: Message;
+        let quote: string;
+        let author: User;
 
         if (!messageLinkData) {
             for (let textChannel of textChannels) {
                 try {
                     let message = await textChannel.messages.fetch(args[1]);
                     if (message) {
-                        originChannel = textChannel;
-                        originMessage = message;
+                        quote = message.content;
+                        author = message.author;
                         break;
                     }
                 } catch {
@@ -57,11 +57,15 @@ export class QuoteCommand implements Command {
                 }
             }
         } else {
-            originChannel = textChannels.find(channel => channel.id === messageLinkData.ChannelId);
-            originMessage = await originChannel?.messages.fetch(messageLinkData.MessageId);
+            let channel = textChannels.find(channel => channel.id === messageLinkData.ChannelId);
+            let message = await channel?.messages.fetch(messageLinkData.MessageId);
+            if (message) {
+                quote = message.content;
+                author = message.author;
+            }
         }
 
-        if (!(originChannel && originMessage)) {
+        if (!(quote && author)) {
             let target: GuildMember;
 
             target =
@@ -91,14 +95,12 @@ export class QuoteCommand implements Command {
             }
 
             // Get data and send
-            let quote = args.slice(2, args.length).join(' ');
-            let embed = await FormatUtils.getQuoteEmbed(target.user, msg.member, quote);
-            await quoteChannel.send(embed);
-            return;
+            quote = args.slice(2, args.length).join(' ');
+            author = msg.author;
         }
 
         // Cannot find message!
-        if (!(originChannel && originMessage)) {
+        if (!(quote && author)) {
             let embed = new MessageEmbed()
                 .setTitle('Invalid Input!')
                 .setDescription('Please specify a valid message id, link, or user')
@@ -107,11 +109,7 @@ export class QuoteCommand implements Command {
             return;
         }
 
-        let embed = await FormatUtils.getQuoteEmbed(
-            originMessage.author,
-            msg.member,
-            originMessage.content
-        );
+        let embed = await FormatUtils.getQuoteEmbed(author, msg.member, quote);
         await quoteChannel.send(embed);
     }
 }
