@@ -6,7 +6,11 @@
         "success": "0x1CFE86",
         "error": "0xff0000"
     },
-    "refreshEmote": "♻️",
+    "emotes": {
+        "refresh": "♻️",
+        "nextPage": "➡️",
+        "previousPage": "⬅️"
+    },
     "mysql": {
         "host": "<HOST>",
         "database": "<DATABASE>",

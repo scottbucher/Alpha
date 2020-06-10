@@ -1,9 +1,9 @@
+import { ActionUtils, FormatUtils } from '../utils';
 import { EmojiResolvable, MessageReaction, TextChannel, User } from 'discord.js';
 
+import { EventHandler } from './event-handler';
 import { Logger } from '../services';
 import { RoleCallRepo } from '../services/database/repos';
-import { ActionUtils, FormatUtils } from '../utils';
-import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');
@@ -44,7 +44,7 @@ export class ReactionRemoveHandler implements EventHandler {
 
             if (reactedEmoji === emoji || reactedEmoji === guildEmoteValue?.name) {
                 let check = msg.reactions.cache.find(
-                    reaction => reaction.emoji.name === Config.refreshEmote && reaction.me
+                    reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
                 );
                 if (check) {
                     let roleCallRoles = roleCallData // Get an array of Roles under this category

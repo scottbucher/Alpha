@@ -2,6 +2,7 @@ import { DataAccess } from '../data-access';
 import { Procedure } from '../procedure';
 import { SQLUtils } from '../../../utils';
 import { UserData } from '../../../models/database/user-models';
+import { UserDataResults } from '../../../models/database/user-data-results-models';
 
 export class UserRepo {
     constructor(private dataAccess: DataAccess) {}
@@ -37,15 +38,16 @@ export class UserRepo {
         await this.dataAccess.executeProcedure(Procedure.User_Sync, [guildId, discordId]);
     }
 
-    public async getLeaderBoardUsers(guildId: string, pageSize: number, page: number, startRow: number, endRow: number): Promise<UserData[]> {
+    public async getLeaderBoardUsers(guildId: string, discordIds: string[], pageSize: number, page: number): Promise<UserDataResults> {
         let results = await this.dataAccess.executeProcedure(Procedure.User_GetLeaderBoardUsers, [
             guildId,
+            discordIds.join(','),
             pageSize,
-            pageSize,
-            startRow,
-            endRow
+            page,
         ]);
 
-        return SQLUtils.getFirstResult(results);
+        let userData = SQLUtils.getFirstResult(results);
+        let stats = SQLUtils.getSecondResultFirstRow(results);
+        return new UserDataResults(userData, stats);
     }
 }

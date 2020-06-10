@@ -1,9 +1,9 @@
+import { ActionUtils, FormatUtils } from '../utils';
 import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
 
+import { EventHandler } from './event-handler';
 import { Logger } from '../services';
 import { RoleCallRepo } from '../services/database/repos';
-import { ActionUtils, FormatUtils } from '../utils';
-import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');
@@ -34,28 +34,41 @@ export class ReactionAddHandler implements EventHandler {
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
-        if (reactedEmoji === Config.refreshEmote) {
-            let check = msg.reactions.cache.find(
-                reaction => reaction.emoji.name === Config.refreshEmote && reaction.me
-            );
-            if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && check) {
-                // check if it's me is not working
-                // Refresh the role-call
+        let check = msg.reactions.cache.find(
+            reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
+        );
 
-                let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
-                msg = await msg.edit('', roleCallEmbed);
-            }
+        if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && check) {
+            // Refresh the role-call
+
+            let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
+            msg = await msg.edit('', roleCallEmbed);
 
             await msg.reactions.removeAll();
 
             for (let emote of roleCallEmotes) {
+                let roleCallRoles = roleCallData // Get an array of Roles under this category
+                    .filter(roleCall => roleCall.Emote === emote)
+                    .map(roleCall => roleCall.RoleDiscordId);
+
+                let roleCheck = false;
+
+                for (let role of roleCallRoles) {
+                    let giveRole = msg.guild.roles.resolve(role);
+
+                    if (!giveRole) continue;
+                    else roleCheck = true;
+                }
+
+                if (!roleCheck) continue;
+
                 let emoji: EmojiResolvable =
                     FormatUtils.findGuildEmoji(emote, msg.guild) ||
                     FormatUtils.findUnicodeEmoji(emote);
                 if (!emoji) continue; // Continue if there is no emoji
                 msg.react(emoji); // React with the emote
             }
-            msg.react(Config.refreshEmote); // Add Administrative Recycle Emote
+            msg.react(Config.emotes.refresh); // Add Administrative Recycle Emote
         }
 
         if (
@@ -75,7 +88,7 @@ export class ReactionAddHandler implements EventHandler {
 
             if (reactedEmoji === emoji || reactedEmoji === guildEmoteValue?.name) {
                 let check = msg.reactions.cache.find(
-                    reaction => reaction.emoji.name === Config.refreshEmote && reaction.me
+                    reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me
                 ); // Try and find if the bot has also given this emote on this message
                 if (check) {
                     let roleCallRoles = roleCallData // Get an array of Roles under this category
