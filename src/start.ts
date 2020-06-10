@@ -5,6 +5,7 @@ import {
     CreateRoleCallCommand,
     DefaultHelpCommand,
     GoodMorningCommand,
+    GoodnightCommand,
     RemoveRoleCallCommand,
     SetLevelingChannelCommand,
     SetWelcomeChannelCommand,
@@ -66,6 +67,8 @@ async function start(): Promise<void> {
     let setWelcomeChannelCommand = new SetWelcomeChannelCommand(guildRepo);
 
     let goodMorningCommand = new GoodMorningCommand();
+    let goodNightCommand = new GoodnightCommand();
+
     let eightBallCommand = new EightBallCommand();
     let testCommand = new TestCommand();
 
@@ -83,6 +86,7 @@ async function start(): Promise<void> {
             createRoleCallCommand,
             setWelcomeChannelCommand,
             goodMorningCommand,
+            goodNightCommand,
             eightBallCommand,
             testCommand,
         ],

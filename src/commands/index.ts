@@ -5,6 +5,7 @@ export { Command } from './command';
 export { CreateRoleCallCommand } from './create-role-call-command';
 export { DefaultHelpCommand } from './default-help-command';
 export { GoodMorningCommand } from './good-morning-command';
+export { GoodnightCommand } from './goodnight-command';
 export { RemoveRoleCallCommand } from './remove-role-call-command';
 export { SetLevelingChannelCommand } from './set-leveling-channel-command';
 export { SetWelcomeChannelCommand } from './set-welcome-channel-command';

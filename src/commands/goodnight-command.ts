@@ -5,20 +5,20 @@ import { ArrayUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
-export class GoodMorningCommand implements Command {
-    public name: string = 'goodmorning';
-    public aliases = ['gm'];
-    public trigger = /g+o+d+\s*m+o+r+n+i+n+/i;
+export class GoodnightCommand implements Command {
+    public name: string = 'goodnight';
+    public aliases = ['gn'];
+    public trigger = /g+o+d+\s*n+i+g+h+t+/i;
     public guildOnly: boolean = false;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
 
-    private emojis = ['🔅', '🔆', '☀️', '🌅', '🌄', '☕', '🥞'];
+    private emojis = ['😴', '😪', '🌃', '✨', '💤', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
 
     public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
         let emoji = ArrayUtils.chooseRandom(this.emojis);
         let embed = new MessageEmbed()
-            .setDescription(`${emoji} **Good morning ${msg.author.toString()}!** ${emoji}`)
+            .setDescription(`${emoji} **Goodnight ${msg.author.toString()}!** ${emoji}`)
             .setColor(Config.colors.default);
         await channel.send(embed);
     }

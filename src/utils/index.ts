@@ -7,3 +7,4 @@ export { MathUtils } from './math-utils';
 export { PermissionUtils } from './permission-utils';
 export { ActionUtils } from './action-utils';
 export { XpUtils } from './xp-utils';
+export { ArrayUtils } from './array-utils';
