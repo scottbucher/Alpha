@@ -3,7 +3,7 @@ import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
-let EightBall = require('../../config/eightball.json');
+let EightBall = require('../../config/eight-ball.json');
 
 export class EightBallCommand implements Command {
     public name: string = '8ball';
