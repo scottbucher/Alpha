@@ -11,6 +11,7 @@
         "nextPage": "➡️",
         "previousPage": "⬅️"
     },
+    "lbPageSize": "1",
     "mysql": {
         "host": "<HOST>",
         "database": "<DATABASE>",
