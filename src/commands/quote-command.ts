@@ -23,7 +23,7 @@ export class QuoteCommand implements Command {
 
         if (!quoteChannel) {
             let embed = new MessageEmbed()
-                .setDescription("This guild doesn't have a quote channel set!")
+                .setDescription('This guild doesn\'t have a quote channel set!')
                 .setColor(Config.colors.error);
             await channel.send(embed);
             return;
@@ -59,16 +59,7 @@ export class QuoteCommand implements Command {
             originMessage = await originChannel?.messages.fetch(data.MessageId);
         }
 
-        // Cannot find message!
         if (!(originChannel && originMessage)) {
-            let embed = new MessageEmbed()
-                .setDescription('Could not find that message!')
-                .setColor(Config.colors.error);
-            await channel.send(embed);
-            return;
-        }
-
-        if (!data) {
             let target: GuildMember;
 
             target =
@@ -104,7 +95,8 @@ export class QuoteCommand implements Command {
             );
         }
 
-        if (!originChannel) {
+        // Cannot find message!
+        if (!(originChannel && originMessage)) {
             let embed = new MessageEmbed()
                 .setTitle('Invalid Input!')
                 .setDescription('Please specify a valid message id, link, or user')
@@ -113,10 +105,11 @@ export class QuoteCommand implements Command {
             return;
         }
 
-        let quote = await originChannel.messages.fetch(data.MessageId);
-        let quoted = quote.author;
-
-        let embed = await FormatUtils.getQuoteEmbed(quoted, msg.member, quote.content);
+        let embed = await FormatUtils.getQuoteEmbed(
+            originMessage.author,
+            msg.member,
+            originMessage.content
+        );
         await quoteChannel.send(embed);
     }
 }
