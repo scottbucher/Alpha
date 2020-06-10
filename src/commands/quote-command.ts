@@ -3,11 +3,8 @@ import { FormatUtils, MessageUtils } from '../utils';
 
 import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
-import { MessageLinkData } from '../models/message-link-data-models';
 
 let Config = require('../../config/config.json');
-
-const LINK_REGEX = /https:\/\/discordapp.com\/channels\/\d+\/\d+\/(\d+)/;
 
 export class QuoteCommand implements Command {
     public name: string = 'quote';
@@ -20,7 +17,6 @@ export class QuoteCommand implements Command {
     constructor(private guildRepo: GuildRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-
         let sendChannelId = (await this.guildRepo.getGuild(msg.guild.id)).QuoteChannelId;
 
         let sendChannel = msg.guild.channels.resolve(sendChannelId) as TextChannel;
@@ -42,7 +38,9 @@ export class QuoteCommand implements Command {
         }
 
         let data = MessageUtils.extractMessageId(args[1]);
-        let channels = msg.guild.channels.cache.filter(channel => channel.type === 'text') as Collection<string, TextChannel>;
+        let channels = msg.guild.channels.cache.filter(
+            channel => channel.type === 'text'
+        ) as Collection<string, TextChannel>;
         let quoteChannel: TextChannel;
 
         if (!data) {
@@ -69,7 +67,7 @@ export class QuoteCommand implements Command {
 
             if (!target) {
                 let embed = new MessageEmbed()
-                .setTitle('Invalid Input!')
+                    .setTitle('Invalid Input!')
                     .setDescription('Please specify a valid message id, link, or user')
                     .setColor(Config.colors.error);
                 await channel.send(embed);
@@ -78,7 +76,7 @@ export class QuoteCommand implements Command {
 
             if (args.length < 3) {
                 let embed = new MessageEmbed()
-                .setTitle('Invalid Input!')
+                    .setTitle('Invalid Input!')
                     .setDescription('Please supply a quote!')
                     .setColor(Config.colors.error);
                 await channel.send(embed);
@@ -87,13 +85,13 @@ export class QuoteCommand implements Command {
 
             // Get data and send
 
-            let quote = args.slice(2,args.length).join(' ');
+            let quote = args.slice(2, args.length).join(' ');
             await sendChannel.send(await FormatUtils.getQuoteEmbed(target.user, msg.member, quote));
         }
 
         if (!quoteChannel) {
             let embed = new MessageEmbed()
-            .setTitle('Invalid Input!')
+                .setTitle('Invalid Input!')
                 .setDescription('Please specify a valid message id, link, or user')
                 .setColor(Config.colors.error);
             await channel.send(embed);
@@ -104,6 +102,5 @@ export class QuoteCommand implements Command {
         let quoted = quote.author;
 
         await sendChannel.send(await FormatUtils.getQuoteEmbed(quoted, msg.member, quote.content));
-
     }
 }
