@@ -40,6 +40,14 @@ export class XpCommand implements Command {
             return;
         }
 
+        if (target.user.bot) {
+            let embed = new MessageEmbed()
+                .setDescription('You may not view a bot\'s level.')
+                .setColor(Config.colors.error);
+            await channel.send(embed);
+            return;
+        }
+
         let userData = await this.userRepo.getUser(target.id, msg.guild.id);
 
         let playerXp = userData.XpAmount;
