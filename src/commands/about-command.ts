@@ -33,7 +33,7 @@ export class AboutCommand implements Command {
             )
             .setAuthor('Alpha Bot', msg.client.user.avatarURL())
             .setFooter(
-                '© 2020 Scott Bucher',
+                `© ${new Date().getFullYear()} Scott Bucher`,
                 msg.client.users.resolve('478288246858711040').avatarURL()
             )
             .setTimestamp()
