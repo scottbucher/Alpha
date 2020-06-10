@@ -94,9 +94,9 @@ export class QuoteCommand implements Command {
 
             // Get data and send
             let quote = args.slice(2, args.length).join(' ');
-            await quoteChannel.send(
-                await FormatUtils.getQuoteEmbed(target.user, msg.member, quote)
-            );
+            let embed = await FormatUtils.getQuoteEmbed(target.user, msg.member, quote);
+            await quoteChannel.send(embed);
+            return;
         }
 
         // Cannot find message!
