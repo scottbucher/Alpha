@@ -52,7 +52,6 @@ export class ServerInfoCommand implements Command {
             )
             .addField('Server ID', `\`${guild.id}\``, true)
             .addField('Current Shard', `Shard 1/1`, true)
-            .setThumbnail(msg.client.user.avatarURL())
             .setFooter(
                 `© ${new Date().getFullYear()} Scott Bucher`,
                 msg.client.users.resolve('478288246858711040').avatarURL()
