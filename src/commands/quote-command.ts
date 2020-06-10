@@ -17,11 +17,11 @@ export class QuoteCommand implements Command {
     constructor(private guildRepo: GuildRepo) {}
 
     public async execute(args: string[], msg: Message, channel: TextChannel): Promise<void> {
-        let sendChannelId = (await this.guildRepo.getGuild(msg.guild.id)).QuoteChannelId;
+        let guildData = await this.guildRepo.getGuild(msg.guild.id);
 
-        let sendChannel = msg.guild.channels.resolve(sendChannelId) as TextChannel;
+        let quoteChannel = msg.guild.channels.resolve(guildData.QuoteChannelId) as TextChannel;
 
-        if (!sendChannel) {
+        if (!quoteChannel) {
             let embed = new MessageEmbed()
                 .setDescription('This guild doesn\'t have a quote channel set!')
                 .setColor(Config.colors.error);
@@ -41,17 +41,17 @@ export class QuoteCommand implements Command {
         let channels = msg.guild.channels.cache.filter(
             channel => channel.type === 'text'
         ) as Collection<string, TextChannel>;
-        let quoteChannel: TextChannel;
+        let originChannel: TextChannel;
 
         if (!data) {
             try {
-                quoteChannel = channels.find(channel => !!channel.messages.resolve(args[1]));
-                if (quoteChannel) data.MessageId = args[2];
+                originChannel = channels.find(channel => !!channel.messages.resolve(args[1]));
+                if (originChannel) data.MessageId = args[2];
             } catch (error) {
                 // Invalid input
             }
         } else {
-            quoteChannel = channels.find(channel => !!channel.messages.resolve(data.MessageId));
+            originChannel = channels.find(channel => !!channel.messages.resolve(data.MessageId));
         }
 
         if (!data) {
@@ -86,10 +86,12 @@ export class QuoteCommand implements Command {
             // Get data and send
 
             let quote = args.slice(2, args.length).join(' ');
-            await sendChannel.send(await FormatUtils.getQuoteEmbed(target.user, msg.member, quote));
+            await quoteChannel.send(
+                await FormatUtils.getQuoteEmbed(target.user, msg.member, quote)
+            );
         }
 
-        if (!quoteChannel) {
+        if (!originChannel) {
             let embed = new MessageEmbed()
                 .setTitle('Invalid Input!')
                 .setDescription('Please specify a valid message id, link, or user')
@@ -98,9 +100,9 @@ export class QuoteCommand implements Command {
             return;
         }
 
-        let quote = await quoteChannel.messages.fetch(data.MessageId);
+        let quote = await originChannel.messages.fetch(data.MessageId);
         let quoted = quote.author;
 
-        await sendChannel.send(await FormatUtils.getQuoteEmbed(quoted, msg.member, quote.content));
+        await quoteChannel.send(await FormatUtils.getQuoteEmbed(quoted, msg.member, quote.content));
     }
 }
