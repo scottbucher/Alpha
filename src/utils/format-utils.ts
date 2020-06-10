@@ -1,4 +1,4 @@
-import { Guild, GuildEmoji, Message, MessageEmbed, TextChannel, Util } from 'discord.js';
+import { Guild, GuildEmoji, GuildMember, Message, MessageEmbed, TextChannel, User, Util } from 'discord.js';
 
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
@@ -170,6 +170,18 @@ export abstract class FormatUtils {
         }
 
         embed.setDescription(description);
+
+        return embed;
+    }
+
+    public static async getQuoteEmbed(quoted: User, quoter: GuildMember, quote: string): Promise<MessageEmbed> {
+        let embed = new MessageEmbed()
+            .setTitle(`Quote From ${quoted.username}`)
+            .setThumbnail(quoted.avatarURL())
+            .setDescription(quote)
+            .setFooter(`Quoted by ${quoter.user.username}`)
+            .setTimestamp()
+            .setColor(Config.color.default);
 
         return embed;
     }

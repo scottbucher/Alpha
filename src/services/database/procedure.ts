@@ -9,6 +9,7 @@ export enum Procedure {
     Guild_GetRoleCalls = 'Guild_GetRoleCalls',
     Guild_UpdateLevelingChannel = 'Guild_UpdateLevelingChannel',
     Guild_UpdateWelcomeChannel = 'Guild_UpdateWelcomeChannel',
+    Guild_UpdateQuoteChannel = 'Guild_UpdateQuoteChannel',
     User_Get = 'User_Get',
     User_Update = 'User_Update',
     User_GetAll = 'User_GetAll',
