@@ -1,10 +1,10 @@
 import { GuildMember, TextChannel } from 'discord.js';
-
-import moment from 'moment';
 import { GuildRepo, RewardRepo } from '../services/database/repos';
+
 import { ActionUtils } from './action-utils';
 import { FormatUtils } from './format-utils';
 import { MessageUtils } from './message-utils';
+import moment from 'moment';
 
 let Config = require('../../config/config.json');
 
@@ -64,6 +64,8 @@ export abstract class XpUtils {
             // Can't find the leveling channel.
             return;
         }
+
+        if (!levelingChannel) return;
 
         let newRoleIds = (await rewardRepo.getLevelRewards(member.guild.id, newLevel)).map(
             levelReward => levelReward.RoleDiscordId
