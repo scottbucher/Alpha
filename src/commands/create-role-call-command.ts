@@ -69,6 +69,6 @@ export class CreateRoleCallCommand implements Command {
             if (!emoji) continue; // Continue if there is no emoji
             message.react(emoji); // React with the emote
         }
-        message.react(Config.emote.refresh); // Add Administrative Recycle Emote
+        message.react(Config.emotes.refresh); // Add Administrative Recycle Emote
     }
 }
