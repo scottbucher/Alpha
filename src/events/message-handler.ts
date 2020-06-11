@@ -6,12 +6,12 @@ import {
     Permissions,
     TextChannel,
 } from 'discord.js';
-import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
-import { MessageUtils, XpUtils } from '../utils';
 
 import { Command } from '../commands';
-import { EventHandler } from './event-handler';
 import { Logger } from '../services';
+import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
+import { MessageUtils, XpUtils } from '../utils';
+import { EventHandler } from './event-handler';
 
 let Config = require('../../config/config.json');
 

@@ -1,3 +1,6 @@
+import { Client, ClientOptions, PartialTypes } from 'discord.js';
+
+import { Bot } from './bot';
 import {
     AboutCommand,
     AddLevelingRewardCommand,
@@ -16,7 +19,8 @@ import {
     SetXpCommand,
     XpCommand,
 } from './commands';
-import { Client, ClientOptions, PartialTypes } from 'discord.js';
+import { EightBallCommand } from './commands/eight-ball-command';
+import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
 import {
     GuildJoinHandler,
     MessageHandler,
@@ -24,14 +28,10 @@ import {
     ReactionRemoveHandler,
     UserJoinHandler,
 } from './events';
-import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/database/repos';
-
-import { Bot } from './bot';
-import { DataAccess } from './services/database/data-access';
-import { EightBallCommand } from './commands/eight-ball-command';
-import { Logger } from './services';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
+import { Logger } from './services';
+import { DataAccess } from './services/database/data-access';
+import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/database/repos';
 
 let Config = require('../config/config.json');
 

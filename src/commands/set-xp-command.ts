@@ -1,8 +1,8 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
-import { MessageUtils, ParseUtils } from '../utils';
 
-import { Command } from './command';
 import { UserRepo } from '../services/database/repos';
+import { ParseUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -13,7 +13,7 @@ export class SetXpCommand implements Command {
     public guildOnly: boolean = true;
     public adminOnly: boolean = false;
     public ownerOnly: boolean = true;
-    public help: string = 'Sets the user\'s xp.';
+    public help: string = `Sets the user's xp.`;
 
     constructor(private userRepo: UserRepo) {}
 
@@ -46,7 +46,7 @@ export class SetXpCommand implements Command {
 
         if (target.user.bot) {
             let embed = new MessageEmbed()
-                .setDescription('You may not set a bot\'s level.')
+                .setDescription(`You may not set a bot's level.`)
                 .setColor(Config.colors.error);
             await channel.send(embed);
             return;
@@ -69,7 +69,7 @@ export class SetXpCommand implements Command {
             }
         }
 
-        await this.userRepo.updateUser(target.id, msg.guild.id,  xp);
+        await this.userRepo.updateUser(target.id, msg.guild.id, xp);
 
         let embed = new MessageEmbed()
             .setDescription(`Successfully set ${target.toString()}'s xp to **${xp}**!`)

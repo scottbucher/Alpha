@@ -1,7 +1,7 @@
-import { Message, MessageEmbed, TextChannel, DMChannel } from 'discord.js';
+import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { Command } from './command';
 import { ArrayUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 

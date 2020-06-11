@@ -24,7 +24,7 @@ export class EightBallCommand implements Command {
         if (args.length === 1) {
             let embed = new MessageEmbed()
                 .setDescription(
-                    'Discord TOS says I am not allowed to read your mind so you\'re going to have to ask a question.'
+                    `Discord TOS says I am not allowed to read your mind so you're going to have to ask a question.`
                 )
                 .setColor(Config.colors.error);
             await channel.send(embed);
@@ -33,7 +33,7 @@ export class EightBallCommand implements Command {
 
         if (!args[args.length - 1].includes('?')) {
             let embed = new MessageEmbed()
-                .setDescription('Shouldn\'t you have learned proper punctuation at school?')
+                .setDescription(`Shouldn't you have learned proper punctuation at school?`)
                 .setColor(Config.colors.error);
             await channel.send(embed);
             return;

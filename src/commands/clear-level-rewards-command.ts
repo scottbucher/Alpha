@@ -1,8 +1,8 @@
-import { FormatUtils, ParseUtils } from '../utils';
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { Command } from './command';
 import { RewardRepo } from '../services/database/repos';
+import { FormatUtils, ParseUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 

@@ -1,8 +1,8 @@
-import { FormatUtils, XpUtils } from '../utils';
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { Command } from './command';
 import { UserRepo } from '../services/database/repos';
+import { FormatUtils, XpUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -42,7 +42,7 @@ export class XpCommand implements Command {
 
         if (target.user.bot) {
             let embed = new MessageEmbed()
-                .setDescription('You may not view a bot\'s level.')
+                .setDescription(`You may not view a bot's level.`)
                 .setColor(Config.colors.error);
             await channel.send(embed);
             return;
