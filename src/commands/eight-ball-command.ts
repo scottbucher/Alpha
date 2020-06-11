@@ -6,7 +6,7 @@ import { Command } from './command';
 let Config = require('../../config/config.json');
 let EightBall = require('../../config/eight-ball.json');
 
-const HUNTER_REGEX = /does.*(hunter|draxi|reed).*smoke/i;
+const HUNTER_REGEX = /does.*(hunter|draxi|reed|137030614611263488).*smoke/i;
 
 export class EightBallCommand implements Command {
     public name: string = '8ball';
