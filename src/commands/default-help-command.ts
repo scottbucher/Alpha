@@ -21,13 +21,9 @@ export class DefaultHelpCommand implements Command {
                     '\n' +
                     `\n**!xp [@User]** - View your or another user's xp!` +
                     '\n**!lb [size]** - View the xp leader board! (Default size: 10, Max: 25)' +
-                    '\n**!about** - View information about the bot' +
-                    '\n**!serverinfo** - View information about the server!' +
-                    '\n**!shard** - View your current shard!' +
-                    // '\n**!ping** - View your current ping to the bot!' +
-                    // '\n**!quote <MessageId>** - Quote a message!' +
-                    '\n**!8ball <Question>** - Ask the 8ball!' // +
-                // '\n**!poll create <Question>;<Option 1>;<Option 2>...** - Start a poll!'
+                    '\n**!8ball <Question>** - Ask the 8ball!' +
+                    '\n**!server** - View information about the server!' +
+                    '\n**!about** - View information about the bot'
             )
             .setColor(Config.colors.default);
 

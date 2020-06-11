@@ -6,8 +6,8 @@ import { Command } from './command';
 let Config = require('../../config/config.json');
 
 export class ServerInfoCommand implements Command {
-    public name: string = 'serverinfo';
-    public aliases: string[] = ['info', 'guildinfo', 'server', 'guild'];
+    public name: string = 'server';
+    public aliases: string[] = ['serverinfo', 'guildinfo', 'info', 'guild'];
     public trigger = null;
     public guildOnly = true;
     public adminOnly = false;
