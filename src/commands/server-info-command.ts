@@ -50,7 +50,7 @@ export class ServerInfoCommand implements Command {
                 true
             )
             .addField('Bots', `${bots.size} Bots`, true)
-            .addField('Current Shard', `Shard 1/1`, true)
+            .addField('Current Shard', `Shard 1/1`, true) // TODO: Retrieve shard number + count
             .addField('Bot Prefix', `\`${guildData.Prefix}\``, true)
             .setFooter(
                 `© ${new Date().getFullYear()} Scott Bucher`,
