@@ -21,7 +21,7 @@ export class DefaultHelpCommand implements Command {
                     '\n' +
                     `\n**!xp [@User]** - View your or another user's xp!` +
                     '\n**!lb [size]** - View the xp leader board! (Default size: 10, Max: 25)' +
-                    '\n**!8ball <Question>** - Ask the 8ball!' +
+                    '\n**!8ball <question>** - Ask the 8ball a question!' +
                     '\n**!server** - View information about the server!' +
                     '\n**!about** - View information about the bot'
             )
