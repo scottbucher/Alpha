@@ -44,6 +44,8 @@ export class ReactionAddHandler implements EventHandler {
             reaction => reaction.emoji.name === Config.emotes.previousPage && reaction.me && reaction.users.resolve(reactor.id) !== null
         );
 
+        if (checkRefresh) messageReaction.remove();
+
         if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
             // Refresh the role-call
 
