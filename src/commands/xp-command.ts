@@ -65,13 +65,13 @@ export class XpCommand implements Command {
 
         let embed = new MessageEmbed()
             .setTitle(`**${target.displayName}**'s Leveling Progress`)
-            .addField('Player Level', `${playerLevel}`)
-            .addField('Player Experience', `${playerXp}`)
+            .addField('Player Level', `${playerLevel.toLocaleString()}`)
+            .addField('Player Experience', `${playerXp.toLocaleString()}`)
             .addField(
                 'Level Progress',
-                `${xpTowardsNextLevel} / ${playerLevelXp} XP (*${progressPercent}*) \n\n**${playerLevel} |** ${progressBar} **| ${
+                `${xpTowardsNextLevel.toLocaleString()} / ${playerLevelXp.toLocaleString()} XP (*${progressPercent}*) \n\n**${playerLevel.toLocaleString()} |** ${progressBar} **| ${(
                     playerLevel + 1
-                }**`
+                ).toLocaleString()}**`
             )
             .setThumbnail(target.user.avatarURL())
             .setColor(Config.colors.default);
