@@ -160,7 +160,7 @@ export abstract class FormatUtils {
         let description = '';
 
         for (let userData of userDataResults.userData) {
-            description += `#${i}: ${
+            description += `#${i.toLocaleString()}: ${
                 guild.members.resolve(userData.UserDiscordId)?.toString() || 'Unknown'
             } \nLevel: **${XpUtils.getLevelFromXp(
                 userData.XpAmount
