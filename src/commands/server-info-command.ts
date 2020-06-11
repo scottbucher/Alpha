@@ -31,7 +31,7 @@ export class ServerInfoCommand implements Command {
 
         let embed = new MessageEmbed()
             .setAuthor(msg.guild.name, msg.guild.iconURL())
-            .setColor(Config.colors.default)
+            .setDescription('Information about your server.')
             .addField('Server ID', `\`${guild.id}\``, true)
             .addField('Owner', `${guild.owner.user}`, true)
             .addField(
@@ -52,11 +52,8 @@ export class ServerInfoCommand implements Command {
             .addField('Bots', `${bots.size} Bots`, true)
             .addField('Current Shard', `Shard 1/1`, true) // TODO: Retrieve shard number + count
             .addField('Bot Prefix', `\`${guildData.Prefix}\``, true)
-            .setFooter(
-                `© ${new Date().getFullYear()} Scott Bucher`,
-                msg.client.users.resolve('478288246858711040').avatarURL()
-            )
-            .setTimestamp();
+            .setTimestamp()
+            .setColor(Config.colors.default);
 
         await channel.send(embed);
     }
