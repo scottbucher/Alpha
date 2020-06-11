@@ -1,9 +1,9 @@
-import { ActionUtils, FormatUtils, ParseUtils } from '../utils';
 import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
-import { RoleCallRepo, UserRepo } from '../services/database/repos';
 
-import { EventHandler } from './event-handler';
 import { Logger } from '../services';
+import { RoleCallRepo, UserRepo } from '../services/database/repos';
+import { ActionUtils, FormatUtils, ParseUtils } from '../utils';
+import { EventHandler } from './event-handler';
 
 let Logs = require('../../lang/logs.json');
 let Config = require('../../config/config.json');
@@ -35,13 +35,22 @@ export class ReactionAddHandler implements EventHandler {
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
         let checkRefresh = msg.reactions.cache.find(
-            reaction => reaction.emoji.name === Config.emotes.refresh && reaction.me && reaction.users.resolve(reactor.id) !== null
+            reaction =>
+                reaction.emoji.name === Config.emotes.refresh &&
+                reaction.me &&
+                reaction.users.resolve(reactor.id) !== null
         );
         let checkNextPage = msg.reactions.cache.find(
-            reaction => reaction.emoji.name === Config.emotes.nextPage && reaction.me && reaction.users.resolve(reactor.id) !== null
+            reaction =>
+                reaction.emoji.name === Config.emotes.nextPage &&
+                reaction.me &&
+                reaction.users.resolve(reactor.id) !== null
         );
         let checkPreviousPage = msg.reactions.cache.find(
-            reaction => reaction.emoji.name === Config.emotes.previousPage && reaction.me && reaction.users.resolve(reactor.id) !== null
+            reaction =>
+                reaction.emoji.name === Config.emotes.previousPage &&
+                reaction.me &&
+                reaction.users.resolve(reactor.id) !== null
         );
 
         if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
@@ -104,7 +113,10 @@ export class ReactionAddHandler implements EventHandler {
 
             if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
-            msg.edit('', await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize));
+            msg.edit(
+                '',
+                await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize)
+            );
 
             await msg.reactions.removeAll();
 
@@ -137,13 +149,15 @@ export class ReactionAddHandler implements EventHandler {
 
             if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
-            msg.edit('', await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize));
+            msg.edit(
+                '',
+                await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize)
+            );
 
             await msg.reactions.removeAll();
 
             if (page !== 1) await msg.react(Config.emotes.previousPage);
-            if (userDataResults.stats.TotalPages > page)
-                await msg.react(Config.emotes.nextPage);
+            if (userDataResults.stats.TotalPages > page) await msg.react(Config.emotes.nextPage);
         }
 
         if (

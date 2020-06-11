@@ -1,7 +1,7 @@
-import { GuildMember, TextChannel, MessageEmbed } from 'discord.js';
+import { GuildMember, MessageEmbed, TextChannel } from 'discord.js';
 
 import { Logger } from '../services';
-import { UserRepo, GuildRepo } from '../services/database/repos';
+import { GuildRepo, UserRepo } from '../services/database/repos';
 import { EventHandler } from './event-handler';
 
 let Config = require('../../config/config.json');
