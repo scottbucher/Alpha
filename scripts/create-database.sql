@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.5
+-- version 4.9.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jun 10, 2020 at 11:10 PM
--- Server version: 5.7.24
--- PHP Version: 7.4.1
+-- Host: localhost
+-- Generation Time: Jun 11, 2020 at 02:12 AM
+-- Server version: 10.3.22-MariaDB-0+deb10u1
+-- PHP Version: 7.3.14-1~deb10u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `alphadev`
+-- Database: `alpha`
 --
 
 DELIMITER $$
@@ -275,7 +275,6 @@ SET @TotalPages = NULL;
 SET @TotalItems = NULL;
 SET @StartRow = NULL;
 SET @EndRow = NULL;
-SET @ROW_NUMBER = 0;
 
 SELECT GuildId
 INTO @GuildId
@@ -312,7 +311,9 @@ SELECT *
 FROM (
     SELECT
         *,
-        @ROW_NUMBER := @ROW_NUMBER + 1 AS 'Position'
+        ROW_NUMBER() OVER (
+            ORDER BY XpAmount DESC
+        ) AS 'Position'
     FROM (
         SELECT
             GU.XpAmount,
@@ -326,7 +327,6 @@ FROM (
         WHERE
             GU.GuildId = @GuildId AND
             GU.XpAmount > 0
-        ORDER BY GU.XpAmount DESC
     ) AS UserData
 ) AS UserData
 WHERE
@@ -425,8 +425,8 @@ CREATE TABLE `guilduser` (
   `GuildUserId` int(11) NOT NULL,
   `UserId` int(11) NOT NULL,
   `GuildId` int(11) NOT NULL,
-  `XpAmount` int(11) DEFAULT '0',
-  `LastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `XpAmount` int(11) DEFAULT 0,
+  `LastUpdated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
