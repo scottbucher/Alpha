@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
 import { MessageUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -28,7 +28,7 @@ export class AboutCommand implements Command {
                     '`' +
                     '\n\nType `' +
                     guildData.Prefix +
-                    'help` and I\'ll display you a list of commands you can use!' +
+                    `help\` and I'll display you a list of commands you can use!` +
                     '\n\nFor additional help contact Stqlth#0001 on discord or through github!'
             )
             .setAuthor('Alpha Bot', msg.client.user.avatarURL())

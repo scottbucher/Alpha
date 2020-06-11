@@ -1,8 +1,8 @@
 import { EmojiResolvable, Message, MessageEmbed, Role, TextChannel } from 'discord.js';
-import { FormatUtils, MessageUtils } from '../utils';
 
-import { Command } from './command';
 import { RoleCallRepo } from '../services/database/repos';
+import { FormatUtils, MessageUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 

@@ -1,7 +1,7 @@
-import { Message, MessageEmbed, Presence, TextChannel } from 'discord.js';
+import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 

@@ -1,10 +1,8 @@
-import { FormatUtils, ParseUtils } from '../utils';
-import { Message, MessageEmbed, TextChannel } from 'discord.js';
+import { Message, TextChannel } from 'discord.js';
 
-import { Command } from './command';
-import { Logger } from '../services';
-import { UserDataResults } from '../models/database/user-data-results-models';
 import { UserRepo } from '../services/database/repos';
+import { FormatUtils, ParseUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -15,7 +13,7 @@ export class XpLeaderboardCommand implements Command {
     public guildOnly = true;
     public adminOnly = false;
     public ownerOnly = false;
-    public help: string = "Show this server's xp leaderboard";
+    public help: string = `Show this server's xp leaderboard`;
 
     constructor(private userRepo: UserRepo) {}
 

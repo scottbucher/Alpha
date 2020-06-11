@@ -1,7 +1,7 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { Command } from './command';
 import { MessageUtils } from '../utils';
+import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -19,7 +19,7 @@ export class DefaultHelpCommand implements Command {
             .setDescription(
                 'Alpha is a fun all-in-one bot, in this help menu you will find the general commands and information you need to properly use the bot.' +
                     '\n' +
-                    '\n**!xp [@User]** - View your or another user\'s xp!' +
+                    `\n**!xp [@User]** - View your or another user's xp!` +
                     '\n**!lb [size]** - View the xp leader board! (Default size: 10, Max: 25)' +
                     '\n**!about** - View information about the bot' +
                     '\n**!serverinfo** - View information about the server!' +
@@ -27,7 +27,7 @@ export class DefaultHelpCommand implements Command {
                     // '\n**!ping** - View your current ping to the bot!' +
                     // '\n**!quote <MessageId>** - Quote a message!' +
                     '\n**!8ball <Question>** - Ask the 8ball!' // +
-                    // '\n**!poll create <Question>;<Option 1>;<Option 2>...** - Start a poll!'
+                // '\n**!poll create <Question>;<Option 1>;<Option 2>...** - Start a poll!'
             )
             .setColor(Config.colors.default);
 
