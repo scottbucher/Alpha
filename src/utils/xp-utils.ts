@@ -1,10 +1,10 @@
 import { GuildMember, TextChannel } from 'discord.js';
-import { GuildRepo, RewardRepo } from '../services/database/repos';
+import moment from 'moment';
 
+import { GuildRepo, RewardRepo } from '../services/database/repos';
 import { ActionUtils } from './action-utils';
 import { FormatUtils } from './format-utils';
 import { MessageUtils } from './message-utils';
-import moment from 'moment';
 
 let Config = require('../../config/config.json');
 
@@ -37,7 +37,9 @@ export abstract class XpUtils {
     }
 
     public static randomXp(): number {
-        return Math.round(Math.random() * (Config.xp.textXpMax - Config.xp.textXpMin) + Config.xp.textXpMin);
+        return Math.round(
+            Math.random() * (Config.xp.textXpMax - Config.xp.textXpMin) + Config.xp.textXpMin
+        );
     }
 
     public static canGetXp(LastUpdated: string): boolean {

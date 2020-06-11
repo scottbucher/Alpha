@@ -1,11 +1,11 @@
 import { Guild, GuildEmoji, GuildMember, MessageEmbed, User, Util } from 'discord.js';
 
-import { MathUtils } from './math-utils';
-import { ParseUtils } from './parse-utils';
+import { isNumber } from 'util';
 import { RoleCallData } from '../models/database/rolecall-models';
 import { UserDataResults } from '../models/database/user-data-results-models';
+import { MathUtils } from './math-utils';
+import { ParseUtils } from './parse-utils';
 import { XpUtils } from './xp-utils';
-import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
 const emojiRegex = require('emoji-regex/text.js');
