@@ -43,10 +43,10 @@ export class ServerInfoCommand implements Command {
                 `${textChannels.size.toLocaleString()} Text,\n${voiceChannels.size.toLocaleString()} Voice`,
                 true
             )
-            .addField('Bot Prefix', guildData.Prefix, true)
+            .addField('Bot Prefix', `\`${guildData.Prefix}\``, true)
             .addField('Server Owner', `${guild.owner.user}`, true)
             .addField(
-                'Created On',
+                'Created',
                 `${guild.createdAt.getMonth()}/${guild.createdAt.getDate()}/${guild.createdAt.getFullYear()}`,
                 true
             )
