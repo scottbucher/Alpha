@@ -1,8 +1,8 @@
+import { FormatUtils, ParseUtils } from '../utils';
 import { Message, TextChannel } from 'discord.js';
 
-import { UserRepo } from '../services/database/repos';
-import { FormatUtils, ParseUtils } from '../utils';
 import { Command } from './command';
+import { UserRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
@@ -26,7 +26,7 @@ export class XpLeaderboardCommand implements Command {
             } catch (error) {
                 // Not A Number
             }
-            if (!page) page = 1;
+            if (!page || page <= 0 || page > 100000) page = 1;
         }
 
         let pageSize = Config.lbPageSize;
@@ -42,9 +42,11 @@ export class XpLeaderboardCommand implements Command {
 
         if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
-        let message = await channel.send(
-            await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize)
-        );
+        let embed = await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize);
+
+        let message = await channel.send(embed);
+
+        if (embed.description === 'No users in the database!') return;
 
         if (page !== 1) await message.react(Config.emotes.previousPage);
         if (userDataResults.stats.TotalPages > page) await message.react(Config.emotes.nextPage);
