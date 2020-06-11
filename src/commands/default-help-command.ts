@@ -19,11 +19,13 @@ export class DefaultHelpCommand implements Command {
             .setDescription(
                 'Alpha is a fun all-in-one bot, in this help menu you will find the general commands and information you need to properly use the bot.' +
                     '\n' +
-                    `\n**!xp [user]** - View your or another user's xp!` +
-                    '\n**!lb [page]** - View the leaderboard!' +
-                    '\n**!8ball <question>** - Ask the 8ball a question!' +
-                    '\n**!server** - View information about the server!' +
-                    '\n**!about** - View information about the bot'
+                    `\n**!xp [user]** - View your or another user's xp.` +
+                    '\n**!lb [page]** - View the leaderboard.' +
+                    '\n**!quote <message link or id>** - Quote a message.' +
+                    '\n**!quote <user> <text>** - Quote a message (custom).' +
+                    '\n**!8ball <question>** - Ask the 8ball a question.' +
+                    '\n**!server** - View information about the server.' +
+                    '\n**!about** - View information about the bot.'
             )
             .setColor(Config.colors.default);
 
