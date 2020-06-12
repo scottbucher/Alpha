@@ -29,7 +29,7 @@ export class AboutCommand implements Command {
                     '\n\nType `' +
                     guildData.Prefix +
                     `help\` and I'll display you a list of commands you can use!` +
-                    '\n\nFor additional help contact Stqlth#0001 on discord or through github!'
+                    '\n\nFor additional help contact Stqlth#0001 on Discord or through GitHub!'
             )
             .setAuthor('Alpha Bot', msg.client.user.avatarURL())
             .setFooter(
