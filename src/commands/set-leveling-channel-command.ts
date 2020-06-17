@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
+import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
 import { PermissionUtils } from '../utils';
-import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -47,7 +47,7 @@ export class SetLevelingChannelCommand implements Command {
             return;
         }
 
-        if (!PermissionUtils.canSend(channel)) {
+        if (!PermissionUtils.canSend(channelInput)) {
             let embed = new MessageEmbed()
                 .setDescription(`I don't have permission to send messages in <#${channel.id}>!`)
                 .setColor(Config.colors.error);
