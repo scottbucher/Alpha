@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 21, 2020 at 03:46 AM
+-- Generation Time: Jun 21, 2020 at 03:50 AM
 -- Server version: 5.7.24
 -- PHP Version: 7.4.1
 
@@ -19,32 +19,37 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `birthdaybotdev`
+-- Database: `alphadev`
 --
 
 DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_AddMessage` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_Message` VARCHAR(2000))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_AddReward` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_RoleDiscordId` VARCHAR(20), IN `IN_Level` SMALLINT)  BEGIN
 
 SET @GuildId = NULL;
+SET @RoleDiscordId = NULL;
 
 SELECT GuildId
 INTO @GuildId
 FROM `guild`
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
-INSERT INTO `messages` (
- 	GuildId,
-    Message
-   ) VALUES (
-     @GuildId,
-     IN_Message
-   );
+SELECT RoleDiscordId
+INTO @RoleDiscordId
+FROM `reward`
+WHERE RoleDiscordId = IN_RoleDiscordId AND Level = IN_Level;
+
+#This is done the complicated way to prevent skipping RewardIds
+IF @RoleDiscordId IS NULL THEN 
+	INSERT INTO reward (GuildId, RoleDiscordId, Level)
+	VALUES (@GuildId, IN_RoleDiscordId, IN_Level);
+END IF;
+
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_AddOrUpdate` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_BirthdayChannelDiscordId` VARCHAR(20), IN `IN_BirthdayRoleDiscordId` VARCHAR(20))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_AddRoleCall` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_RoleDiscordId` VARCHAR(20), IN `IN_Emote` VARCHAR(20) CHARSET utf8mb4, IN `IN_Category` VARCHAR(30))  BEGIN
 
 SET @GuildId = NULL;
 
@@ -53,24 +58,22 @@ INTO @GuildId
 FROM `guild`
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
-IF @GuildId IS NULL THEN
-	INSERT INTO `guild` (
-		GuildDiscordId,
-		BirthdayChannelDiscordId,
-		BirthdayRoleDiscordId
-	) VALUES (
-		IN_GuildDiscordId,
-		IN_BirthdayChannelDiscordId,
-		IN_BirthdayRoleDiscordId
-	);
-ELSE
-	UPDATE `guild`
-	SET
-		GuildDiscordId = IN_GuildDiscordId,
-		BirthdayChannelDiscordId = IN_BirthdayChannelDiscordId,
-		BirthdayRoleDiscordId = IN_BirthdayRoleDiscordId
-	WHERE GuildId = @GuildId;
-END IF;
+INSERT INTO `rolecall` (GuildId, RoleDiscordId, Emote, Category)
+VALUES (@GuildId, IN_RoleDiscordId, IN_Emote, IN_Category);
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_ClearLevelRewards` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_Level` SMALLINT)  BEGIN
+
+SET @GuildId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+DELETE FROM `reward`
+WHERE `GuildId` = @GuildId AND `Level` = IN_Level;
 
 END$$
 
@@ -82,7 +85,22 @@ WHERE GuildDiscordId = IN_GuildDiscordId;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetTotalMessages` (IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetLevelRewards` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_Level` SMALLINT)  BEGIN
+
+SET @GuildId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM guild
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+SELECT RoleDiscordId
+FROM `reward`
+WHERE GuildId = @GuildId AND Level = IN_Level;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_GetRoleCalls` (IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
 
 SET @GuildId = NULL;
 
@@ -91,128 +109,224 @@ INTO @GuildId
 FROM `guild`
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
-SELECT COUNT(Message) AS Total FROM messages WHERE GuildId = @GuildId;
-
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_RemoveMessage` (IN `IN_GuildDiscordId` INT(20), IN `IN_Spot` INT)  NO SQL
-BEGIN
-
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_SetupMessage` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_MessageTime` TINYINT, IN `IN_MentionSetting` VARCHAR(20), IN `IN_UseEmbed` TINYINT(1))  BEGIN
-
-SET @GuildId = NULL;
-
-SELECT GuildId
-INTO @GuildId
-FROM `guild`
-WHERE GuildDiscordId = IN_GuildDiscordId;
-
-UPDATE `guild`
-SET
-	GuildDiscordId = IN_GuildDiscordId,
-	MessageTime = IN_MessageTime,
-    MentionSetting = IN_MentionSetting,
-    UseEmbed = IN_UseEmbed
+SELECT *
+FROM `rolecall`
 WHERE GuildId = @GuildId;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateBirthdayChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_BirthdayChannelDiscordId` VARCHAR(20))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_RemoveRoleCall` (IN `IN_RoleDiscordId` VARCHAR(20))  BEGIN
 
-SET @GuildId = NULL;
-
-SELECT GuildId
-INTO @GuildId
-FROM `guild`
-WHERE GuildDiscordId = IN_GuildDiscordId;
-
-UPDATE `guild`
-SET BirthdayChannelDiscordId = IN_BirthdayChannelDiscordId
-WHERE GuildId = @GuildId;
+DELETE FROM `rolecall`
+WHERE `RoleDiscordId` = IN_RoleDiscordId;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateBirthdayRole` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_BirthdayRoleDiscordId` VARCHAR(20))  NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_Sync` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_UserDiscordIds` MEDIUMTEXT)  NO SQL
 BEGIN
 
 SET @GuildId = NULL;
 
 SELECT GuildId
 INTO @GuildId
-FROM `guild`
+FROM guild
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
-UPDATE `guild`
-SET BirthdayRoleDiscordId = IN_BirthdayRoleDiscordId
-WHERE GuildId = @GuildId;
+IF @GuildId IS NULL THEN
+	INSERT INTO guild (GuildDiscordId) VALUES (IN_GuildDiscordId);
+    
+    SELECT GuildId
+	INTO @GuildId
+	FROM guild
+	WHERE GuildDiscordId = IN_GuildDiscordId;
+END IF;
+
+DROP TEMPORARY TABLE IF EXISTS temp;
+CREATE TEMPORARY TABLE temp( val VARCHAR(20) );
+SET @SQL = CONCAT("INSERT INTO temp (val) values ('", REPLACE(IN_UserDiscordIds, ",", "'),('"),"');");
+
+PREPARE stmt1 FROM @sql;
+EXECUTE stmt1;
+
+INSERT INTO `user` (UserDiscordId)
+SELECT val
+FROM temp
+LEFT JOIN user
+    ON user.UserDiscordId = val
+WHERE user.UserDiscordId IS NULL;
+DROP TEMPORARY TABLE IF EXISTS temp;
+
+INSERT INTO `guilduser` (UserId, GuildId)
+SELECT
+    user.UserId,
+    @GuildId AS GuildId
+FROM `user`
+LEFT JOIN guilduser
+    ON guilduser.GuildId = @GuildId
+    AND guilduser.UserId = user.UserId
+WHERE guilduser.GuildUserId IS NULL;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateMentionSetting` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_MentionSetting` VARCHAR(20))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateLevelingChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_LevelingChannelId` VARCHAR(20))  BEGIN
+
+UPDATE `guild`
+SET LevelingChannelId = IN_LevelingChannelId
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateQuoteChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_QuoteChannelId` VARCHAR(20))  BEGIN
+
+UPDATE `guild`
+SET QuoteChannelId = IN_QuoteChannelId
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateWelcomeChannel` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_WelcomeChannelId` VARCHAR(20))  BEGIN
+
+UPDATE `guild`
+SET WelcomeChannelId = IN_WelcomeChannelId
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Add` (IN `IN_UserDiscordId` VARCHAR(20), IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
 
 SET @GuildId = NULL;
 
 SELECT GuildId
 INTO @GuildId
-FROM `guild`
+FROM guild
 WHERE GuildDiscordId = IN_GuildDiscordId;
 
-UPDATE `guild`
-SET MentionSetting = IN_MentionSetting
-WHERE GuildId = @GuildId;
+INSERT INTO `user`(UserDiscordId)
+VALUES(IN_UserDiscordId);
+
+INSERT INTO guilduser(GuildId, UserId)
+VALUES (@GuildId, LAST_INSERT_ID());
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateMessageTime` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_Time` TINYINT)  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Get` (IN `IN_UserDiscordId` VARCHAR(20), IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
 
 SET @GuildId = NULL;
-
-SELECT GuildId
-INTO @GuildId
-FROM `guild`
-WHERE GuildDiscordId = IN_GuildDiscordId;
-
-UPDATE `guild`
-SET MessageTime = IN_Time
-WHERE GuildId = @GuildId;
-
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateTrustedRole` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_TrustedRoleDiscordId` VARCHAR(20))  BEGIN
-
-SET @GuildId = NULL;
-
-SELECT GuildId
-INTO @GuildId
-FROM `guild`
-WHERE GuildDiscordId = IN_GuildDiscordId;
-
-UPDATE `guild`
-SET TrustedRoleDiscordId = IN_TrustedRoleDiscordId
-WHERE GuildId = @GuildId;
-
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Guild_UpdateUseEmbed` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_Value` TINYINT(1))  BEGIN
-
-SET @GuildId = NULL;
-
-SELECT GuildId
-INTO @GuildId
-FROM `guild`
-WHERE GuildDiscordId = IN_GuildDiscordId;
-
-UPDATE `guild`
-SET UseEmbed = IN_Value
-WHERE GuildId = @GuildId;
-
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `User_AddOrUpdate` (IN `IN_UserDiscordId` VARCHAR(20), IN `IN_Birthday` DATE, IN `IN_Timezone` VARCHAR(100), IN `IN_ChangesLeft` TINYINT)  BEGIN
-
 SET @UserId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM guild
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+SELECT UserId
+INTO @UserId
+FROM `user`
+WHERE UserDiscordId = IN_UserDiscordId;
+
+SELECT XpAmount, LastUpdated
+FROM `guilduser`
+WHERE GuildId = @GuildId AND UserId = @UserId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_GetAll` (IN `IN_UserDiscordIds` MEDIUMTEXT, IN `IN_GuildDiscordId` VARCHAR(20))  BEGIN
+
+SET @GuildId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM guild
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+SELECT UserDiscordId
+FROM users
+WHERE FIND_IN_SET(UserDiscordId, IN_DiscordIds) > 0 AND GuildId = @GuildId;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_GetLeaderBoardUsers` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_UserDiscordIds` MEDIUMTEXT, IN `IN_PageSize` INT, IN `IN_Page` INT)  BEGIN
+
+SET @GuildId = NULL;
+SET @TotalPages = NULL;
+SET @TotalItems = NULL;
+SET @StartRow = NULL;
+SET @EndRow = NULL;
+SET @ROW_NUMBER = 0;
+
+SELECT GuildId
+INTO @GuildId
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+DROP TEMPORARY TABLE IF EXISTS temp;
+CREATE TEMPORARY TABLE temp( val VARCHAR(20) );
+SET @SQL = CONCAT("INSERT INTO temp (val) values ('", REPLACE(IN_UserDiscordIds, ",", "'),('"),"');");
+
+PREPARE stmt1 FROM @sql;
+EXECUTE stmt1;
+
+SELECT COUNT(*) INTO @TotalItems
+FROM temp AS T
+JOIN `user`AS U
+	ON U.UserDiscordId = T.val
+JOIN `guilduser` AS GU
+	ON GU.UserId = U.UserId
+WHERE GU.GuildId = @GuildId AND GU.XpAmount > 0;
+
+SELECT CEILING(@TotalItems/IN_PageSize) INTO @TotalPages;
+
+IF (IN_Page < 0) THEN 
+	SET IN_Page = 1;
+ELSEIF (IN_Page > @TotalPages) THEN 
+	SET IN_Page = @TotalPages;
+END IF;
+
+SET @StartRow = ((IN_Page - 1) * IN_PageSize) + 1;
+SET @EndRow = IN_Page * IN_PageSize;
+
+SELECT *
+FROM (
+    SELECT
+        *,
+        @ROW_NUMBER := @ROW_NUMBER + 1 AS 'Position'
+    FROM (
+        SELECT
+            GU.XpAmount,
+            GU.LastUpdated,
+            U.UserDiscordId
+        FROM temp AS T
+        JOIN `user` AS U
+            ON U.UserDiscordId = T.val 
+        JOIN `guilduser` AS GU
+            ON GU.UserId = U.UserId
+        WHERE
+            GU.GuildId = @GuildId AND
+            GU.XpAmount > 0
+        ORDER BY GU.XpAmount DESC
+    ) AS UserData
+) AS UserData
+WHERE
+    UserData.Position >= @StartRow AND
+    UserData.Position <= @EndRow;
+
+SELECT
+    @TotalItems AS 'TotalItems',
+    @TotalPages as 'TotalPages';
+    
+DROP TEMPORARY TABLE IF EXISTS temp;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Sync` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_UserDiscordId` VARCHAR(20))  BEGIN
+
+SET @GuildId = NULL;
+SET @UserId = NULL;
+SET @GuildUserId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
 
 SELECT UserId
 INTO @UserId
@@ -220,34 +334,44 @@ FROM `user`
 WHERE UserDiscordId = IN_UserDiscordId;
 
 IF @UserId IS NULL THEN
-	INSERT INTO `user` (
-		UserDiscordId,
-		Birthday,
-		TimeZone,
-        ChangesLeft
-	) VALUES (
-		IN_UserDiscordId,
-		IN_Birthday,
-		IN_Timezone,
-        IN_ChangesLeft
-	);
-ELSE
-	UPDATE `user`
-	SET
-		UserDiscordId = IN_UserDiscordId,
-		Birthday = IN_Birthday,
-		TimeZone = IN_TimeZone,
-        ChangesLeft = IN_ChangesLeft
-	WHERE UserId = @UserId;
+	INSERT INTO user (UserDiscordId) VALUES (IN_UserDiscordId);
+    
+    SELECT UserId
+	INTO @UserId
+	FROM `user`
+	WHERE UserDiscordId = IN_UserDiscordId;
+END IF;
+
+SELECT GuildUserId
+INTO @GuildUserId
+FROM `guilduser`
+WHERE UserId = @UserId AND GuildId = @GuildId;
+
+IF @GuildUserId IS NULL THEN
+	INSERT INTO `guilduser` (UserId, GuildId)
+	VALUES (@UserId, @GuildId);
 END IF;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Get` (IN `IN_UserDiscordId` VARCHAR(20))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `User_Update` (IN `IN_UserDiscordId` VARCHAR(20), IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_Xp` INT)  BEGIN
 
-SELECT *
+SET @GuildId = NULL;
+SET @UserId = NULL;
+
+SELECT GuildId
+INTO @GuildId
+FROM `guild`
+WHERE GuildDiscordId = IN_GuildDiscordId;
+
+SELECT UserId
+INTO @UserId
 FROM `user`
 WHERE UserDiscordId = IN_UserDiscordId;
+
+UPDATE guilduser
+SET XpAmount = IN_Xp, LastUpdated = CURRENT_TIMESTAMP
+WHERE UserId = @UserId AND GuildId = @GuildId;
 
 END$$
 
@@ -262,26 +386,51 @@ DELIMITER ;
 CREATE TABLE `guild` (
   `GuildId` int(11) NOT NULL,
   `GuildDiscordId` varchar(20) NOT NULL,
-  `BirthdayChannelDiscordId` varchar(20) NOT NULL DEFAULT '0',
-  `BirthdayRoleDiscordId` varchar(20) DEFAULT '0',
-  `TrustedRoleDiscordId` varchar(20) DEFAULT '0',
-  `MentionSetting` varchar(20) DEFAULT '0',
-  `MessageTime` tinyint(1) NOT NULL DEFAULT '0',
-  `TrustedPreventsRole` tinyint(1) NOT NULL DEFAULT '1',
-  `TrustedPreventsMessage` tinyint(1) NOT NULL DEFAULT '1',
-  `UseEmbed` tinyint(1) NOT NULL DEFAULT '1'
+  `Prefix` varchar(100) NOT NULL DEFAULT '!',
+  `LevelingChannelId` varchar(20) DEFAULT '0',
+  `WelcomeChannelId` varchar(20) NOT NULL DEFAULT '0',
+  `QuoteChannelId` varchar(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `messages`
+-- Table structure for table `guilduser`
 --
 
-CREATE TABLE `messages` (
-  `MessageId` int(11) NOT NULL,
-  `GuildId` int(11) DEFAULT NULL,
-  `Message` varchar(2000) CHARACTER SET utf8mb4 NOT NULL
+CREATE TABLE `guilduser` (
+  `GuildUserId` int(11) NOT NULL,
+  `UserId` int(11) NOT NULL,
+  `GuildId` int(11) NOT NULL,
+  `XpAmount` int(11) DEFAULT '0',
+  `LastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reward`
+--
+
+CREATE TABLE `reward` (
+  `RewardId` int(11) NOT NULL,
+  `GuildId` int(11) NOT NULL,
+  `RoleDiscordId` varchar(20) NOT NULL,
+  `Level` smallint(6) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rolecall`
+--
+
+CREATE TABLE `rolecall` (
+  `RoleCallId` int(11) NOT NULL,
+  `GuildId` int(11) NOT NULL,
+  `RoleDiscordId` varchar(20) NOT NULL,
+  `Emote` varchar(20) CHARACTER SET utf8mb4 NOT NULL,
+  `Category` varchar(30) CHARACTER SET utf8mb4 DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -292,10 +441,7 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `user` (
   `UserId` int(11) NOT NULL,
-  `UserDiscordId` varchar(20) NOT NULL,
-  `Birthday` date DEFAULT NULL,
-  `TimeZone` varchar(100) CHARACTER SET utf32 DEFAULT NULL,
-  `ChangesLeft` tinyint(4) DEFAULT '5'
+  `UserDiscordId` varchar(18) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -307,24 +453,38 @@ CREATE TABLE `user` (
 --
 ALTER TABLE `guild`
   ADD PRIMARY KEY (`GuildId`),
-  ADD UNIQUE KEY `BirthdayChannel` (`BirthdayChannelDiscordId`),
-  ADD UNIQUE KEY `DiscordId` (`GuildDiscordId`),
-  ADD UNIQUE KEY `BirthdayRole` (`BirthdayRoleDiscordId`),
-  ADD UNIQUE KEY `TrustedRole` (`TrustedRoleDiscordId`);
+  ADD UNIQUE KEY `UQ_GuildDiscordId` (`GuildDiscordId`) USING BTREE;
 
 --
--- Indexes for table `messages`
+-- Indexes for table `guilduser`
 --
-ALTER TABLE `messages`
-  ADD PRIMARY KEY (`MessageId`),
-  ADD KEY `FK_Messages_GuildId` (`GuildId`);
+ALTER TABLE `guilduser`
+  ADD PRIMARY KEY (`GuildUserId`),
+  ADD UNIQUE KEY `UQ_GuildId_UserId` (`UserId`,`GuildId`) USING BTREE,
+  ADD KEY `FK_GuildUser_GuildId` (`GuildId`) USING BTREE,
+  ADD KEY `FK_GuildUser_UserId` (`UserId`) USING BTREE;
+
+--
+-- Indexes for table `reward`
+--
+ALTER TABLE `reward`
+  ADD PRIMARY KEY (`RewardId`),
+  ADD KEY `FK_Reward_GuildId` (`GuildId`) USING BTREE;
+
+--
+-- Indexes for table `rolecall`
+--
+ALTER TABLE `rolecall`
+  ADD PRIMARY KEY (`RoleCallId`),
+  ADD UNIQUE KEY `UQ_RoleDiscordId` (`RoleDiscordId`) USING BTREE,
+  ADD KEY `FK_RoleCall_GuildId` (`GuildId`) USING BTREE;
 
 --
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`UserId`),
-  ADD UNIQUE KEY `UserDiscordId` (`UserDiscordId`);
+  ADD UNIQUE KEY `UQ_UserDiscordId` (`UserDiscordId`) USING BTREE;
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -337,16 +497,51 @@ ALTER TABLE `guild`
   MODIFY `GuildId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `messages`
+-- AUTO_INCREMENT for table `guilduser`
 --
-ALTER TABLE `messages`
-  MODIFY `MessageId` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `guilduser`
+  MODIFY `GuildUserId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reward`
+--
+ALTER TABLE `reward`
+  MODIFY `RewardId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `rolecall`
+--
+ALTER TABLE `rolecall`
+  MODIFY `RoleCallId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
   MODIFY `UserId` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `guilduser`
+--
+ALTER TABLE `guilduser`
+  ADD CONSTRAINT `guilduser_ibfk_1` FOREIGN KEY (`GuildId`) REFERENCES `guild` (`GuildId`),
+  ADD CONSTRAINT `guilduser_ibfk_2` FOREIGN KEY (`UserId`) REFERENCES `user` (`UserId`);
+
+--
+-- Constraints for table `reward`
+--
+ALTER TABLE `reward`
+  ADD CONSTRAINT `reward_ibfk_1` FOREIGN KEY (`GuildId`) REFERENCES `guild` (`GuildId`);
+
+--
+-- Constraints for table `rolecall`
+--
+ALTER TABLE `rolecall`
+  ADD CONSTRAINT `rolecall_ibfk_1` FOREIGN KEY (`GuildId`) REFERENCES `guild` (`GuildId`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
