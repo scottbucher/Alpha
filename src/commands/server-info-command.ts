@@ -6,8 +6,8 @@ import { Command } from './command';
 let Config = require('../../config/config.json');
 
 export class ServerInfoCommand implements Command {
-    public name: string = 'serverinfo';
-    public aliases: string[] = ['info', 'guildinfo', 'server', 'guild'];
+    public name: string = 'server';
+    public aliases: string[] = ['serverinfo', 'guildinfo', 'info', 'guild'];
     public trigger = null;
     public guildOnly = true;
     public adminOnly = false;
@@ -31,32 +31,29 @@ export class ServerInfoCommand implements Command {
 
         let embed = new MessageEmbed()
             .setAuthor(msg.guild.name, msg.guild.iconURL())
-            .setColor(Config.colors.default)
+            .setDescription('Information about your server.')
+            .addField('Server ID', `\`${guild.id}\``, true)
+            .addField('Owner', `${guild.owner.user}`, true)
             .addField(
-                'Members',
-                `${onlineMembers.size.toLocaleString()}/${members.size.toLocaleString()} Members Online`,
-                true
-            )
-            .addField('Bots', `${bots.size} Bots`, true)
-            .addField(
-                'Channels',
-                `${textChannels.size.toLocaleString()} Text,\n${voiceChannels.size.toLocaleString()} Voice`,
-                true
-            )
-            .addField('Bot Prefix', guildData.Prefix, true)
-            .addField('Server Owner', `${guild.owner.user}`, true)
-            .addField(
-                'Created On',
+                'Created',
                 `${guild.createdAt.getMonth()}/${guild.createdAt.getDate()}/${guild.createdAt.getFullYear()}`,
                 true
             )
-            .addField('Server ID', `\`${guild.id}\``, true)
-            .addField('Current Shard', `Shard 1/1`, true)
-            .setFooter(
-                `© ${new Date().getFullYear()} Scott Bucher`,
-                msg.client.users.resolve('478288246858711040').avatarURL()
+            .addField(
+                'Channels',
+                `${textChannels.size.toLocaleString()} Text, ${voiceChannels.size.toLocaleString()} Voice`,
+                true
             )
-            .setTimestamp();
+            .addField(
+                'Members',
+                `${onlineMembers.size.toLocaleString()}/${members.size.toLocaleString()} Online`,
+                true
+            )
+            .addField('Bots', `${bots.size} Bots`, true)
+            .addField('Current Shard', `Shard 1/1`, true) // TODO: Retrieve shard number + count
+            .addField('Bot Prefix', `\`${guildData.Prefix}\``, true)
+            .setTimestamp()
+            .setColor(Config.colors.default);
 
         await channel.send(embed);
     }
