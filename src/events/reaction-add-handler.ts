@@ -1,5 +1,5 @@
 import { ActionUtils, FormatUtils, ParseUtils } from '../utils';
-import { EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
+import { Collection, EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
 import { RoleCallRepo, UserRepo } from '../services/database/repos';
 
 import { EventHandler } from './event-handler';
@@ -26,7 +26,10 @@ export class ReactionAddHandler implements EventHandler {
         }
 
         let msg = messageReaction.message;
+
         let reactor = msg.guild.members.resolve(author);
+
+        let users: Collection<string, User> = await messageReaction.users.fetch();
         let channel = msg.channel;
 
         if (!(channel instanceof TextChannel)) return;
@@ -34,24 +37,19 @@ export class ReactionAddHandler implements EventHandler {
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
-        let checkRefresh = msg.reactions.cache.find(
-            reaction =>
-                reaction.emoji.name === Config.emotes.refresh &&
-                reaction.me &&
-                reaction.users.resolve(reactor.id) !== null
-        );
-        let checkNextPage = msg.reactions.cache.find(
-            reaction =>
-                reaction.emoji.name === Config.emotes.nextPage &&
-                reaction.me &&
-                reaction.users.resolve(reactor.id) !== null
-        );
-        let checkPreviousPage = msg.reactions.cache.find(
-            reaction =>
-                reaction.emoji.name === Config.emotes.previousPage &&
-                reaction.me &&
-                reaction.users.resolve(reactor.id) !== null
-        );
+        let checkRefresh: boolean =
+        messageReaction.emoji.name === Config.emotes.refresh &&
+        users.find(user => user.id === reactor.id) !== null &&
+        users.find(user => user.id === msg.client.user.id) !== null;
+        let checkNextPage: boolean =
+            messageReaction.emoji.name === Config.emotes.nextPage &&
+            users.find(user => user.id === reactor.id) !== null &&
+            users.find(user => user.id === msg.client.user.id) !== null;
+
+        let checkPreviousPage: boolean =
+            messageReaction.emoji.name === Config.emotes.previousPage &&
+            users.find(user => user.id === reactor.id) !== null &&
+            users.find(user => user.id === msg.client.user.id) !== null;
 
         if (checkRefresh) await messageReaction.remove();
 
