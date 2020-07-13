@@ -1,5 +1,13 @@
-import { ActionUtils, FormatUtils, ParseUtils } from '../utils';
-import { Collection, EmojiResolvable, MessageReaction, Permissions, TextChannel, User } from 'discord.js';
+import { ActionUtils, FormatUtils, ParseUtils, PermissionUtils } from '../utils';
+import {
+    Collection,
+    EmojiResolvable,
+    Message,
+    MessageReaction,
+    Permissions,
+    TextChannel,
+    User,
+} from 'discord.js';
 import { RoleCallRepo, UserRepo } from '../services/database/repos';
 
 import { EventHandler } from './event-handler';
@@ -11,49 +19,75 @@ let Config = require('../../config/config.json');
 export class ReactionAddHandler implements EventHandler {
     constructor(private userRepo: UserRepo, private roleCallRepo: RoleCallRepo) {}
 
-    public async process(messageReaction: MessageReaction, author: User): Promise<void> {
-        if (author.bot) return;
+    public async process(messageReaction: MessageReaction, reactor: User): Promise<void> {
+        // Don't respond to bots, and only text channels
+        if (reactor.bot || !(messageReaction.message.channel instanceof TextChannel)) return;
 
         let reactedEmoji = messageReaction.emoji.name;
 
-        if (messageReaction.message.partial) {
-            try {
-                await messageReaction.message.fetch();
-            } catch (error) {
-                Logger.error(Logs.retrievePartialReactionMessageError, error);
-                return;
-            }
+        // Check permissions needed to respond
+        let channel = messageReaction.message.channel as TextChannel;
+        if (
+            !PermissionUtils.canSend(channel) ||
+            !PermissionUtils.canHandleReaction(channel) ||
+            !PermissionUtils.canReact(channel)
+        ) {
+            return;
         }
 
-        let msg = messageReaction.message;
+        // Check if the reacted emoji is one we are handling
+        if (
+            ![Config.emotes.nextPage, Config.emotes.previousPage].includes(
+                messageReaction.emoji.name
+            )
+        ) {
+            return;
+        }
 
-        let reactor = msg.guild.members.resolve(author);
+        // Check if the reacted message was sent by the bot
+        if (messageReaction.message.author !== messageReaction.message.client.user) {
+            return;
+        }
 
-        let users: Collection<string, User> = await messageReaction.users.fetch();
-        let channel = msg.channel;
+        // Get the reacted message
+        let msg: Message;
+        if (messageReaction.message.partial) {
+            try {
+                msg = await messageReaction.message.fetch();
+            } catch (error) {
+                Logger.error(Logs.error.messagePartial, error);
+                return;
+            }
+        } else {
+            msg = messageReaction.message;
+        }
 
-        if (!(channel instanceof TextChannel)) return;
+        let users: Collection<string, User>;
+        try {
+            users = await messageReaction.users.fetch();
+        } catch (error) {
+            Logger.error(Logs.error.userFetch, error);
+            return;
+        }
+
+        // Check if bot has reacted to the message before
+        if (!users.find(user => user === msg.client.user)) {
+            return;
+        }
+
+        let checkNextPage: boolean = messageReaction.emoji.name === Config.emotes.nextPage;
+        let checkPreviousPage: boolean = messageReaction.emoji.name === Config.emotes.previousPage;
+
+        let checkRefresh: boolean = messageReaction.emoji.name === Config.emotes.refresh;
+
+        if (checkRefresh) await messageReaction.remove();
 
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
 
-        let checkRefresh: boolean =
-        messageReaction.emoji.name === Config.emotes.refresh &&
-        users.find(user => user.id === reactor.id) !== null &&
-        users.find(user => user.id === msg.client.user.id) !== null;
-        let checkNextPage: boolean =
-            messageReaction.emoji.name === Config.emotes.nextPage &&
-            users.find(user => user.id === reactor.id) !== null &&
-            users.find(user => user.id === msg.client.user.id) !== null;
+        let reactorMember = msg.guild.members.resolve(reactor);
 
-        let checkPreviousPage: boolean =
-            messageReaction.emoji.name === Config.emotes.previousPage &&
-            users.find(user => user.id === reactor.id) !== null &&
-            users.find(user => user.id === msg.client.user.id) !== null;
-
-        if (checkRefresh) await messageReaction.remove();
-
-        if (reactor.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
+        if (reactorMember.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
             // Refresh the role-call
 
             let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
@@ -153,7 +187,7 @@ export class ReactionAddHandler implements EventHandler {
                     for (let role of roleCallRoles) {
                         let giveRole = msg.guild.roles.resolve(role);
 
-                        await ActionUtils.giveRole(reactor, giveRole);
+                        await ActionUtils.giveRole(reactorMember, giveRole);
                     }
                     return;
                 }
