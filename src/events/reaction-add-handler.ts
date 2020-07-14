@@ -35,15 +35,6 @@ export class ReactionAddHandler implements EventHandler {
             return;
         }
 
-        // Check if the reacted emoji is one we are handling
-        if (
-            ![Config.emotes.nextPage, Config.emotes.previousPage].includes(
-                messageReaction.emoji.name
-            )
-        ) {
-            return;
-        }
-
         // Check if the reacted message was sent by the bot
         if (messageReaction.message.author !== messageReaction.message.client.user) {
             return;
