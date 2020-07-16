@@ -1,8 +1,8 @@
+import { FormatUtils, XpUtils } from '../utils';
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { UserRepo } from '../services/database/repos';
-import { FormatUtils, XpUtils } from '../utils';
 import { Command } from './command';
+import { UserRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
@@ -12,7 +12,7 @@ export class XpCommand implements Command {
     public trigger = null;
     public guildOnly = true;
     public adminOnly = false;
-    public ownerOnly = true;
+    public ownerOnly = false;
     public help: string = 'Shows the user their current Xp and Level.';
 
     constructor(private userRepo: UserRepo) {}
