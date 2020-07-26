@@ -1,8 +1,8 @@
 import { EmojiResolvable, Message, MessageEmbed, Role, TextChannel } from 'discord.js';
-
-import { RoleCallRepo } from '../services/database/repos';
 import { FormatUtils, MessageUtils } from '../utils';
+
 import { Command } from './command';
+import { RoleCallRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
@@ -57,7 +57,7 @@ export class AddRoleCallCommand implements Command {
             return;
         }
 
-        if (args[2] === '♻️') {
+        if (args[2] === Config.emotes.refresh) {
             let embed = new MessageEmbed()
                 .setTitle('Invalid Emote!')
                 .setDescription('Sorry, ♻️ is a reserved emote!')
