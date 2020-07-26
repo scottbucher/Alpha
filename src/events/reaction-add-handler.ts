@@ -71,7 +71,13 @@ export class ReactionAddHandler implements EventHandler {
 
         let checkRefresh: boolean = messageReaction.emoji.name === Config.emotes.refresh;
 
-        if (checkRefresh) await messageReaction.remove();
+        if (checkRefresh) {
+            try {
+                await messageReaction.users.remove(reactor);
+            } catch (error) {
+                // Reaction Remove Failed
+            }
+        }
 
         let roleCallData = await this.roleCallRepo.getRoleCalls(msg.guild.id);
         let roleCallEmotes = roleCallData.map(roleCall => roleCall.Emote);
