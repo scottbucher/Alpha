@@ -1,7 +1,7 @@
-import { GuildData } from '../../../models/database/guild-models';
-import { SQLUtils } from '../../../utils';
 import { DataAccess } from '../data-access';
+import { GuildData } from '../../../models/database/guild-models';
 import { Procedure } from '../procedure';
+import { SQLUtils } from '../../../utils';
 
 export class GuildRepo {
     constructor(private dataAccess: DataAccess) {}
@@ -36,6 +36,13 @@ export class GuildRepo {
         await this.dataAccess.executeProcedure(Procedure.Guild_UpdateQuoteChannel, [
             guildId,
             channelId,
+        ]);
+    }
+
+    public async updateGuildJoinRole(guildId: string, roleId: string): Promise<void> {
+        await this.dataAccess.executeProcedure(Procedure.Guild_UpdateJoinRole, [
+            guildId,
+            roleId,
         ]);
     }
 }

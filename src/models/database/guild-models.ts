@@ -3,4 +3,5 @@ export interface GuildData {
     LevelingChannelId: string;
     WelcomeChannelId: string;
     QuoteChannelId: string;
+    JoinRoleId: string;
 }
