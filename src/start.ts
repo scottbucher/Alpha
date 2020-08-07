@@ -1,6 +1,3 @@
-import { Client, ClientOptions, PartialTypes } from 'discord.js';
-
-import { Bot } from './bot';
 import {
     AboutCommand,
     AddLevelingRewardCommand,
@@ -19,8 +16,7 @@ import {
     SetXpCommand,
     XpCommand,
 } from './commands';
-import { EightBallCommand } from './commands/eight-ball-command';
-import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
+import { Client, ClientOptions, PartialTypes } from 'discord.js';
 import {
     GuildJoinHandler,
     MessageHandler,
@@ -28,10 +24,15 @@ import {
     ReactionRemoveHandler,
     UserJoinHandler,
 } from './events';
-import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { Logger } from './services';
-import { DataAccess } from './services/database/data-access';
 import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/database/repos';
+
+import { Bot } from './bot';
+import { DataAccess } from './services/database/data-access';
+import { EightBallCommand } from './commands/eight-ball-command';
+import { Logger } from './services';
+import { SetJoinRoleCommand } from './commands/set-join-role-command';
+import { TrackVoiceXp } from './jobs/trackVoiceXp';
+import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
 
 let Config = require('../config/config.json');
 
@@ -71,6 +72,7 @@ async function start(): Promise<void> {
 
     let setWelcomeChannelCommand = new SetWelcomeChannelCommand(guildRepo);
     let setQuoteChannelCommand = new SetQuoteChannelCommand(guildRepo);
+    let setJoinRoleCommand = new SetJoinRoleCommand(guildRepo);
 
     let goodMorningCommand = new GoodMorningCommand();
     let goodNightCommand = new GoodnightCommand();
@@ -101,6 +103,7 @@ async function start(): Promise<void> {
             aboutCommand,
             serverInfoCommand,
             quoteCommand,
+            setJoinRoleCommand,
         ],
         guildRepo,
         userRepo,
