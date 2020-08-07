@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.5
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jun 21, 2020 at 03:50 AM
--- Server version: 5.7.24
--- PHP Version: 7.4.1
+-- Host: localhost
+-- Generation Time: Aug 07, 2020 at 04:11 AM
+-- Server version: 10.3.22-MariaDB-0+deb10u1
+-- PHP Version: 7.3.14-1~deb10u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -165,6 +165,15 @@ LEFT JOIN guilduser
     ON guilduser.GuildId = @GuildId
     AND guilduser.UserId = user.UserId
 WHERE guilduser.GuildUserId IS NULL;
+
+END$$
+
+CREATE DEFINER=`admin`@`localhost` PROCEDURE `Guild_UpdateJoinRole` (IN `IN_GuildDiscordId` VARCHAR(20), IN `IN_JoinRoleId` VARCHAR(20))  MODIFIES SQL DATA
+BEGIN
+
+UPDATE `guild`
+SET JoinRoleId = IN_JoinRoleId
+WHERE GuildDiscordId = IN_GuildDiscordId;
 
 END$$
 
@@ -389,7 +398,8 @@ CREATE TABLE `guild` (
   `Prefix` varchar(100) NOT NULL DEFAULT '!',
   `LevelingChannelId` varchar(20) DEFAULT '0',
   `WelcomeChannelId` varchar(20) NOT NULL DEFAULT '0',
-  `QuoteChannelId` varchar(20) NOT NULL DEFAULT '0'
+  `QuoteChannelId` varchar(20) NOT NULL DEFAULT '0',
+  `JoinRoleId` varchar(20) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -402,8 +412,8 @@ CREATE TABLE `guilduser` (
   `GuildUserId` int(11) NOT NULL,
   `UserId` int(11) NOT NULL,
   `GuildId` int(11) NOT NULL,
-  `XpAmount` int(11) DEFAULT '0',
-  `LastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `XpAmount` int(11) DEFAULT 0,
+  `LastUpdated` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
