@@ -1,10 +1,10 @@
 import { GuildMember, TextChannel } from 'discord.js';
-import moment from 'moment';
-
 import { GuildRepo, RewardRepo } from '../services/database/repos';
+
 import { ActionUtils } from './action-utils';
 import { FormatUtils } from './format-utils';
 import { MessageUtils } from './message-utils';
+import moment from 'moment';
 
 let Config = require('../../config/config.json');
 
@@ -33,7 +33,7 @@ export abstract class XpUtils {
     }
 
     public static getXpTowardsNextLevel(xp: number): number {
-        return xp - this.getPlayerLevelXp(this.getLevelFromXp(xp)); // I don't know why minus 1 works but it does
+        return xp - this.getPlayerLevelXp(this.getLevelFromXp(xp));
     }
 
     public static randomXp(): number {
@@ -46,7 +46,7 @@ export abstract class XpUtils {
         return moment().isAfter(moment(LastUpdated).add(1, 'minute'));
     }
 
-    public static isLevelUp(currentLevel, newLevel: number): boolean {
+    public static isLevelUp(currentLevel: number, newLevel: number): boolean {
         return newLevel > currentLevel;
     }
 
