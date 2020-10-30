@@ -7,6 +7,7 @@ import {
     DefaultHelpCommand,
     GoodMorningCommand,
     GoodnightCommand,
+    PollCommand,
     QuoteCommand,
     RemoveRoleCallCommand,
     ServerInfoCommand,
@@ -31,6 +32,7 @@ import { DataAccess } from './services/database/data-access';
 import { EightBallCommand } from './commands/eight-ball-command';
 import { Logger } from './services';
 import { SetJoinRoleCommand } from './commands/set-join-role-command';
+import { SetPollChannelCommand } from './commands/set-poll-channel-command';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
 import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
 
@@ -82,6 +84,9 @@ async function start(): Promise<void> {
     let serverInfoCommand = new ServerInfoCommand(guildRepo);
     let quoteCommand = new QuoteCommand(guildRepo);
 
+    let setPollChannelCommand = new SetPollChannelCommand(guildRepo);
+    let pollCommand = new PollCommand(guildRepo);
+
     // Events handlers
     let messageHandler = new MessageHandler(
         defaultHelpCommand,
@@ -104,6 +109,8 @@ async function start(): Promise<void> {
             serverInfoCommand,
             quoteCommand,
             setJoinRoleCommand,
+            pollCommand,
+            setPollChannelCommand,
         ],
         guildRepo,
         userRepo,

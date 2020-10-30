@@ -4,4 +4,5 @@ export interface GuildData {
     WelcomeChannelId: string;
     QuoteChannelId: string;
     JoinRoleId: string;
+    PollChannelId: string;
 }
