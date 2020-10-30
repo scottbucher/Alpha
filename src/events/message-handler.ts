@@ -6,12 +6,12 @@ import {
     Permissions,
     TextChannel,
 } from 'discord.js';
-
-import { Command } from '../commands';
-import { Logger } from '../services';
 import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
 import { MessageUtils, XpUtils } from '../utils';
+
+import { Command } from '../commands';
 import { EventHandler } from './event-handler';
+import { Logger } from '../services';
 
 let Config = require('../../config/config.json');
 
@@ -103,7 +103,7 @@ export class MessageHandler implements EventHandler {
                 .setColor(Config.colors.error);
 
             if (channel instanceof TextChannel) await channel.send(embed);
-            else MessageUtils.sendDm(channel, embed);
+            else MessageUtils.send(channel, embed);
             return;
         }
 
@@ -111,7 +111,7 @@ export class MessageHandler implements EventHandler {
             let embed = new MessageEmbed()
                 .setDescription('This command can only be used in a discord server!')
                 .setColor(Config.colors.error);
-            MessageUtils.sendDm(channel, embed);
+            MessageUtils.send(channel, embed);
             return;
         }
 
@@ -143,7 +143,7 @@ export class MessageHandler implements EventHandler {
                     .setColor(Config.colors.error);
 
                 if (channel instanceof TextChannel) await channel.send(embed);
-                else MessageUtils.sendDm(channel, embed);
+                else MessageUtils.send(channel, embed);
             } catch {
                 // ignored
             }

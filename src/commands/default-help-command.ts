@@ -1,7 +1,7 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { MessageUtils } from '../utils';
 import { Command } from './command';
+import { MessageUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
@@ -30,6 +30,6 @@ export class DefaultHelpCommand implements Command {
             .setColor(Config.colors.default);
 
         if (channel instanceof TextChannel) await channel.send(embed);
-        else MessageUtils.sendDm(channel, embed);
+        else MessageUtils.send(channel, embed);
     }
 }

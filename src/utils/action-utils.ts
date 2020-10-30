@@ -1,4 +1,4 @@
-import { GuildMember, Role } from 'discord.js';
+import { GuildMember, Message, Role } from 'discord.js';
 
 export abstract class ActionUtils {
     public static async giveRole(member: GuildMember, role: Role): Promise<void> {
@@ -14,6 +14,14 @@ export abstract class ActionUtils {
             await member.roles.remove(role);
         } catch (error) {
             // Can't take that role
+        }
+    }
+
+    public static async deleteMessage(msg: Message): Promise<void> {
+        try {
+            await msg.delete();
+        } catch (error) {
+            // Can't delete message
         }
     }
 }

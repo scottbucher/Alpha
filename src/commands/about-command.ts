@@ -1,8 +1,8 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
+import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
 import { MessageUtils } from '../utils';
-import { Command } from './command';
 
 let Config = require('../../config/config.json');
 
@@ -41,6 +41,6 @@ export class AboutCommand implements Command {
             .setColor(Config.colors.default);
 
         if (channel instanceof TextChannel) await channel.send(embed);
-        else MessageUtils.sendDm(channel, embed);
+        else MessageUtils.send(channel, embed);
     }
 }
