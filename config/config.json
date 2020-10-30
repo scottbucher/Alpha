@@ -6,12 +6,25 @@
         "success": "0x1CFE86",
         "error": "0xff0000"
     },
+    "experience": {
+        "promptExpireTime": 120
+    },
     "emotes": {
         "refresh": "♻️",
         "nextPage": "➡️",
-        "previousPage": "⬅️"
+        "previousPage": "⬅️",
+        "zero": "0️⃣",
+        "one": "1️⃣",
+        "two": "2️⃣",
+        "three": "3️⃣",
+        "four": "4️⃣",
+        "five": "5️⃣",
+        "six": "6️⃣",
+        "seven": "7️⃣",
+        "eight": "8️⃣",
+        "nine": "9️⃣"
     },
-    "lbPageSize": 1,
+    "lbPageSize": "1",
     "mysql": {
         "host": "<HOST>",
         "database": "<DATABASE>",
@@ -20,13 +33,14 @@
         "charset": "utf8mb4",
         "connectionLimit": 10
     },
+    "stopCommands": ["stop", "cancel", "exit", "close", "quit"],
     "postSchedule": "0 * * * * *",
     "listPageSize": 5,
     "promptExpireTime": 120,
     "xp": {
         "textXpMin": 15,
         "textXpMax": 25,
-        "voiceXp": 3
+        "voiceXp": 5
     },
     "ownerIds": ["478288246858711040", "212772875793334272"],
     "intents": ["GUILDS", "GUILD_MEMBERS", "GUILD_PRESENCES", "GUILD_MESSAGES", "DIRECT_MESSAGES"],
