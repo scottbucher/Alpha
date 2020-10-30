@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "discord.js": "12.4.1",
+        "discord.js-collector-utils": "^1.0.20",
         "emoji-regex": "9.2.0",
         "moment": "2.29.1",
         "mysql": "2.18.1",
