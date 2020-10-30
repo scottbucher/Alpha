@@ -1,14 +1,15 @@
 import { Guild, GuildEmoji, GuildMember, MessageEmbed, User, Util } from 'discord.js';
 
-import { isNumber } from 'util';
-import { RoleCallData } from '../models/database/rolecall-models';
-import { UserDataResults } from '../models/database/user-data-results-models';
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
+import { RoleCallData } from '../models/database/rolecall-models';
+import { UserDataResults } from '../models/database/user-data-results-models';
 import { XpUtils } from './xp-utils';
+import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
 const emojiRegex = require('emoji-regex/text.js');
+const PAGE_REGEX = /Page (\d+)\/(\d+)/;
 
 export abstract class FormatUtils {
     public static getRoleName(guild: Guild, roleDiscordId: string): string {
@@ -79,6 +80,11 @@ export abstract class FormatUtils {
             )}\n`; // Add to list
         }
         return fieldList;
+    }
+
+    public static extractPageNumber(input: string): number {
+        let match = PAGE_REGEX.exec(input);
+        return match ? parseInt(match[1]) : null;
     }
 
     public static getEmoteDisplay(guild: Guild, emote: string): string {

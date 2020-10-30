@@ -2,6 +2,7 @@ import { ActionUtils, FormatUtils, ParseUtils, PermissionUtils } from '../utils'
 import {
     Collection,
     EmojiResolvable,
+    GuildMember,
     Message,
     MessageReaction,
     Permissions,
@@ -117,16 +118,19 @@ export class ReactionAddHandler implements EventHandler {
             msg.react(Config.emotes.refresh); // Add Administrative Recycle Emote
         }
 
-        if (checkNextPage || checkPreviousPage) {
-            let titleArgs = msg.embeds[0]?.title.split(' ');
+        let titleArgs = msg.embeds[0]?.title?.split(/\s+/);
 
+        if (!titleArgs) return;
+
+        if (checkNextPage || checkPreviousPage) {
+            let oldPage: number;
             let page = 1;
 
             if (titleArgs[4]) {
                 try {
-                    if (checkNextPage) {
-                        page = ParseUtils.parseInt(titleArgs[4]) + 1;
-                    } else page = ParseUtils.parseInt(titleArgs[4]) - 1;
+                    oldPage = parseInt(titleArgs[4]);
+                    if (checkNextPage) page = oldPage + 1;
+                    else page = oldPage - 1;
                 } catch (error) {
                     // Not A Number
                 }
@@ -135,7 +139,15 @@ export class ReactionAddHandler implements EventHandler {
 
             let pageSize = Config.lbPageSize;
 
-            let users = msg.guild.members.cache.filter(member => !member.user.bot).keyArray();
+            let members: Collection<string, GuildMember>;
+
+            try {
+                members = await msg.guild.members.fetch();
+            } catch (error) {
+                members = msg.guild.members.cache;
+            }
+
+            let users = members.filter(member => !member.user.bot).keyArray();
 
             let userDataResults = await this.userRepo.getLeaderBoardUsers(
                 msg.guild.id,
@@ -144,6 +156,14 @@ export class ReactionAddHandler implements EventHandler {
                 page
             );
 
+            if (
+                (oldPage === 1 && checkPreviousPage) || // if the old page was page 1 and they are trying to decrease
+                (oldPage === userDataResults.stats.TotalPages && checkNextPage) // if the  old page was the max page and they are trying to increase
+            ) {
+                await messageReaction.users.remove(reactor);
+                return;
+            }
+
             if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
             msg.edit(
@@ -151,10 +171,10 @@ export class ReactionAddHandler implements EventHandler {
                 await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize)
             );
 
-            await msg.reactions.removeAll();
-
             if (page !== 1) await msg.react(Config.emotes.previousPage);
             if (userDataResults.stats.TotalPages > page) await msg.react(Config.emotes.nextPage);
+
+            await messageReaction.users.remove(reactor);
         }
 
         if (

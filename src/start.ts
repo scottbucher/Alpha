@@ -42,6 +42,7 @@ async function start(): Promise<void> {
     Logger.info('Starting Bot!');
 
     let clientOptions: ClientOptions = {
+        ws: { intents: Config.intents },
         messageCacheMaxSize: Config.clientOptions.messageCacheMaxSize,
         messageCacheLifetime: Config.clientOptions.messageCacheLifetime,
         messageSweepInterval: Config.clientOptions.messageSweepInterval,

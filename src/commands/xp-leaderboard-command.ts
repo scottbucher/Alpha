@@ -1,5 +1,5 @@
+import { Collection, GuildMember, Message, TextChannel } from 'discord.js';
 import { FormatUtils, ParseUtils } from '../utils';
-import { Message, TextChannel } from 'discord.js';
 
 import { Command } from './command';
 import { UserRepo } from '../services/database/repos';
@@ -31,7 +31,15 @@ export class XpLeaderboardCommand implements Command {
 
         let pageSize = Config.lbPageSize;
 
-        let users = msg.guild.members.cache.filter(member => !member.user.bot).keyArray();
+        let members: Collection<string, GuildMember>;
+
+        try {
+            members = await msg.guild.members.fetch();
+        } catch (error) {
+            members = msg.guild.members.cache;
+        }
+
+        let users = members.filter(member => !member.user.bot).keyArray();
 
         let userDataResults = await this.userRepo.getLeaderBoardUsers(
             msg.guild.id,
@@ -42,13 +50,18 @@ export class XpLeaderboardCommand implements Command {
 
         if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
-        let embed = await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize);
+        let embed = await FormatUtils.getXpLeaderBoardEmbed(
+            msg.guild,
+            userDataResults,
+            page,
+            pageSize
+        );
 
         let message = await channel.send(embed);
 
         if (embed.description === 'No users in the database!') return;
 
-        if (page !== 1) await message.react(Config.emotes.previousPage);
-        if (userDataResults.stats.TotalPages > page) await message.react(Config.emotes.nextPage);
+        await message.react(Config.emotes.previousPage);
+        await message.react(Config.emotes.nextPage);
     }
 }
