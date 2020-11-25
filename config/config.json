@@ -1,6 +1,6 @@
 {
     "prefix": "!",
-    "token": "<BOT_TOKEN>",
+    "token": "***REMOVED***",
     "colors": {
         "default": "0x4EEFFF",
         "success": "0x1CFE86",
@@ -26,10 +26,10 @@
     },
     "lbPageSize": "10",
     "mysql": {
-        "host": "<HOST>",
-        "database": "<DATABASE>",
-        "user": "<USERNAME>",
-        "password": "<PASSWORD>",
+        "host": "***REMOVED***",
+        ***REMOVED***
+        "user": "scott",
+        "password": "***REMOVED***",
         "charset": "utf8mb4",
         "connectionLimit": 10
     },
@@ -50,7 +50,8 @@
         "GUILD_MESSAGES",
         "GUILD_MESSAGE_REACTIONS",
         "DIRECT_MESSAGES",
-        "DIRECT_MESSAGE_REACTIONS"
+        "DIRECT_MESSAGE_REACTIONS",
+        "GUILD_VOICE_STATES"
     ],
     "sharding": {
         "machineId": 0,

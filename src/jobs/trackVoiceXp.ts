@@ -1,9 +1,9 @@
-import { Client } from 'discord.js';
-
-import { Logger } from '../services';
 import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
-import { XpUtils } from '../utils';
+
+import { Client } from 'discord.js';
 import { Job } from './job';
+import { Logger } from '../services';
+import { XpUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
@@ -16,25 +16,26 @@ export class TrackVoiceXp implements Job {
     ) {}
 
     public async run(): Promise<void> {
+        Logger.info('Giving Voice Xp!');
         let guildList = this.client.guilds.cache;
 
         // Get guild data from database
 
         for (let guild of guildList.array()) {
             try {
-                // let guildVoiceStates = guild.voiceStates.cache.array();
-                let guildVoiceStates = guild.voiceStates.cache
+                let g = await guild.fetch();
+                let guildVoiceStates = g.voiceStates.cache
                     .array()
                     .filter(
                         voiceState =>
-                            !voiceState.member.user.bot && voiceState.channel !== guild.afkChannel
+                            !voiceState.member.user.bot && voiceState.channel !== g.afkChannel
                     ); // Filter out the bots and afk channels first
 
                 for (let memberVoiceState of guildVoiceStates) {
                     let member = memberVoiceState.member;
 
                     if (memberVoiceState.channel != null) {
-                        let userData = await this.userRepo.getUser(member.id, guild.id);
+                        let userData = await this.userRepo.getUser(member.id, g.id);
 
                         let playerXp = userData.XpAmount;
                         let currentLevel = XpUtils.getLevelFromXp(playerXp); // Get current level
@@ -42,7 +43,7 @@ export class TrackVoiceXp implements Job {
                         playerXp += Config.xp.voiceXp;
 
                         // Update User
-                        await this.userRepo.updateUser(member.id, guild.id, playerXp);
+                        await this.userRepo.updateUser(member.id, g.id, playerXp);
 
                         let newLevel = XpUtils.getLevelFromXp(playerXp); // Get new level
                         if (XpUtils.isLevelUp(currentLevel, newLevel)) {
