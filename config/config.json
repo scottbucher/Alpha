@@ -43,6 +43,11 @@
         "voiceXp": 5
     },
     "ownerIds": ["478288246858711040", "212772875793334272"],
+    "chase": {
+        "guildIds": [""],
+        "id": "",
+        "emote": ""
+    },
     "intents": [
         "GUILDS",
         "GUILD_PRESENCES",

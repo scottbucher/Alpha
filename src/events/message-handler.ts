@@ -1,13 +1,14 @@
 import {
     DMChannel,
+    EmojiResolvable,
     GuildMember,
     Message,
     MessageEmbed,
     Permissions,
     TextChannel,
 } from 'discord.js';
+import { FormatUtils, MessageUtils, XpUtils } from '../utils';
 import { GuildRepo, RewardRepo, UserRepo } from '../services/database/repos';
-import { MessageUtils, XpUtils } from '../utils';
 
 import { Command } from '../commands';
 import { EventHandler } from './event-handler';
@@ -71,8 +72,16 @@ export class MessageHandler implements EventHandler {
             }
         }
 
-        if (!args[0].toLowerCase().startsWith(guildData.Prefix)) return;
-
+        if (!args[0].toLowerCase().startsWith(guildData.Prefix)) {
+            if (Config.chase.guildIds.includes(msg.guild.id) && msg.author.id === Config.chase.id) {
+                // Add chase emote to chase's message (which isn't a command)
+                let emoji: EmojiResolvable =
+                    FormatUtils.findGuildEmoji(Config.chase.emote, msg.guild) ||
+                    FormatUtils.findUnicodeEmoji(Config.chase.emote);
+                if (emoji) await MessageUtils.react(msg, emoji); // React with the emote
+            }
+            return;
+        }
         if (args[0].toLowerCase() === guildData.Prefix) {
             // Send default help message
             this.defaultHelpCommand.execute(args, msg, channel);
