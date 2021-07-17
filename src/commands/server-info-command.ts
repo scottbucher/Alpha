@@ -1,7 +1,7 @@
 import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { GuildRepo } from '../services/database/repos';
 import { Command } from './command';
+import { GuildRepo } from '../services/database/repos';
 
 let Config = require('../../config/config.json');
 
@@ -30,7 +30,7 @@ export class ServerInfoCommand implements Command {
         let voiceChannels = guild.channels.cache.filter(channel => channel.type === 'voice');
 
         let embed = new MessageEmbed()
-            .setAuthor(msg.guild.name, msg.guild.iconURL())
+            .setAuthor(msg.guild.id === '777956000857980938' ? 'The Loser Server' : msg.guild.name, msg.guild.iconURL())
             .setDescription('Information about your server.')
             .addField('Server ID', `\`${guild.id}\``, true)
             .addField('Owner', `${guild.owner.user}`, true)
