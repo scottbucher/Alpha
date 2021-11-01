@@ -2,6 +2,7 @@ import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
 import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
+import { MessageUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
@@ -26,14 +27,17 @@ export class ServerInfoCommand implements Command {
             member => member.presence.status === 'online' || member.presence.status === 'dnd'
         );
 
-        let textChannels = guild.channels.cache.filter(channel => channel.type === 'text');
-        let voiceChannels = guild.channels.cache.filter(channel => channel.type === 'voice');
+        let textChannels = guild.channels.cache.filter(channel => channel.type === 'GUILD_TEXT');
+        let voiceChannels = guild.channels.cache.filter(channel => channel.type === 'GUILD_VOICE');
 
         let embed = new MessageEmbed()
-            .setAuthor(msg.guild.id === '777956000857980938' ? 'The Loser Server' : msg.guild.name, msg.guild.iconURL())
+            .setAuthor(
+                msg.guild.id === '777956000857980938' ? 'The Loser Server' : msg.guild.name,
+                msg.guild.iconURL()
+            )
             .setDescription('Information about your server.')
             .addField('Server ID', `\`${guild.id}\``, true)
-            .addField('Owner', `${guild.owner.user}`, true)
+            .addField('Owner', `${(await guild.fetchOwner()).user}`, true)
             .addField(
                 'Created',
                 `${guild.createdAt.getMonth()}/${guild.createdAt.getDate()}/${guild.createdAt.getFullYear()}`,
@@ -55,6 +59,6 @@ export class ServerInfoCommand implements Command {
             .setTimestamp()
             .setColor(Config.colors.default);
 
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

@@ -21,15 +21,12 @@ export class TrackVoiceXp implements Job {
 
         // Get guild data from database
 
-        for (let guild of guildList.array()) {
+        for (let guild of guildList.values()) {
             try {
                 let g = await guild.fetch();
-                let guildVoiceStates = g.voiceStates.cache
-                    .array()
-                    .filter(
-                        voiceState =>
-                            !voiceState.member.user.bot && voiceState.channel !== g.afkChannel
-                    ); // Filter out the bots and afk channels first
+                let guildVoiceStates = [...g.voiceStates.cache.values()].filter(
+                    voiceState => !voiceState.member.user.bot && voiceState.channel !== g.afkChannel
+                ); // Filter out the bots and afk channels first
 
                 for (let memberVoiceState of guildVoiceStates) {
                     let member = memberVoiceState.member;

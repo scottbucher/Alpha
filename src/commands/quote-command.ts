@@ -23,7 +23,7 @@ export class QuoteCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`This guild doesn't have a quote channel set!`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -31,7 +31,7 @@ export class QuoteCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Please specify a message id, link, or user')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -79,7 +79,7 @@ export class QuoteCommand implements Command {
                     .setTitle('Invalid Input!')
                     .setDescription('Please specify a valid message id, link, or user')
                     .setColor(Config.colors.error);
-                await channel.send(embed);
+                await MessageUtils.send(channel, embed);
                 return;
             }
 
@@ -88,7 +88,7 @@ export class QuoteCommand implements Command {
                     .setTitle('Invalid Input!')
                     .setDescription('Please supply a quote!')
                     .setColor(Config.colors.error);
-                await channel.send(embed);
+                await MessageUtils.send(channel, embed);
                 return;
             }
 
@@ -102,11 +102,11 @@ export class QuoteCommand implements Command {
                 .setTitle('Invalid Input!')
                 .setDescription('Please specify a valid message id, link, or user')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
         let embed = await FormatUtils.getQuoteEmbed(author, msg.member, quote);
-        await quoteChannel.send(embed);
+        await MessageUtils.send(quoteChannel, embed);
     }
 }

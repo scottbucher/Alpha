@@ -1,6 +1,6 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { ArrayUtils } from '../utils';
+import { ArrayUtils, MessageUtils } from '../utils';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
@@ -27,7 +27,7 @@ export class EightBallCommand implements Command {
                     `Discord TOS says I am not allowed to read your mind so you're going to have to ask a question.`
                 )
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -35,13 +35,13 @@ export class EightBallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Shouldn't you have learned proper punctuation at school?`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
         if (HUNTER_REGEX.test(msg.content)) {
             let embed = new MessageEmbed().setDescription('Yes.').setColor(Config.colors.success);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -62,6 +62,6 @@ export class EightBallCommand implements Command {
                 .setColor(Config.colors.default);
         }
 
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

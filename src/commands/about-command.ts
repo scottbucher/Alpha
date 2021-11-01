@@ -40,7 +40,7 @@ export class AboutCommand implements Command {
             .setThumbnail(msg.client.user.avatarURL())
             .setColor(Config.colors.default);
 
-        if (channel instanceof TextChannel) await channel.send(embed);
+        if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
         else MessageUtils.send(channel, embed);
     }
 }

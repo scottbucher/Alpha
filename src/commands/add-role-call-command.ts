@@ -23,7 +23,7 @@ export class AddRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Usage. Please provide a role and emote')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -44,7 +44,7 @@ export class AddRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -53,7 +53,7 @@ export class AddRoleCallCommand implements Command {
                 .setTitle(`Invalid Role!`)
                 .setDescription('That role is managed by an external service!')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -62,7 +62,7 @@ export class AddRoleCallCommand implements Command {
                 .setTitle('Invalid Emote!')
                 .setDescription('Sorry, ♻️ is a reserved emote!')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -77,7 +77,7 @@ export class AddRoleCallCommand implements Command {
                     'You must use a valid unicode emote or a custom emote from this guild!'
                 )
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -93,7 +93,7 @@ export class AddRoleCallCommand implements Command {
                 let embed = new MessageEmbed()
                     .setDescription('Category name is too long.')
                     .setColor(Config.colors.error);
-                await channel.send(embed);
+                await MessageUtils.send(channel, embed);
                 return;
             }
             category = args[3];
@@ -108,7 +108,7 @@ export class AddRoleCallCommand implements Command {
                     'Each role can only be assigned to one emote!\nEmotes __can__ assign more than one role.'
                 )
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -128,6 +128,6 @@ export class AddRoleCallCommand implements Command {
                 )} to the emote ${emoteOutput} in the category **${category}**!`
             );
 
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

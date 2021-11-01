@@ -75,7 +75,8 @@ export abstract class XpUtils {
 
         // Check if any new roles were unlocked
         if (newRoleIds.length === 0) {
-            await levelingChannel.send(
+            await MessageUtils.send(
+                levelingChannel,
                 `**Congratulations** <@${member.id}> you've reached level __**${newLevel}**__`
             );
             return;
@@ -93,7 +94,8 @@ export abstract class XpUtils {
 
         let newRolesList = FormatUtils.joinWithAnd(newRoleNames);
 
-        await levelingChannel.send(
+        await MessageUtils.send(
+            levelingChannel,
             `**Congratulations** <@${member.id}> you've reached level __**${newLevel}**__ and have unlocked the following role(s): ${newRolesList}!`
         );
     }

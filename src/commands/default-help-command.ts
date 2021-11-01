@@ -29,7 +29,7 @@ export class DefaultHelpCommand implements Command {
             )
             .setColor(Config.colors.default);
 
-        if (channel instanceof TextChannel) await channel.send(embed);
+        if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
         else MessageUtils.send(channel, embed);
     }
 }

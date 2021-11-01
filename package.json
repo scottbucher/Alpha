@@ -6,7 +6,7 @@
     "license": "MIT",
     "private": true,
     "engines": {
-        "node": ">=12.14.0"
+        "node": ">=16.6.0"
     },
     "main": "dist/start.js",
     "scripts": {
@@ -18,8 +18,8 @@
         "build": "tsc"
     },
     "dependencies": {
-        "discord.js": "12.4.1",
-        "discord.js-collector-utils": "1.0.20",
+        "discord.js": "13.3.1",
+        "discord.js-collector-utils": "1.2.4",
         "emoji-regex": "9.2.2",
         "moment": "2.29.1",
         "mysql": "2.18.1",

@@ -2,7 +2,7 @@ import { Message, MessageEmbed, TextChannel } from 'discord.js';
 
 import { Command } from './command';
 import { GuildRepo } from '../services/database/repos/guild-repo';
-import { PermissionUtils } from '../utils';
+import { MessageUtils, PermissionUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 
@@ -24,12 +24,14 @@ export class SetPollChannelCommand implements Command {
                 .setDescription(`Successfully set the poll channel to <#${channel.id}>!`)
                 .setColor(Config.colors.success);
 
-            await channel.send(embed); // Send confirmation of completion
+            await MessageUtils.send(channel, embed); // Send confirmation of completion
             return;
         }
 
         // Find mentioned channel
-        let channelInput: TextChannel = msg.mentions.channels.first();
+        let channelInput = msg.mentions.channels
+            .filter(channel => channel instanceof TextChannel)
+            .first() as TextChannel;
 
         if (!channelInput) {
             channelInput = msg.guild.channels.cache
@@ -43,7 +45,7 @@ export class SetPollChannelCommand implements Command {
                 .setDescription('Invalid channel!')
                 .setColor(Config.colors.error);
 
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -51,7 +53,7 @@ export class SetPollChannelCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`I don't have permission to send messages in <#${channel.id}>!`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -60,6 +62,6 @@ export class SetPollChannelCommand implements Command {
         let embed = new MessageEmbed()
             .setDescription(`Successfully set the poll channel to <#${channelInput.id}>!`)
             .setColor(Config.colors.success);
-        await channel.send(embed); // Send confirmation of completion
+        await MessageUtils.send(channel, embed); // Send confirmation of completion
     }
 }

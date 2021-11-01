@@ -111,7 +111,7 @@ export class MessageHandler implements EventHandler {
                 .setDescription('This command can only be used by the bot owner!')
                 .setColor(Config.colors.error);
 
-            if (channel instanceof TextChannel) await channel.send(embed);
+            if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
             else MessageUtils.send(channel, embed);
             return;
         }
@@ -124,7 +124,7 @@ export class MessageHandler implements EventHandler {
             return;
         }
 
-        channel.startTyping();
+        channel.sendTyping();
         try {
             if (channel instanceof TextChannel) {
                 let member = msg.member;
@@ -136,7 +136,7 @@ export class MessageHandler implements EventHandler {
                             'You do not have the required permission to run this command!'
                         )
                         .setColor(Config.colors.error);
-                    await channel.send(embed);
+                    await MessageUtils.send(channel, embed);
                     return;
                 }
                 await command.execute(args, msg, channel);
@@ -151,13 +151,12 @@ export class MessageHandler implements EventHandler {
                     .addField('Please contact support', '__**Stqlth#0001**__')
                     .setColor(Config.colors.error);
 
-                if (channel instanceof TextChannel) await channel.send(embed);
+                if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
                 else MessageUtils.send(channel, embed);
             } catch {
                 // ignored
             }
         }
-        channel.stopTyping(true);
     }
 
     private getCommand(userCommand: string) {
@@ -175,7 +174,7 @@ export class MessageHandler implements EventHandler {
 
     private hasPermission(member: GuildMember, command: Command): boolean {
         if (command.adminOnly) {
-            return member.hasPermission(Permissions.FLAGS.ADMINISTRATOR); // return true if they have admin
+            return member.permissions.has(Permissions.FLAGS.ADMINISTRATOR); // return true if they have admin
         }
         return true;
     }

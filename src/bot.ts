@@ -126,11 +126,10 @@ export class Bot {
     ): Promise<void> {
         let guilds = client.guilds.cache;
 
-        for (let guild of guilds.array()) {
-            await guildRepo.syncGuild(
-                guild.id,
-                guild.members.cache.filter(member => !member.user.bot).keyArray()
-            );
+        for (let guild of guilds.values()) {
+            await guildRepo.syncGuild(guild.id, [
+                ...guild.members.cache.filter(member => !member.user.bot).keys(),
+            ]);
         }
     }
 }

@@ -22,7 +22,7 @@ export class RemoveRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Please supply a role you would like to clear.')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -43,7 +43,7 @@ export class RemoveRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -58,6 +58,6 @@ export class RemoveRoleCallCommand implements Command {
             )
             .setColor(Config.colors.success);
 
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

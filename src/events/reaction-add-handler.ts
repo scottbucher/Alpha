@@ -1,4 +1,4 @@
-import { ActionUtils, FormatUtils, ParseUtils, PermissionUtils } from '../utils';
+import { ActionUtils, FormatUtils, MessageUtils, ParseUtils, PermissionUtils } from '../utils';
 import {
     Collection,
     EmojiResolvable,
@@ -46,7 +46,7 @@ export class ReactionAddHandler implements EventHandler {
                 return;
             }
         } else {
-            msg = messageReaction.message;
+            msg = messageReaction.message as Message;
         }
 
         // Check if the reacted message was sent by the bot
@@ -85,11 +85,11 @@ export class ReactionAddHandler implements EventHandler {
 
         let reactorMember = msg.guild.members.resolve(reactor);
 
-        if (reactorMember.hasPermission(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
+        if (reactorMember.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && checkRefresh) {
             // Refresh the role-call
 
             let roleCallEmbed = await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData);
-            msg = await msg.edit('', roleCallEmbed);
+            msg = await MessageUtils.edit(msg, roleCallEmbed);
 
             await msg.reactions.removeAll();
 
@@ -147,7 +147,7 @@ export class ReactionAddHandler implements EventHandler {
                 members = msg.guild.members.cache;
             }
 
-            let users = members.filter(member => !member.user.bot).keyArray();
+            let users = [...members.filter(member => !member.user.bot).keys()];
 
             let userDataResults = await this.userRepo.getLeaderBoardUsers(
                 msg.guild.id,
@@ -166,10 +166,13 @@ export class ReactionAddHandler implements EventHandler {
 
             if (page > userDataResults.stats.TotalPages) page = userDataResults.stats.TotalPages;
 
-            msg.edit(
-                '',
-                await FormatUtils.getXpLeaderBoardEmbed(msg.guild, userDataResults, page, pageSize)
+            let embed = await FormatUtils.getXpLeaderBoardEmbed(
+                msg.guild,
+                userDataResults,
+                page,
+                pageSize
             );
+            await MessageUtils.edit(msg, embed);
 
             if (page !== 1) await msg.react(Config.emotes.previousPage);
             if (userDataResults.stats.TotalPages > page) await msg.react(Config.emotes.nextPage);
@@ -180,7 +183,7 @@ export class ReactionAddHandler implements EventHandler {
         if (
             !msg.guild.members
                 .resolve(msg.client.user)
-                .hasPermission(Permissions.FLAGS.MANAGE_ROLES)
+                .permissions.has(Permissions.FLAGS.MANAGE_ROLES)
         )
             return;
 

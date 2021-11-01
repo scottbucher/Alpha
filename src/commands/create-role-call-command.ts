@@ -1,7 +1,7 @@
 import { EmojiResolvable, Message, MessageEmbed, Permissions, TextChannel } from 'discord.js';
 
 import { RoleCallRepo } from '../services/database/repos';
-import { FormatUtils } from '../utils';
+import { FormatUtils, MessageUtils } from '../utils';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
@@ -26,7 +26,7 @@ export class CreateRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('I require the `ADD_REACTIONS` & `MANAGE_MESSAGES` to do this!`')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -36,13 +36,13 @@ export class CreateRoleCallCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Could not find any saved roles.')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
         msg.delete();
 
-        let message = await channel.send(
+        let message = await MessageUtils.send(channel, 
             await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData)
         );
 

@@ -1,6 +1,6 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { ArrayUtils } from '../utils';
+import { ArrayUtils, MessageUtils } from '../utils';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
@@ -20,6 +20,6 @@ export class GoodMorningCommand implements Command {
         let embed = new MessageEmbed()
             .setDescription(`${emoji} **Good morning ${msg.author.toString()}!** ${emoji}`)
             .setColor(Config.colors.default);
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

@@ -23,7 +23,7 @@ export class AddLevelingRewardCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Usage. Please provide a level and role.')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -33,7 +33,7 @@ export class AddLevelingRewardCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Invalid Level!')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -54,7 +54,7 @@ export class AddLevelingRewardCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -69,6 +69,6 @@ export class AddLevelingRewardCommand implements Command {
             )
             .setColor(Config.colors.success);
 
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

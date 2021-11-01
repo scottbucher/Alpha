@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed, Role, TextChannel } from 'discord.js';
 import { GuildRepo, UserRepo } from '../services/database/repos';
 
-import { ActionUtils } from '../utils';
+import { ActionUtils, MessageUtils } from '../utils';
 import { EventHandler } from './event-handler';
 import { Logger } from '../services';
 
@@ -42,6 +42,6 @@ export class UserJoinHandler implements EventHandler {
             .setColor(Config.colors.default)
             .setFooter(`${member.displayName} joined!`, member.user.avatarURL())
             .setTimestamp();
-        await welcomeChannel.send(embed);
+        await MessageUtils.send(welcomeChannel, embed);
     }
 }

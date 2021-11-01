@@ -1,5 +1,5 @@
 import { Collection, GuildMember, Message, TextChannel } from 'discord.js';
-import { FormatUtils, ParseUtils } from '../utils';
+import { FormatUtils, MessageUtils, ParseUtils } from '../utils';
 
 import { Command } from './command';
 import { UserRepo } from '../services/database/repos';
@@ -39,7 +39,7 @@ export class XpLeaderboardCommand implements Command {
             members = msg.guild.members.cache;
         }
 
-        let users = members.filter(member => !member.user.bot).keyArray();
+        let users = [...members.filter(member => !member.user.bot).keys()];
 
         let userDataResults = await this.userRepo.getLeaderBoardUsers(
             msg.guild.id,
@@ -57,7 +57,7 @@ export class XpLeaderboardCommand implements Command {
             pageSize
         );
 
-        let message = await channel.send(embed);
+        let message = await MessageUtils.send(channel, embed);
 
         if (embed.description === 'No users in the database!') return;
 

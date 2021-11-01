@@ -1,4 +1,4 @@
-import { FormatUtils, XpUtils } from '../utils';
+import { FormatUtils, MessageUtils, XpUtils } from '../utils';
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
 import { Command } from './command';
@@ -36,7 +36,7 @@ export class XpCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Could not find that user!')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -44,7 +44,7 @@ export class XpCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`You may not view a bot's level.`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -75,6 +75,6 @@ export class XpCommand implements Command {
             )
             .setThumbnail(target.user.avatarURL())
             .setColor(Config.colors.default);
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }
