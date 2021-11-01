@@ -42,7 +42,8 @@ export class CreateRoleCallCommand implements Command {
 
         msg.delete();
 
-        let message = await MessageUtils.send(channel, 
+        let message = await MessageUtils.send(
+            channel,
             await FormatUtils.getRoleCallEmbed(msg.guild, roleCallData)
         );
 

@@ -167,9 +167,9 @@ export abstract class FormatUtils {
 
         if (guild.id === '777956000857980938' && page === 1) {
             description += `#${i.toLocaleString()}: **Stqlth** \nLevel: **69420** (Total XP: **∞**)\n\n`;
-            i++
+            i++;
         }
-        
+
         for (let userData of userDataResults.userData) {
             description += `#${i.toLocaleString()}: ${
                 guild.members.resolve(userData.UserDiscordId)?.toString() || 'Unknown'
