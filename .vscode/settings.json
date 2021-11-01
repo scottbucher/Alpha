@@ -1,8 +1,32 @@
 {
+    "[json]": {
+        "editor.formatOnSave": true
+    },
+    "[markdown]": {
+        "editor.formatOnSave": true
+    },
+    "[typescript]": {
+        "editor.formatOnSave": true
+    },
+    "cSpell.enabled": true,
     "cSpell.words": [
+        "bot's",
+        "cmds",
+        "datas",
+        "descs",
+        "discordbotlist",
+        "discordjs",
+        "discordlabs",
+        "filesize",
         "leaderboard",
+        "Novak",
+        "ondiscord",
+        "parens",
+        "pino",
+        "regexes",
         "repos",
         "respawn",
-        "rolecall"
+        "rolecall",
+        "varchar"
     ]
 }
