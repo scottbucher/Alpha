@@ -40,7 +40,7 @@ export class CreateRoleCallCommand implements Command {
             return;
         }
 
-        msg.delete();
+        await MessageUtils.delete(msg);
 
         let message = await MessageUtils.send(
             channel,

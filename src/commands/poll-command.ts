@@ -107,7 +107,7 @@ export class PollCommand implements Command {
             COLLECT_OPTIONS
         );
 
-        ActionUtils.deleteMessage(messageQuestion);
+        await MessageUtils.delete(messageQuestion);
 
         if (pollQuestion === undefined) {
             return;
@@ -152,7 +152,7 @@ export class PollCommand implements Command {
                 COLLECT_OPTIONS
             );
 
-            ActionUtils.deleteMessage(optionMessage);
+            await MessageUtils.delete(optionMessage);
 
             if (pollOption === undefined) {
                 return;
