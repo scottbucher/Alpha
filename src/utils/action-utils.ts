@@ -1,4 +1,4 @@
-import { GuildMember, Message, Role } from 'discord.js';
+import { GuildMember, Role } from 'discord.js';
 
 export abstract class ActionUtils {
     public static async giveRole(member: GuildMember, role: Role): Promise<void> {
