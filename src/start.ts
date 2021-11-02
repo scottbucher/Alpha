@@ -43,9 +43,6 @@ async function start(): Promise<void> {
 
     let clientOptions: ClientOptions = {
         intents: Config.intents,
-        // messageCacheMaxSize: Config.clientOptions.messageCacheMaxSize,
-        messageCacheLifetime: Config.clientOptions.messageCacheLifetime,
-        messageSweepInterval: Config.clientOptions.messageSweepInterval,
         partials: Config.clientOptions.partials as PartialTypes[],
     };
 
