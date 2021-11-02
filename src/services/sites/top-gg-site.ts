@@ -11,6 +11,6 @@ export class TopGgSite implements BotSite {
     }
 
     public async updateServerCount(serverCount: number): Promise<void> {
-        this.httpService.post(this.config.url, { server_count: serverCount }, this.config.token);
+        this.httpService.post(this.config.url, this.config.token, { server_count: serverCount });
     }
 }
