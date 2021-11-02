@@ -1,4 +1,4 @@
-import { Client, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
+import { Client, Constants, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
 import schedule from 'node-schedule';
 
 import {
@@ -38,16 +38,22 @@ export class Bot {
     }
 
     private registerListeners(): void {
-        this.client.on('ready', () => this.onReady());
-        this.client.on('shardReady', (shardId: number) => this.onShardReady(shardId));
-        this.client.on('message', (msg: Message) => this.onMessage(msg));
-        this.client.on('guildCreate', (guild: Guild) => this.onGuildJoin(guild));
-        this.client.on('guildMemberAdd', (member: GuildMember) => this.onUserJoin(member));
-        this.client.on('messageReactionAdd', (reaction: MessageReaction, user: User) =>
-            this.onReactionAdd(reaction, user)
+        this.client.on(Constants.Events.CLIENT_READY, () => this.onReady());
+        this.client.on(Constants.Events.SHARD_READY, (shardId: number) =>
+            this.onShardReady(shardId)
         );
-        this.client.on('messageReactionRemove', (reaction: MessageReaction, user: User) =>
-            this.onReactionRemove(reaction, user)
+        this.client.on(Constants.Events.MESSAGE_CREATE, (msg: Message) => this.onMessage(msg));
+        this.client.on(Constants.Events.GUILD_CREATE, (guild: Guild) => this.onGuildJoin(guild));
+        this.client.on(Constants.Events.GUILD_MEMBER_ADD, (member: GuildMember) =>
+            this.onUserJoin(member)
+        );
+        this.client.on(
+            Constants.Events.MESSAGE_REACTION_ADD,
+            (reaction: MessageReaction, user: User) => this.onReactionAdd(reaction, user)
+        );
+        this.client.on(
+            Constants.Events.MESSAGE_REACTION_REMOVE,
+            (reaction: MessageReaction, user: User) => this.onReactionRemove(reaction, user)
         );
     }
 
