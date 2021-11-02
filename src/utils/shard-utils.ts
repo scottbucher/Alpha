@@ -1,7 +1,14 @@
-import { Util } from 'discord.js';
+import { ShardClientUtil, ShardingManager, Util } from 'discord.js';
+import { MathUtils } from '.';
 
-export abstract class ShardUtils {
-    public static async getRecommendedShards(
+const MAX_SERVERS_PER_SHARD = 2500;
+
+export class ShardUtils {
+    public static async requiredShardCount(token: string): Promise<number> {
+        return this.recommendedShardCount(token, MAX_SERVERS_PER_SHARD);
+    }
+
+    public static async recommendedShardCount(
         token: string,
         serversPerShard: number
     ): Promise<number> {
@@ -10,7 +17,7 @@ export abstract class ShardUtils {
         );
     }
 
-    public static getMyShardIds(
+    public static shardIds(
         totalShards: number,
         machineId: number,
         totalMachines: number
@@ -22,5 +29,21 @@ export abstract class ShardUtils {
             }
         }
         return myShardIds;
+    }
+
+    public static shardId(guildId: number | string, shardCount: number): number {
+        // See sharding formula:
+        //   https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
+        // tslint:disable-next-line:no-bitwise
+        return Number((BigInt(guildId) >> 22n) % BigInt(shardCount));
+    }
+
+    public static async serverCount(
+        shardInterface: ShardingManager | ShardClientUtil
+    ): Promise<number> {
+        let shardGuildCounts = (await shardInterface.fetchClientValues(
+            'guilds.cache.size'
+        )) as number[];
+        return MathUtils.sum(shardGuildCounts);
     }
 }
