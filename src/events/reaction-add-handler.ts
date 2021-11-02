@@ -113,9 +113,9 @@ export class ReactionAddHandler implements EventHandler {
                     FormatUtils.findGuildEmoji(emote, msg.guild) ||
                     FormatUtils.findUnicodeEmoji(emote);
                 if (!emoji) continue; // Continue if there is no emoji
-                msg.react(emoji); // React with the emote
+                await MessageUtils.react(msg, emoji); // React with the emote
             }
-            msg.react(Config.emotes.refresh); // Add Administrative Recycle Emote
+            await MessageUtils.react(msg, Config.emotes.refresh); // Add Administrative Recycle Emote
         }
 
         let titleArgs = msg.embeds[0]?.title?.split(/\s+/);
@@ -174,8 +174,9 @@ export class ReactionAddHandler implements EventHandler {
             );
             await MessageUtils.edit(msg, embed);
 
-            if (page !== 1) await msg.react(Config.emotes.previousPage);
-            if (userDataResults.stats.TotalPages > page) await msg.react(Config.emotes.nextPage);
+            if (page !== 1) await MessageUtils.react(msg, Config.emotes.previousPage);
+            if (userDataResults.stats.TotalPages > page)
+                await MessageUtils.react(msg, Config.emotes.nextPage);
 
             await messageReaction.users.remove(reactor);
         }

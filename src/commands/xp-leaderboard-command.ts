@@ -61,7 +61,7 @@ export class XpLeaderboardCommand implements Command {
 
         if (embed.description === 'No users in the database!') return;
 
-        await message.react(Config.emotes.previousPage);
-        await message.react(Config.emotes.nextPage);
+        await MessageUtils.react(message, Config.emotes.previousPage);
+        await MessageUtils.react(message, Config.emotes.nextPage);
     }
 }
