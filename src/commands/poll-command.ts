@@ -54,7 +54,7 @@ export class PollCommand implements Command {
             let embed = new MessageEmbed()
                 .setColor(Config.colors.error)
                 .setDescription('The poll channel is not set.');
-            MessageUtils.send(msg.channel as TextChannel, embed);
+            await MessageUtils.send(msg.channel as TextChannel, embed);
             return;
         }
 
@@ -64,7 +64,7 @@ export class PollCommand implements Command {
             let embed = new MessageEmbed()
                 .setColor(Config.colors.error)
                 .setDescription('The poll channel is a deleted channel');
-            MessageUtils.send(msg.channel as TextChannel, embed);
+            await MessageUtils.send(msg.channel as TextChannel, embed);
             return;
         }
 

@@ -112,7 +112,7 @@ export class MessageHandler implements EventHandler {
                 .setColor(Config.colors.error);
 
             if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
-            else MessageUtils.send(channel, embed);
+            else await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -120,7 +120,7 @@ export class MessageHandler implements EventHandler {
             let embed = new MessageEmbed()
                 .setDescription('This command can only be used in a discord server!')
                 .setColor(Config.colors.error);
-            MessageUtils.send(channel, embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -152,7 +152,7 @@ export class MessageHandler implements EventHandler {
                     .setColor(Config.colors.error);
 
                 if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
-                else MessageUtils.send(channel, embed);
+                else await MessageUtils.send(channel, embed);
             } catch {
                 // ignored
             }

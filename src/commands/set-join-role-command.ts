@@ -44,7 +44,7 @@ export class SetJoinRoleCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Invalid Role!`)
                 .setColor(Config.colors.error);
-            MessageUtils.send(channel, embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -52,7 +52,7 @@ export class SetJoinRoleCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Join Role must be bellow the Bot's role!`)
                 .setColor(Config.colors.error);
-            MessageUtils.send(channel, embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -60,7 +60,7 @@ export class SetJoinRoleCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`Join Role cannot be managed by an external service!`)
                 .setColor(Config.colors.error);
-            MessageUtils.send(channel, embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 

@@ -41,6 +41,6 @@ export class AboutCommand implements Command {
             .setColor(Config.colors.default);
 
         if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
-        else MessageUtils.send(channel, embed);
+        else await MessageUtils.send(channel, embed);
     }
 }
