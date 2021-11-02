@@ -2,7 +2,7 @@ import { Message, MessageEmbed, Role, TextChannel } from 'discord.js';
 
 import { Command } from './command';
 import { GuildRepo } from '../services/database/repos';
-import { MessageUtils, PermissionUtils } from '../utils';
+import { MessageUtils } from '../utils';
 
 let Config = require('../../config/config.json');
 

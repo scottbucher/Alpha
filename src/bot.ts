@@ -100,21 +100,21 @@ export class Bot {
         this.messageHandler.process(msg);
     }
 
-    private onGuildJoin(guild: Guild) {
+    private onGuildJoin(guild: Guild): void {
         if (!this.ready) return;
         this.guildJoinHandler.process(guild);
     }
 
-    private onUserJoin(event: any) {
+    private onUserJoin(event: any): void {
         if (!this.ready) return;
         this.userJoinHandler.process(event);
     }
 
-    private onReactionAdd(event: any, user: User) {
+    private onReactionAdd(event: any, user: User): void {
         if (!this.ready) return;
         this.reactionAddHandler.process(event, user);
     }
-    private onReactionRemove(event: any, user: User) {
+    private onReactionRemove(event: any, user: User): void {
         if (!this.ready) return;
         this.reactionRemoveHandler.process(event, user);
     }

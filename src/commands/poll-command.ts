@@ -1,4 +1,4 @@
-import { ActionUtils, ArrayUtils, MessageUtils } from '../utils';
+import { ActionUtils, MessageUtils } from '../utils';
 import {
     CollectOptions,
     CollectorUtils,
@@ -27,7 +27,11 @@ export class PollCommand implements Command {
 
     constructor(private guildRepo: GuildRepo) {}
 
-    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
+    public async execute(
+        args: string[],
+        msg: Message,
+        channel: TextChannel | DMChannel
+    ): Promise<void> {
         let stopFilter: MessageFilter = (nextMsg: Message) =>
             nextMsg.author.id === msg.author.id &&
             [Config.prefix, ...Config.stopCommands].includes(

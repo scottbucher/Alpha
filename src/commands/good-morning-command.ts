@@ -15,7 +15,11 @@ export class GoodMorningCommand implements Command {
 
     private emojis = ['🔅', '🔆', '☀️', '🌅', '🌄', '☕', '🥞'];
 
-    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
+    public async execute(
+        args: string[],
+        msg: Message,
+        channel: TextChannel | DMChannel
+    ): Promise<void> {
         let emoji = ArrayUtils.chooseRandom(this.emojis);
         let embed = new MessageEmbed()
             .setDescription(`${emoji} **Good morning ${msg.author.toString()}!** ${emoji}`)
