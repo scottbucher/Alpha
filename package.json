@@ -26,7 +26,7 @@
     "dependencies": {
         "discord.js": "13.3.1",
         "discord.js-collector-utils": "1.2.4",
-        "emoji-regex": "9.2.2",
+        "emoji-regex": "10.0.0",
         "moment": "2.29.1",
         "mysql": "2.18.1",
         "node-schedule": "2.0.0",

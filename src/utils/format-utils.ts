@@ -1,4 +1,5 @@
 import { Guild, GuildEmoji, GuildMember, MessageEmbed, User, Util } from 'discord.js';
+import emojiRegex from 'emoji-regex';
 
 import { MathUtils } from './math-utils';
 import { ParseUtils } from './parse-utils';
@@ -8,8 +9,9 @@ import { XpUtils } from './xp-utils';
 import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
-const emojiRegex = require('emoji-regex/text.js');
+
 const PAGE_REGEX = /Page (\d+)\/(\d+)/;
+const EMOJI_REGEX = emojiRegex();
 
 export abstract class FormatUtils {
     public static getRoleName(guild: Guild, roleDiscordId: string): string {
@@ -60,12 +62,12 @@ export abstract class FormatUtils {
     }
 
     public static isUnicodeEmoji(input: string): boolean {
-        return emojiRegex().exec(input) !== null;
+        return EMOJI_REGEX.exec(input) !== null;
     }
 
     public static findUnicodeEmoji(input: string): string {
         if (input.length > 2) return null;
-        let emote = emojiRegex().exec(input)[0];
+        let emote = EMOJI_REGEX.exec(input)[0];
         return isNumber(emote) ? null : emote;
     }
 
