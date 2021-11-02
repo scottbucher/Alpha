@@ -12,11 +12,11 @@ export class Manager {
     public async start(): Promise<void> {
         this.registerListeners();
         try {
-            await this.shardManager.spawn(
-                this.shardManager.totalShards,
-                Config.sharding.spawnDelay * 1000,
-                Config.sharding.spawnTimeout * 1000
-            );
+            await this.shardManager.spawn({
+                amount: this.shardManager.totalShards,
+                delay: Config.sharding.spawnDelay * 1000,
+                timeout: Config.sharding.spawnTimeout * 1000,
+            });
         } catch (error) {
             Logger.error(Logs.error.spawnShard, error);
             return;
@@ -31,15 +31,28 @@ export class Manager {
 
     public async updateServerCount(): Promise<void> {
         let serverCount = await this.retrieveServerCount();
-        await this.shardManager.broadcastEval(`
-            this.user.setPresence({
-                activity: {
+        await this.shardManager.broadcastEval(
+            (client, context) => {
+                return client.user.setPresence({
+                    activities: [
+                        {
+                            // TODO: Discord.js won't accept all ActivityType's here
+                            // Need to find a solution to remove "any"
+                            type: context.type as any,
+                            name: context.name,
+                            url: context.url,
+                        },
+                    ],
+                });
+            },
+            {
+                context: {
+                    type: 'STREAMING',
                     name: 'Watching you...',
-                    type: "STREAMING",
-                    url: "https://www.twitch.tv/stqlth"
-                }
-            });
-        `);
+                    url: 'https://www.twitch.tv/stqlth',
+                },
+            }
+        );
 
         Logger.info(
             Logs.info.updatedServerCount.replace('{SERVER_COUNT}', serverCount.toLocaleString())
@@ -61,8 +74,10 @@ export class Manager {
     }
 
     private async retrieveServerCount(): Promise<number> {
-        let shardSizes = await this.shardManager.fetchClientValues('guilds.cache.size');
-        return shardSizes.reduce((prev, val) => prev + val, 0);
+        let shardGuildCounts = (await this.shardManager.fetchClientValues(
+            'guilds.cache.size'
+        )) as number[];
+        return shardGuildCounts.reduce((a, b) => a + b, 0);
     }
 
     private registerListeners(): void {

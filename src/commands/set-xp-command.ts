@@ -1,7 +1,7 @@
 import { GuildMember, Message, MessageEmbed, TextChannel } from 'discord.js';
 
 import { UserRepo } from '../services/database/repos';
-import { ParseUtils } from '../utils';
+import { MessageUtils, ParseUtils } from '../utils';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
@@ -22,7 +22,7 @@ export class SetXpCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Please supply a user and xp value!')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -40,7 +40,7 @@ export class SetXpCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription('Could not find that user!')
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -48,7 +48,7 @@ export class SetXpCommand implements Command {
             let embed = new MessageEmbed()
                 .setDescription(`You may not set a bot's level.`)
                 .setColor(Config.colors.error);
-            await channel.send(embed);
+            await MessageUtils.send(channel, embed);
             return;
         }
 
@@ -64,7 +64,7 @@ export class SetXpCommand implements Command {
                 let embed = new MessageEmbed()
                     .setDescription('Invalid XP value!')
                     .setColor(Config.colors.error);
-                await channel.send(embed);
+                await MessageUtils.send(channel, embed);
                 return;
             }
         }
@@ -75,6 +75,6 @@ export class SetXpCommand implements Command {
             .setDescription(`Successfully set ${target.toString()}'s xp to **${xp}**!`)
             .setColor(Config.colors.default);
 
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

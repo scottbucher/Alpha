@@ -5,17 +5,21 @@ import {
     ClearLevelRewardsCommand,
     CreateRoleCallCommand,
     DefaultHelpCommand,
+    EightBallCommand,
     GoodMorningCommand,
     GoodnightCommand,
     PollCommand,
     QuoteCommand,
     RemoveRoleCallCommand,
     ServerInfoCommand,
+    SetJoinRoleCommand,
     SetLevelingChannelCommand,
+    SetPollChannelCommand,
     SetQuoteChannelCommand,
     SetWelcomeChannelCommand,
     SetXpCommand,
     XpCommand,
+    XpLeaderboardCommand,
 } from './commands';
 import { Client, ClientOptions, PartialTypes } from 'discord.js';
 import {
@@ -29,12 +33,8 @@ import { GuildRepo, RewardRepo, RoleCallRepo, UserRepo } from './services/databa
 
 import { Bot } from './bot';
 import { DataAccess } from './services/database/data-access';
-import { EightBallCommand } from './commands/eight-ball-command';
 import { Logger } from './services';
-import { SetJoinRoleCommand } from './commands/set-join-role-command';
-import { SetPollChannelCommand } from './commands/set-poll-channel-command';
 import { TrackVoiceXp } from './jobs/trackVoiceXp';
-import { XpLeaderboardCommand } from './commands/xp-leaderboard-command';
 
 let Config = require('../config/config.json');
 
@@ -42,10 +42,7 @@ async function start(): Promise<void> {
     Logger.info('Starting Bot!');
 
     let clientOptions: ClientOptions = {
-        ws: { intents: Config.intents },
-        messageCacheMaxSize: Config.clientOptions.messageCacheMaxSize,
-        messageCacheLifetime: Config.clientOptions.messageCacheLifetime,
-        messageSweepInterval: Config.clientOptions.messageSweepInterval,
+        intents: Config.intents,
         partials: Config.clientOptions.partials as PartialTypes[],
     };
 

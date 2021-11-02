@@ -47,9 +47,6 @@ export class GuildRepo {
     }
 
     public async updateGuildJoinRole(guildId: string, roleId: string): Promise<void> {
-        await this.dataAccess.executeProcedure(Procedure.Guild_UpdateJoinRole, [
-            guildId,
-            roleId,
-        ]);
+        await this.dataAccess.executeProcedure(Procedure.Guild_UpdateJoinRole, [guildId, roleId]);
     }
 }

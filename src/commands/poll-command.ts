@@ -1,4 +1,4 @@
-import { ActionUtils, ArrayUtils, MessageUtils } from '../utils';
+import { MessageUtils } from '../utils';
 import {
     CollectOptions,
     CollectorUtils,
@@ -27,7 +27,11 @@ export class PollCommand implements Command {
 
     constructor(private guildRepo: GuildRepo) {}
 
-    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
+    public async execute(
+        args: string[],
+        msg: Message,
+        channel: TextChannel | DMChannel
+    ): Promise<void> {
         let stopFilter: MessageFilter = (nextMsg: Message) =>
             nextMsg.author.id === msg.author.id &&
             [Config.prefix, ...Config.stopCommands].includes(
@@ -50,7 +54,7 @@ export class PollCommand implements Command {
             let embed = new MessageEmbed()
                 .setColor(Config.colors.error)
                 .setDescription('The poll channel is not set.');
-            MessageUtils.send(msg.channel as TextChannel, embed);
+            await MessageUtils.send(msg.channel as TextChannel, embed);
             return;
         }
 
@@ -60,7 +64,7 @@ export class PollCommand implements Command {
             let embed = new MessageEmbed()
                 .setColor(Config.colors.error)
                 .setDescription('The poll channel is a deleted channel');
-            MessageUtils.send(msg.channel as TextChannel, embed);
+            await MessageUtils.send(msg.channel as TextChannel, embed);
             return;
         }
 
@@ -103,7 +107,7 @@ export class PollCommand implements Command {
             COLLECT_OPTIONS
         );
 
-        ActionUtils.deleteMessage(messageQuestion);
+        await MessageUtils.delete(messageQuestion);
 
         if (pollQuestion === undefined) {
             return;
@@ -148,7 +152,7 @@ export class PollCommand implements Command {
                 COLLECT_OPTIONS
             );
 
-            ActionUtils.deleteMessage(optionMessage);
+            await MessageUtils.delete(optionMessage);
 
             if (pollOption === undefined) {
                 return;

@@ -16,7 +16,7 @@ export class GuildJoinHandler implements EventHandler {
                 .replace('{GUILD_ID}', guild.id)
         );
 
-        this.guildRepo.syncGuild(guild.id, guild.members.cache.keyArray());
+        this.guildRepo.syncGuild(guild.id, [...guild.members.cache.keys()]);
 
         Logger.info(
             Logs.info.syncedGuild

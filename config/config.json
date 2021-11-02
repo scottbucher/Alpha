@@ -89,9 +89,6 @@
         }
     },
     "clientOptions": {
-        "messageCacheMaxSize": 20,
-        "messageCacheLifetime": 120,
-        "messageSweepInterval": 60,
         "partials": ["MESSAGE", "REACTION"]
     }
 }

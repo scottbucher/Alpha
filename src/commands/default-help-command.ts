@@ -13,7 +13,11 @@ export class DefaultHelpCommand implements Command {
     public adminOnly: boolean = false;
     public ownerOnly: boolean = false;
 
-    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
+    public async execute(
+        args: string[],
+        msg: Message,
+        channel: TextChannel | DMChannel
+    ): Promise<void> {
         let embed = new MessageEmbed()
             .setAuthor('Alpha Help', msg.client.user.avatarURL())
             .setDescription(
@@ -29,7 +33,7 @@ export class DefaultHelpCommand implements Command {
             )
             .setColor(Config.colors.default);
 
-        if (channel instanceof TextChannel) await channel.send(embed);
-        else MessageUtils.send(channel, embed);
+        if (channel instanceof TextChannel) await MessageUtils.send(channel, embed);
+        else await MessageUtils.send(channel, embed);
     }
 }

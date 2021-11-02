@@ -11,10 +11,6 @@ export class BotsOnDiscordXyzSite implements BotSite {
     }
 
     public async updateServerCount(serverCount: number): Promise<void> {
-        await this.httpService.post(
-            this.config.url,
-            { guildCount: serverCount },
-            this.config.token
-        );
+        this.httpService.post(this.config.url, this.config.token, { guildCount: serverCount });
     }
 }

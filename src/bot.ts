@@ -1,4 +1,4 @@
-import { Client, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
+import { Client, Constants, Guild, GuildMember, Message, MessageReaction, User } from 'discord.js';
 import schedule from 'node-schedule';
 
 import {
@@ -38,16 +38,22 @@ export class Bot {
     }
 
     private registerListeners(): void {
-        this.client.on('ready', () => this.onReady());
-        this.client.on('shardReady', (shardId: number) => this.onShardReady(shardId));
-        this.client.on('message', (msg: Message) => this.onMessage(msg));
-        this.client.on('guildCreate', (guild: Guild) => this.onGuildJoin(guild));
-        this.client.on('guildMemberAdd', (member: GuildMember) => this.onUserJoin(member));
-        this.client.on('messageReactionAdd', (reaction: MessageReaction, user: User) =>
-            this.onReactionAdd(reaction, user)
+        this.client.on(Constants.Events.CLIENT_READY, () => this.onReady());
+        this.client.on(Constants.Events.SHARD_READY, (shardId: number) =>
+            this.onShardReady(shardId)
         );
-        this.client.on('messageReactionRemove', (reaction: MessageReaction, user: User) =>
-            this.onReactionRemove(reaction, user)
+        this.client.on(Constants.Events.MESSAGE_CREATE, (msg: Message) => this.onMessage(msg));
+        this.client.on(Constants.Events.GUILD_CREATE, (guild: Guild) => this.onGuildJoin(guild));
+        this.client.on(Constants.Events.GUILD_MEMBER_ADD, (member: GuildMember) =>
+            this.onUserJoin(member)
+        );
+        this.client.on(
+            Constants.Events.MESSAGE_REACTION_ADD,
+            (reaction: MessageReaction, user: User) => this.onReactionAdd(reaction, user)
+        );
+        this.client.on(
+            Constants.Events.MESSAGE_REACTION_REMOVE,
+            (reaction: MessageReaction, user: User) => this.onReactionRemove(reaction, user)
         );
     }
 
@@ -100,21 +106,21 @@ export class Bot {
         this.messageHandler.process(msg);
     }
 
-    private onGuildJoin(guild: Guild) {
+    private onGuildJoin(guild: Guild): void {
         if (!this.ready) return;
         this.guildJoinHandler.process(guild);
     }
 
-    private onUserJoin(event: any) {
+    private onUserJoin(event: any): void {
         if (!this.ready) return;
         this.userJoinHandler.process(event);
     }
 
-    private onReactionAdd(event: any, user: User) {
+    private onReactionAdd(event: any, user: User): void {
         if (!this.ready) return;
         this.reactionAddHandler.process(event, user);
     }
-    private onReactionRemove(event: any, user: User) {
+    private onReactionRemove(event: any, user: User): void {
         if (!this.ready) return;
         this.reactionRemoveHandler.process(event, user);
     }
@@ -126,11 +132,10 @@ export class Bot {
     ): Promise<void> {
         let guilds = client.guilds.cache;
 
-        for (let guild of guilds.array()) {
-            await guildRepo.syncGuild(
-                guild.id,
-                guild.members.cache.filter(member => !member.user.bot).keyArray()
-            );
+        for (let guild of guilds.values()) {
+            await guildRepo.syncGuild(guild.id, [
+                ...guild.members.cache.filter(member => !member.user.bot).keys(),
+            ]);
         }
     }
 }

@@ -1,6 +1,6 @@
 import { DMChannel, Message, MessageEmbed, TextChannel } from 'discord.js';
 
-import { ArrayUtils } from '../utils';
+import { ArrayUtils, MessageUtils } from '../utils';
 import { Command } from './command';
 
 let Config = require('../../config/config.json');
@@ -15,11 +15,15 @@ export class GoodnightCommand implements Command {
 
     private emojis = ['😴', '😪', '🌃', '✨', '💤', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
 
-    public async execute(args: string[], msg: Message, channel: TextChannel | DMChannel) {
+    public async execute(
+        args: string[],
+        msg: Message,
+        channel: TextChannel | DMChannel
+    ): Promise<void> {
         let emoji = ArrayUtils.chooseRandom(this.emojis);
         let embed = new MessageEmbed()
             .setDescription(`${emoji} **Goodnight ${msg.author.toString()}!** ${emoji}`)
             .setColor(Config.colors.default);
-        await channel.send(embed);
+        await MessageUtils.send(channel, embed);
     }
 }

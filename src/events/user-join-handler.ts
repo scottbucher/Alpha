@@ -1,7 +1,7 @@
 import { GuildMember, MessageEmbed, Role, TextChannel } from 'discord.js';
 import { GuildRepo, UserRepo } from '../services/database/repos';
 
-import { ActionUtils } from '../utils';
+import { ActionUtils, MessageUtils } from '../utils';
 import { EventHandler } from './event-handler';
 import { Logger } from '../services';
 
@@ -36,12 +36,18 @@ export class UserJoinHandler implements EventHandler {
         if (!welcomeChannel) return;
 
         let embed = new MessageEmbed()
-            .setTitle(`Welcome to ${member.guild.id === '777956000857980938' ? 'The Loser Server' : member.guild.name}!`)
+            .setTitle(
+                `Welcome to ${
+                    member.guild.id === '777956000857980938'
+                        ? 'The Loser Server'
+                        : member.guild.name
+                }!`
+            )
             .setThumbnail(member.user.avatarURL())
             .setDescription(`Enjoy your stay ${member.toString()}!`)
             .setColor(Config.colors.default)
             .setFooter(`${member.displayName} joined!`, member.user.avatarURL())
             .setTimestamp();
-        await welcomeChannel.send(embed);
+        await MessageUtils.send(welcomeChannel, embed);
     }
 }
