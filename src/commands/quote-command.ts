@@ -67,12 +67,12 @@ export class QuoteCommand implements Command {
 
         if (!(quote && author)) {
             author =
-                msg.mentions.members.first().user ||
+                msg.mentions.members.first()?.user ??
                 msg.guild.members.cache.find(
                     member =>
                         member.displayName.toLowerCase().includes(args[1].toLowerCase()) ||
                         member.user.username.toLowerCase().includes(args[1].toLowerCase())
-                ).user;
+                )?.user;
 
             if (!author) {
                 let embed = new MessageEmbed()
