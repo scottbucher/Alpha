@@ -36,7 +36,7 @@ async function start(): Promise<void> {
         totalShards =
             Debug.enabled && Debug.overrideShardCount
                 ? Debug.shardCount
-                : await ShardUtils.getRecommendedShards(
+                : await ShardUtils.recommendedShardCount(
                       Config.token,
                       Config.sharding.serversPerShard
                   );
@@ -45,7 +45,7 @@ async function start(): Promise<void> {
         return;
     }
 
-    let myShardIds = ShardUtils.getMyShardIds(
+    let myShardIds = ShardUtils.shardIds(
         totalShards,
         Config.sharding.machineId,
         Config.sharding.machineCount
