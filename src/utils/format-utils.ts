@@ -6,7 +6,6 @@ import { ParseUtils } from './parse-utils';
 import { RoleCallData } from '../models/database/rolecall-models';
 import { UserDataResults } from '../models/database/user-data-results-models';
 import { XpUtils } from './xp-utils';
-import { isNumber } from 'util';
 
 let Config = require('../../config/config.json');
 
@@ -67,8 +66,8 @@ export abstract class FormatUtils {
 
     public static findUnicodeEmoji(input: string): string {
         if (input.length > 2) return null;
-        let emote = input.matchAll(EMOJI_REGEX);
-        if (!emote) return null;
+        let emote = EMOJI_REGEX.exec(input);
+        if (!emote || emote.length === 0) return null;
         return typeof emote[0] === 'number' ? null : emote[0];
     }
 
