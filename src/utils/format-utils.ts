@@ -68,7 +68,7 @@ export abstract class FormatUtils {
     public static findUnicodeEmoji(input: string): string {
         if (input.length > 2) return null;
         let emote = EMOJI_REGEX.exec(input);
-        if (emote.length === 0) return null;
+        if (!emote || emote.length === 0) return null;
         return isNumber(emote[0]) ? null : emote[0];
     }
 
