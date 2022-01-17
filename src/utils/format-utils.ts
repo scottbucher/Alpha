@@ -93,8 +93,9 @@ export abstract class FormatUtils {
     public static getEmoteDisplay(guild: Guild, emote: string): string {
         let guildEmote = guild.emojis.resolve(emote);
         if (guildEmote) return guildEmote.toString();
-        else if (this.isUnicodeEmoji(emote)) return emote;
-        else return null;
+        // else if (this.isUnicodeEmoji(emote)) return emote;
+        // else return null;
+        return emote;
     }
 
     public static getRoleDisplay(guild: Guild, roleDiscordId: string): string {
