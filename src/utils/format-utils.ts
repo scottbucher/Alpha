@@ -67,9 +67,9 @@ export abstract class FormatUtils {
 
     public static findUnicodeEmoji(input: string): string {
         if (input.length > 2) return null;
-        let emote = EMOJI_REGEX.exec(input);
-        if (!emote || emote.length === 0) return null;
-        return isNumber(emote[0]) ? null : emote[0];
+        let emote = input.matchAll(EMOJI_REGEX);
+        if (!emote) return null;
+        return typeof emote[0] === 'number' ? null : emote[0];
     }
 
     public static getFieldList(guild: Guild, roleIds: string[], emotes: string[]): string {
