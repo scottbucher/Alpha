@@ -111,7 +111,8 @@ export class ReactionAddHandler implements EventHandler {
 
                 let emoji: EmojiResolvable =
                     FormatUtils.findGuildEmoji(emote, msg.guild) ||
-                    FormatUtils.findUnicodeEmoji(emote);
+                    FormatUtils.findUnicodeEmoji(emote) ||
+                    emote;
                 if (!emoji) continue; // Continue if there is no emoji
                 await MessageUtils.react(msg, emoji); // React with the emote
             }
@@ -190,7 +191,9 @@ export class ReactionAddHandler implements EventHandler {
 
         for (let emote of roleCallEmotes) {
             let emoji: EmojiResolvable =
-                FormatUtils.findGuildEmoji(emote, msg.guild) || FormatUtils.findUnicodeEmoji(emote);
+                FormatUtils.findGuildEmoji(emote, msg.guild) ||
+                FormatUtils.findUnicodeEmoji(emote) ||
+                emote;
 
             if (!emoji) continue;
 

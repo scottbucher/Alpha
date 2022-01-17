@@ -36,7 +36,9 @@ export class ReactionRemoveHandler implements EventHandler {
 
         for (let emote of roleCallEmotes) {
             let emoji: EmojiResolvable =
-                FormatUtils.findGuildEmoji(emote, msg.guild) || FormatUtils.findUnicodeEmoji(emote);
+                FormatUtils.findGuildEmoji(emote, msg.guild) ||
+                FormatUtils.findUnicodeEmoji(emote) ||
+                emote;
 
             if (!emoji) continue;
 

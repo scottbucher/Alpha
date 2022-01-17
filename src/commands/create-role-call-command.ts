@@ -66,7 +66,9 @@ export class CreateRoleCallCommand implements Command {
             if (!roleCheck) continue;
 
             let emoji: EmojiResolvable =
-                FormatUtils.findGuildEmoji(emote, msg.guild) || FormatUtils.findUnicodeEmoji(emote);
+                FormatUtils.findGuildEmoji(emote, msg.guild) ||
+                FormatUtils.findUnicodeEmoji(emote) ||
+                emote;
             if (!emoji) continue; // Continue if there is no emoji
             await MessageUtils.react(message, emoji); // React with the emote
         }
