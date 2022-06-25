@@ -29,7 +29,7 @@
         "emoji-regex": "10.0.0",
         "moment": "2.29.1",
         "mysql": "2.18.1",
-        "node-fetch": "2.6.5",
+        "node-fetch": "2.6.7",
         "node-schedule": "2.0.0",
         "pm2": "^5.1.2"
     },
