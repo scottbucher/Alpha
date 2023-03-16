@@ -1,27 +1,67 @@
 import { Guild } from 'discord.js';
+import { createRequire } from 'node:module';
 
-import { Logger } from '../services';
-import { GuildRepo } from '../services/database/repos';
-import { EventHandler } from './event-handler';
+import { EventHandler } from './index.js';
+import { Language } from '../models/enum-helpers/index.js';
+import { EventDataService, Lang, Logger } from '../services/index.js';
+import { ClientUtils, FormatUtils, MessageUtils } from '../utils/index.js';
 
+const require = createRequire(import.meta.url);
 let Logs = require('../../lang/logs.json');
 
 export class GuildJoinHandler implements EventHandler {
-    constructor(private guildRepo: GuildRepo) {}
+    constructor(private eventDataService: EventDataService) {}
 
     public async process(guild: Guild): Promise<void> {
         Logger.info(
-            Logs.info.syncingGuild
-                .replace('{GUILD_NAME}', guild.name)
-                .replace('{GUILD_ID}', guild.id)
+            Logs.info.guildJoined
+                .replaceAll('{GUILD_NAME}', guild.name)
+                .replaceAll('{GUILD_ID}', guild.id)
         );
 
-        this.guildRepo.syncGuild(guild.id, [...guild.members.cache.keys()]);
+        let owner = await guild.fetchOwner();
 
-        Logger.info(
-            Logs.info.syncedGuild
-                .replace('{GUILD_NAME}', guild.name)
-                .replace('{GUILD_ID}', guild.id)
-        );
+        // Get data from database
+        let data = await this.eventDataService.create({
+            user: owner?.user,
+            guild,
+        });
+
+        // Send welcome message to the server's notify channel
+        let notifyChannel = await ClientUtils.findNotifyChannel(guild, data.langGuild);
+        if (notifyChannel) {
+            await MessageUtils.send(
+                notifyChannel,
+                Lang.getEmbed('displayEmbeds.welcome', data.langGuild, {
+                    CMD_LINK_HELP: FormatUtils.commandMention(
+                        await ClientUtils.findAppCommand(
+                            guild.client,
+                            Lang.getRef('chatCommands.help', Language.Default)
+                        )
+                    ),
+                }).setAuthor({
+                    name: guild.name,
+                    iconURL: guild.iconURL(),
+                })
+            );
+        }
+
+        // Send welcome message to owner
+        if (owner) {
+            await MessageUtils.send(
+                owner.user,
+                Lang.getEmbed('displayEmbeds.welcome', data.lang, {
+                    CMD_LINK_HELP: FormatUtils.commandMention(
+                        await ClientUtils.findAppCommand(
+                            guild.client,
+                            Lang.getRef('chatCommands.help', Language.Default)
+                        )
+                    ),
+                }).setAuthor({
+                    name: guild.name,
+                    iconURL: guild.iconURL(),
+                })
+            );
+        }
     }
 }

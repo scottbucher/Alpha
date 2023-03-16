@@ -1,11 +1,11 @@
-import { ShardClientUtil, ShardingManager, Util } from 'discord.js';
-import { MathUtils } from '.';
+import { fetchRecommendedShardCount, ShardClientUtil, ShardingManager } from 'discord.js';
 
-const MAX_SERVERS_PER_SHARD = 2500;
+import { MathUtils } from './index.js';
+import { DiscordLimits } from '../constants/index.js';
 
 export class ShardUtils {
     public static async requiredShardCount(token: string): Promise<number> {
-        return this.recommendedShardCount(token, MAX_SERVERS_PER_SHARD);
+        return await this.recommendedShardCount(token, DiscordLimits.GUILDS_PER_SHARD);
     }
 
     public static async recommendedShardCount(
@@ -13,22 +13,16 @@ export class ShardUtils {
         serversPerShard: number
     ): Promise<number> {
         return Math.ceil(
-            await Util.fetchRecommendedShards(token, { guildsPerShard: serversPerShard })
+            await fetchRecommendedShardCount(token, { guildsPerShard: serversPerShard })
         );
     }
 
-    public static shardIds(
-        totalShards: number,
-        machineId: number,
-        totalMachines: number
-    ): number[] {
-        let myShardIds: number[] = [];
-        for (let shardId = 0; shardId < totalShards; shardId++) {
-            if (shardId % totalMachines === machineId) {
-                myShardIds.push(shardId);
-            }
+    public static shardIds(shardInterface: ShardingManager | ShardClientUtil): number[] {
+        if (shardInterface instanceof ShardingManager) {
+            return shardInterface.shards.map(shard => shard.id);
+        } else if (shardInterface instanceof ShardClientUtil) {
+            return shardInterface.ids;
         }
-        return myShardIds;
     }
 
     public static shardId(guildId: number | string, shardCount: number): number {
