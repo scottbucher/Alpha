@@ -1,6 +1,9 @@
-export { EventHandler } from './event-handler';
-export { GuildJoinHandler } from './guild-join-handler';
-export { MessageHandler } from './message-handler';
-export { ReactionAddHandler } from './reaction-add-handler';
-export { ReactionRemoveHandler } from './reaction-remove-handler';
-export { UserJoinHandler } from './user-join-handler';
+export { ButtonHandler } from './button-handler.js';
+export { CommandHandler } from './command-handler.js';
+export { EventHandler } from './event-handler.js';
+export { GuildJoinHandler } from './guild-join-handler.js';
+export { GuildLeaveHandler } from './guild-leave-handler.js';
+export { ReactionHandler } from './reaction-handler.js';
+export { MessageHandler } from './message-handler.js';
+export { TriggerHandler } from './trigger-handler.js';
+export { UserJoinHandler } from './user-join-handler.js';

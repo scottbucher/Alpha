@@ -1,0 +1,375 @@
+{
+    "data": {
+        "embeds": {
+            "welcome": {
+                "title": "Thank you for using {{COM:bot.name}}!",
+                "description": ["{{REF:bot.description}}"],
+                "fields": [
+                    {
+                        "name": "Important {{REF:fields.commands}}",
+                        "value": ["{{CMD_LINK_HELP}} - {{REF:commandDescs.help}}"]
+                    }
+                ]
+            },
+            "about": {
+                "title": "{{COM:bot.name}} - About",
+                "description": "{{REF:bot.description}}",
+                "fields": [
+                    { "name": "Author", "value": "{{REF:links.authorEmbed}}" },
+                    {
+                        "name": "{{REF:fields.links}}",
+                        "value": [
+                            "{{REF:links.sourceEmbed}}",
+                            "{{REF:links.docsEmbed}}",
+                            "{{REF:links.termsEmbed}}",
+                            "{{REF:links.donateEmbed}}",
+                            "{{REF:links.inviteEmbed}}"
+                        ]
+                    },
+                    {
+                        "name": "Created With",
+                        "value": ["{{REF:links.templateEmbed}}"]
+                    }
+                ]
+            },
+            "devInfo": {
+                "title": "{{COM:bot.name}} - Developer Info",
+                "fields": [
+                    {
+                        "name": "Versions",
+                        "value": [
+                            "**Node.js**: {{NODE_VERSION}}",
+                            "**TypeScript**: {{TS_VERSION}}",
+                            "**ECMAScript**: {{ES_VERSION}}",
+                            "**discord.js**: {{DJS_VERSION}}"
+                        ]
+                    },
+                    {
+                        "name": "Stats",
+                        "value": [
+                            "**Shards**: {{SHARD_COUNT}}",
+                            "**Servers**: {{SERVER_COUNT}} ({{SERVER_COUNT_PER_SHARD}}/Shard)"
+                        ]
+                    },
+                    {
+                        "name": "Memory",
+                        "value": [
+                            "**RSS**: {{RSS_SIZE}} ({{RSS_SIZE_PER_SERVER}}/Server)",
+                            "**Heap**: {{HEAP_TOTAL_SIZE}} ({{HEAP_TOTAL_SIZE_PER_SERVER}}/Server)",
+                            "**Used**: {{HEAP_USED_SIZE}} ({{HEAP_USED_SIZE_PER_SERVER}}/Server)"
+                        ]
+                    },
+                    {
+                        "name": "IDs",
+                        "value": [
+                            "**Hostname**: {{HOSTNAME}}",
+                            "**Shard ID**: {{SHARD_ID}}",
+                            "**Server ID**: {{SERVER_ID}}",
+                            "**Bot ID**: {{BOT_ID}}",
+                            "**User ID**: {{USER_ID}}"
+                        ]
+                    }
+                ]
+            },
+            "welcomeMember": {
+                "title": "Welcome to {{GUILD_NAME}}!",
+                "description": "Enjoy your stay {{USER_MENTION}}!",
+                "footer": {
+                    "text": "{{USER_NAME}} joined!",
+                    "icon": "{{ICON}}"
+                },
+                "timestamp": true
+            },
+            "userXpBreakdown": {
+                "title": "{{USER_NAME}}'s Leveling Progress",
+                "fields": [
+                    {
+                        "name": "Member Level",
+                        "value": "{{CURRENT_LEVEL}}"
+                    },
+                    {
+                        "name": "Member Experience",
+                        "value": "{{CURRENT_XP}}"
+                    },
+                    {
+                        "name": "Level Progress",
+                        "value": "{{LEVEL_PROGRESS}}"
+                    }
+                ],
+                "thumbnail": "{{USER_AVATAR}}"
+            },
+            "quote": {
+                "title": "Quote from {{QUOTE_USER}}",
+                "description": "{{QUOTE_MESSAGE}}",
+                "footer": {
+                    "text": "Quoted by {{QUOTER_NAME}}",
+                    "icon": "{{QUOTER_ICON}}"
+                },
+                "thumbnail": "{{QUOTED_USER_AVATAR}}",
+                "timestamp": true
+            },
+            "serverInfo": {
+                "title": "{{GUILD_NAME}}",
+                "description": "Information about your server.",
+                "fields": [
+                    { "name": "Server ID", "value": "`{{SERVER_ID}}`", "inline": true },
+                    { "name": "Owner", "value": "{{OWNER_MENTION}}", "inline": true },
+                    { "name": "Created", "value": "{{CREATED_DATE}}", "inline": true },
+                    {
+                        "name": "Channels",
+                        "value": "{{TEXT_CHANNELS}} Text, {{VOICE_CHANNELS}} Voice",
+                        "inline": true
+                    },
+                    {
+                        "name": "Members",
+                        "value": "{{ONLINE_MEMBERS}}/{{TOTAL_MEMBERS}} Online",
+                        "inline": true
+                    },
+                    { "name": "Bots", "value": "{{BOT_COUNT}} Bots", "inline": true },
+                    {
+                        "name": "Current Shard",
+                        "value": "Shard {{SHARD_ID}}/{{SHARD_COUNT}}",
+                        "inline": true
+                    }
+                ],
+                "timestamp": true,
+                "thumbnail": "{{GUILD_ICON}}"
+            },
+            "settings": {
+                "title": "{{SERVER_NAME}}'s Settings",
+                "fields": [
+                    {
+                        "name": "{{REF:terms.welcomeChannel}}",
+                        "value": "{{WELCOME_CHANNEL}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.levelingChannel}}",
+                        "value": "{{LEVELING_CHANNEL}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.quoteChannel}}",
+                        "value": "{{QUOTE_CHANNEL}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.pollChannel}}",
+                        "value": "{{POLL_CHANNEL}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.welcomeChannel}}",
+                        "value": "{{SERVER_LANGUAGE}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.serverLanguage}}",
+                        "value": "{{SERVER_LANGUAGE}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "Server (Guild) Id",
+                        "value": "{{GUILD_ID}}",
+                        "inline": true
+                    }
+                ],
+                "footer": {
+                    "text": "© {{DATE}} {{COM:bot.name}}",
+                    "icon": "{{ICON}}"
+                },
+                "thumbnail": "{{ICON}}",
+                "timestamp": true
+            }
+        },
+        "help": {
+            "permissions": {
+                "title": "{{COM:bot.name}} - Permissions",
+                "description": "Want to restrict commands to certain roles, users, or channels? Set up permissions under the bot's **Integration** page in the Server Settings (or simply right-click the bot and select **Manage Integration**)."
+            },
+            "commands": {
+                "title": "Help - {{REF:helpOptions.commands}}",
+                "fields": [
+                    {
+                        "name": "Commands",
+                        "value": [
+                            "To see the available commands, just type `/` and select the bot from the left side. You can then scroll through all available commands. Some commands may be hidden if you don't have permission to view them."
+                        ]
+                    },
+                    {
+                        "name": "Command Permissions",
+                        "value": [
+                            "Want to restrict commands to certain roles, users, or channels? Set up permissions in the bot's integration page by going to **Server Settings** > **Integrations**, and then **Manage** for this bot."
+                        ]
+                    }
+                ]
+            }
+        },
+        "lists": {
+            "leaderboard": {
+                "title": "{{REF:lists.xpLeaderBoardTitle}}",
+                "description": "{{LIST_DATA}}",
+                "footer": {
+                    "text": "Talk in Text & Voice Channels to gain XP!",
+                    "icon": "{{ICON}}"
+                },
+                "timestamp": true,
+                "thumbnail": "{{ICON}}"
+            },
+            "rewardList": {
+                "title": "{{REF:lists.rewardListTitle}}",
+                "description": "{{LIST_DATA}}",
+                "footer": {
+                    "text": "Talk in Text & Voice Channels to gain XP!",
+                    "icon": "{{ICON}}"
+                },
+                "timestamp": true,
+                "thumbnail": "{{ICON}}"
+            },
+            "joinRoleList": {
+                "title": "{{REF:lists.joinRoleListTitle}}",
+                "description": "{{LIST_DATA}}",
+                "footer": {
+                    "text": "Roles that are given when a user joins the server!",
+                    "icon": "{{ICON}}"
+                },
+                "timestamp": true,
+                "thumbnail": "{{ICON}}"
+            }
+        },
+        "channelRegexes": {
+            "bot": "/bot|command|cmd/i"
+        }
+    },
+    "refs": {
+        "meta": {},
+        "bot": {
+            "description": "{{REF:links.templateEmbed}} helps give developers a starting point for new Discord bots, so that much of the initial setup can be avoided and developers can instead focus on meaningful bot features."
+        },
+        "chatCommands": {
+            "dev": "dev",
+            "help": "help",
+            "info": "info",
+            "test": "test"
+        },
+        "events": {
+            "levelUp": "**Congratulations** {{USER_MENTION}} you've reached level __**{{LEVEL}}**__!",
+            "levelUpWithRoles": "**Congratulations** {{USER_MENTION}} you've reached level __**{{LEVEL}}**__ and have unlocked the following role{{PLURAL}}: {{ROLES}}!"
+        },
+        "permissions": {
+            "AddReactions": "Add Reactions",
+            "Administrator": "Administrator",
+            "AttachFiles": "Attach Files",
+            "BanMembers": "Ban Members",
+            "ChangeNickname": "Change Nickname",
+            "Connect": "Connect",
+            "CreateEvents": "Create Events",
+            "CreateGuildExpressions": "Create Expressions",
+            "CreateInstantInvite": "Create Invite",
+            "CreatePrivateThreads": "Create Private Threads",
+            "CreatePublicThreads": "Create Public Threads",
+            "DeafenMembers": "Deafen Members",
+            "EmbedLinks": "Embed Links",
+            "KickMembers": "Kick Members",
+            "ManageChannels": "Manage Channel(s)",
+            "ManageEmojisAndStickers": "Manage Emoji and Stickers",
+            "ManageEvents": "Manage Events",
+            "ManageGuild": "Manage Server",
+            "ManageGuildExpressions": "Manage Expressions",
+            "ManageMessages": "Manage Messages",
+            "ManageNicknames": "Manage Nicknames",
+            "ManageRoles": "Manage Roles / Permissions",
+            "ManageThreads": "Manage Threads / Posts",
+            "ManageWebhooks": "Manage Webhooks",
+            "MentionEveryone": "Mention Everyone, Here, and All Roles",
+            "ModerateMembers": "Timeout Members",
+            "MoveMembers": "Move Members",
+            "MuteMembers": "Mute Members",
+            "PrioritySpeaker": "Priority Speaker",
+            "ReadMessageHistory": "Read Message History",
+            "RequestToSpeak": "Request to Speak",
+            "SendMessages": "Send Messages / Create Posts",
+            "SendMessagesInThreads": "Send Messages in Threads / Posts",
+            "SendPolls": "Create Polls",
+            "SendTTSMessages": "Send Text-to-Speech Messages",
+            "SendVoiceMessages": "Send Voice Messages",
+            "Speak": "Speak",
+            "Stream": "Video",
+            "UseApplicationCommands": "Use Application Commands",
+            "UseEmbeddedActivities": "Use Activities",
+            "UseExternalApps": "Use External Apps",
+            "UseExternalEmojis": "Use External Emoji",
+            "UseExternalSounds": "Use External Sounds",
+            "UseExternalStickers": "Use External Stickers",
+            "UseSoundboard": "Use Soundboard",
+            "UseVAD": "Use Voice Activity",
+            "ViewAuditLog": "View Audit Log",
+            "ViewChannel": "View Channel(s)",
+            "ViewCreatorMonetizationAnalytics": "View Server Subscription Insights",
+            "ViewGuildInsights": "View Server Insights"
+        },
+        "helpOptions": {
+            "contactSupport": "Contact Support",
+            "commands": "Commands"
+        },
+        "helpOptionDescs": {
+            "contactSupport": "❓ {{REF:helpOptions.contactSupport}} ❓",
+            "commands": "{{REF:helpOptions.commands}} -- What commands are there? How do I restrict who is allowed to use commands?"
+        },
+        "infoOptions": {
+            "about": "About",
+            "translate": "Translate"
+        },
+        "yesNo": {
+            "yes": "Yes",
+            "no": "No"
+        },
+        "boolean": {
+            "true": "True",
+            "false": "False"
+        },
+        "other": {
+            "na": "N/A"
+        },
+        "terms": {
+            "xMoreMembers": "{{AMOUNT}} more members",
+            "xMoreMember": "{{AMOUNT}} more member",
+            "and": "and",
+            "xpLeaderboard": "XP Leaderboard",
+            "rewardList": "Reward List",
+            "role": "Role",
+            "question": "Question",
+            "eightBallSays": "Eight Ball Says",
+            "joinRoleList": "Join Role List",
+            "welcomeChannel": "Welcome Channel",
+            "levelingChannel": "Leveling Channel",
+            "quoteChannel": "Quote Channel",
+            "pollChannel": "Poll Channel",
+            "notSet": "Not Set",
+            "deletedChannel": "Deleted Channel",
+            "serverLanguage": "Server Language"
+        },
+        "links": {
+            "authorEmbed": "[{{COM:bot.author}}]({{COM:links.author}})",
+            "docsEmbed": "[View Documentation]({{COM:links.docs}})",
+            "donateEmbed": "[Donate via PayPal]({{COM:links.donate}})",
+            "inviteEmbed": "[Invite {{COM:bot.name}} to a Server!]({{COM:links.invite}})",
+            "sourceEmbed": "[View Source Code]({{COM:links.source}})",
+            "alphaBotEmbed": "[Alpha Bot]({{COM:links.template}})",
+            "termsEmbed": "[View Terms of Service]({{COM:links.terms}})",
+            "voteEmbed": "[Vote for {{COM:bot.name}}!]({{COM:links.vote}})"
+        },
+        "lists": {
+            "xpLeaderBoardTitle": "**__{{REF:terms.xpLeaderboard}}__ | {{REF:lists.pageTitle}}**",
+            "emptyList": "**The list is empty!**",
+            "pageTitle": "Page {{PAGE}}/{{TOTAL_PAGES}}",
+            "leaderBoardEntry": "#{{RANK}}: {{USER_MENTION}}",
+            "leaderBoardEntryInfo": "Level: **{{LEVEL}}** (Total XP: **{{TOTAL_XP}}**)",
+            "rewardListTitle": "**__{{REF:terms.rewardList}}__ | {{REF:lists.pageTitle}}**",
+            "rewardListEntry": "__**Level {{LEVEL}} Rewards**__: (Total XP Needed: **{{TOTAL_XP}}**)",
+            "rewardListEntryInfo": "{{TYPE}}: {{LIST}}",
+            "joinRoleListTitle": "**__{{REF:terms.joinRoleList}}__ | {{REF:lists.pageTitle}}**",
+            "joinRoleListEntry": "#{{ROLE_NUMBER}}: {{ROLE_DISPLAY}}"
+        }
+    }
+}

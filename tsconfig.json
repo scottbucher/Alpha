@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es2020",
-        "module": "commonjs",
+        "target": "es2021",
+        "module": "es2022",
         "lib": ["es2021"],
         "declaration": true,
         "sourceMap": true,
@@ -15,5 +15,5 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true
     },
-    "exclude": ["dist", "node_modules", "tests"]
+    "exclude": ["dist", "node_modules", "tests", "vitest.config.ts"]
 }

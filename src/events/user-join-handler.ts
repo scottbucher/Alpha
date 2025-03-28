@@ -1,53 +1,82 @@
-import { GuildMember, MessageEmbed, Role, TextChannel } from 'discord.js';
-import { GuildRepo, UserRepo } from '../services/database/repos';
+import { Guild, GuildMember, Role, TextChannel } from 'discord.js';
+import { createRequire } from 'node:module';
 
-import { ActionUtils, MessageUtils } from '../utils';
-import { EventHandler } from './event-handler';
-import { Logger } from '../services';
+import { EventHandler } from './index.js';
+import { Lang, Logger } from '../services/index.js';
+import { ActionUtils, DatabaseUtils, MessageUtils } from '../utils/index.js';
+import { MikroORM } from '@mikro-orm/core';
+import { MongoDriver } from '@mikro-orm/mongodb';
+import { Language } from '../models/enum-helpers/index.js';
 
-let Config = require('../../config/config.json');
+const require = createRequire(import.meta.url);
+let Logs = require('../../lang/logs.json');
 
 export class UserJoinHandler implements EventHandler {
-    constructor(private guildRepo: GuildRepo, private userRepo: UserRepo) {}
+    constructor(private orm: MikroORM<MongoDriver>) {}
 
-    public async process(member: GuildMember): Promise<void> {
-        Logger.info(`${member.displayName} Joining...`);
-        if (!member.user.bot) this.userRepo.syncUser(member.guild.id, member.id);
-        Logger.info(`${member.displayName} Joined!`);
+    public async process(member: GuildMember, guild: Guild): Promise<void> {
+        Logger.info(
+            Logs.info.userJoinedServer
+                .replaceAll('{USER_NAME}', member.user.globalName)
+                .replaceAll('{USER_ID}', member.id)
+                .replaceAll('{GUILD_NAME}', guild.name)
+                .replaceAll('{GUILD_ID}', guild.id)
+        );
 
-        let guildData = await this.guildRepo.getGuild(member.guild.id);
+        let em = this.orm.em.fork();
 
-        let joinRole: Role;
+        let { GuildData: guildData, GuildUserData: _ } =
+            await DatabaseUtils.getOrCreateDataForGuild(em, guild, [member.id]);
 
-        try {
-            joinRole = member.guild.roles.resolve(guildData.JoinRoleId);
-        } catch (error) {
-            // No Join Role
+        let welcomeChannel = guildData.welcomeSettings.channelDiscordId;
+        let joinRoles = guildData.welcomeSettings.joinRoleDiscordIds;
+
+        if (welcomeChannel) {
+            let channel = (await guild.channels.fetch(welcomeChannel)) as TextChannel;
+
+            if (!channel) return;
+
+            await MessageUtils.send(
+                channel,
+                Lang.getEmbed('info', 'embeds.welcomeMember', Language.Default, {
+                    GUILD_NAME: guild.name,
+                    USER_MENTION: member.toString(),
+                    USER_NAME: member.user.globalName,
+                    ICON: member.user.avatarURL(),
+                })
+            );
         }
 
-        if (joinRole) ActionUtils.giveRole(member, joinRole);
+        if (joinRoles.length > 0) {
+            let guildRoles = await guild.roles.fetch();
+            let givenRoles: Role[] = [];
+            let resovledRoles: Role[] = [];
 
-        let welcomeChannelId = guildData.WelcomeChannelId;
+            for (const roleId of joinRoles) {
+                let role = guildRoles.get(roleId);
+                if (role) {
+                    resovledRoles.push(role);
+                }
+            }
 
-        if (welcomeChannelId === '0') return;
+            // I have a function to give multiple roles to a member, but cache inconsistencies can cause it to remove all roles from a member.
+            // Related discord api issue: https://github.com/discord/discord-api-docs/discussions/7398
+            for (const role of resovledRoles) {
+                await ActionUtils.giveRole(member, role);
+                givenRoles.push(role);
+            }
 
-        let welcomeChannel = member.guild.channels.resolve(welcomeChannelId) as TextChannel;
+            let rolesNotGiven = resovledRoles.filter(role => !givenRoles.includes(role));
 
-        if (!welcomeChannel) return;
-
-        let embed = new MessageEmbed()
-            .setTitle(
-                `Welcome to ${
-                    member.guild.id === '777956000857980938'
-                        ? 'The Loser Server'
-                        : member.guild.name
-                }!`
-            )
-            .setThumbnail(member.user.avatarURL())
-            .setDescription(`Enjoy your stay ${member.toString()}!`)
-            .setColor(Config.colors.default)
-            .setFooter(`${member.displayName} joined!`, member.user.avatarURL())
-            .setTimestamp();
-        await MessageUtils.send(welcomeChannel, embed);
+            if (rolesNotGiven.length > 0) {
+                Logger.error(
+                    Logs.error.failedToAssignRolesOnJoin
+                        .replaceAll('{USER_ID}', member.id)
+                        .replaceAll('{ROLE_IDS}', rolesNotGiven.map(role => role.id).join(', '))
+                        .replaceAll('{GUILD_NAME}', guild.name)
+                        .replaceAll('{GUILD_ID}', guild.id)
+                );
+            }
+        }
     }
 }

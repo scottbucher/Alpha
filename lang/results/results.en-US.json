@@ -1,0 +1,33 @@
+{
+    "data": {
+        "successEmbeds": {
+            "channelSet": "Successfully set the {{TYPE}} channel to {{CHANNEL}}",
+            "channelClear": "Successfully cleared the {{TYPE}} channel!",
+            "levelRewardRoleSet": "Successfully added the {{ROLE}} role as a reward for reaching level {{LEVEL}}!",
+            "levelRewardRoleRemoved": "Successfully removed the {{ROLE}} role as a reward for reaching level {{LEVEL}}!",
+            "levelRewardRoleIdRemoved": "Successfully removed the {{ROLE_ID}} role id as a reward for reaching level {{LEVEL}}!",
+            "levelRewardRoleCleared": "Successfully cleared all the role rewards for level {{LEVEL}}!",
+            "quoteSent": "Successfully sent the quote to the {{CHANNEL}} channel!",
+            "joinRoleAdded": "Successfully added the {{ROLE}} role as a join role!",
+            "joinRoleRemoved": "Successfully removed the {{ROLE}} role as a join role!",
+            "joinRoleIdRemoved": "Successfully removed the {{ROLE_ID}} role ID as a join role!",
+            "joinRolesCleared": "Successfully cleared all join roles!"
+        },
+        "triggerResponses": {
+            "goodMorning": {
+                "description": "{{EMOJI}} **Good morning {{USER_MENTION}}!** {{EMOJI}}"
+            },
+            "goodNight": {
+                "description": "{{EMOJI}} **Good night {{USER_MENTION}}!** {{EMOJI}}"
+            }
+        }
+    },
+    "refs": {
+        "meta": {
+            "translators": "[Stqlth#0001](https://github.com/scottbucher)"
+        },
+        "other": {
+            "na": "N/A"
+        }
+    }
+}

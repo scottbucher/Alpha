@@ -1,0 +1,116 @@
+{
+    "developers": ["<YOUR_DISCORD_ID>"],
+    "client": {
+        "id": "<DISCORD_BOT_ID>",
+        "token": "<DISCORD_BOT_TOKEN>",
+        "intents": [
+            "Guilds",
+            "GuildPresences",
+            "GuildMembers",
+            "GuildMessages",
+            "GuildMessageReactions",
+            "DirectMessages",
+            "DirectMessageReactions",
+            "MessageContent",
+            "GuildVoiceStates"
+        ],
+        "partials": ["Message", "Channel", "Reaction"],
+        "caches": {
+            "AutoModerationRuleManager": 0,
+            "BaseGuildEmojiManager": 0,
+            "GuildEmojiManager": 0,
+            "GuildBanManager": 0,
+            "GuildInviteManager": 0,
+            "GuildScheduledEventManager": 0,
+            "GuildStickerManager": 0,
+            "MessageManager": 0,
+            "PresenceManager": 0,
+            "StageInstanceManager": 0,
+            "ThreadManager": 0,
+            "ThreadMemberManager": 0,
+            "VoiceStateManager": 0
+        }
+    },
+    "database": {
+        "host": "<DATABASE_HOST>",
+        "username": "<DATABASE_USERNAME>",
+        "password": "<DATABASE_PASSWORD>",
+        "database": "<DATABASE_NAME>"
+    },
+    "experience": {
+        "textMin": 15,
+        "textMax": 25,
+        "voiceAmount": 5
+    },
+    "pageSize": {
+        "leaderboard": 10,
+        "rewards": 10,
+        "joinRoles": 10
+    },
+    "chase": {
+        "guildIds": ["<GUILD_ID>"],
+        "id": "<CHASE_USER_ID>",
+        "emote": "<CHASE_EMOTE_ID>"
+    },
+    "api": {
+        "port": 3001,
+        "secret": "00000000-0000-0000-0000-000000000000"
+    },
+    "sharding": {
+        "spawnDelay": 5,
+        "spawnTimeout": 300,
+        "serversPerShard": 1000
+    },
+    "clustering": {
+        "enabled": false,
+        "shardCount": 16,
+        "callbackUrl": "http://localhost:3001/",
+        "masterApi": {
+            "url": "http://localhost:5000/",
+            "token": "00000000-0000-0000-0000-000000000000"
+        }
+    },
+    "jobs": {
+        "updateServerCount": {
+            "schedule": "0 */10 * * * *",
+            "log": false,
+            "runOnce": false,
+            "initialDelaySecs": 0
+        },
+        "giveVoiceXp": {
+            "schedule": "0 * * * * *",
+            "log": false,
+            "runOnce": false,
+            "initialDelaySecs": 0
+        }
+    },
+    "rateLimiting": {
+        "commands": {
+            "amount": 10,
+            "interval": 30
+        },
+        "buttons": {
+            "amount": 10,
+            "interval": 30
+        },
+        "triggers": {
+            "amount": 10,
+            "interval": 30
+        },
+        "reactions": {
+            "amount": 10,
+            "interval": 30
+        }
+    },
+    "delays": {
+        "enabled": false,
+        "messages": 250,
+        "roles": 250
+    },
+    "logging": {
+        "pretty": true,
+        "rateLimit": {
+            "minTimeout": 30
+        }
+    }
+}

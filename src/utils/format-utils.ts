@@ -1,203 +1,130 @@
-import { Guild, GuildEmoji, GuildMember, MessageEmbed, User, Util } from 'discord.js';
-import emojiRegex from 'emoji-regex';
+import { ApplicationCommand, Client, Guild, GuildEmoji, Locale } from 'discord.js';
+import { filesize } from 'filesize';
+import { Duration } from 'luxon';
+import { Lang } from '../services/index.js';
+import { Language } from '../models/enum-helpers/language.js';
+import { ClientUtils } from './client-utils.js';
 
-import { MathUtils } from './math-utils';
-import { ParseUtils } from './parse-utils';
-import { RoleCallData } from '../models/database/rolecall-models';
-import { UserDataResults } from '../models/database/user-data-results-models';
-import { XpUtils } from './xp-utils';
+const UNICODE_EMOJI_REGEX = /\p{Extended_Pictographic}/u;
+const GUILD_EMOJI_REGEX = /<a?:.+?:\d{18,19}>/;
+const EMOJI_REGEX = GUILD_EMOJI_REGEX || UNICODE_EMOJI_REGEX;
 
-let Config = require('../../config/config.json');
+export class FormatUtils {
+    public static roleMention(guild: Guild, discordId: string): string {
+        if (discordId === '@here') {
+            return discordId;
+        }
 
-const PAGE_REGEX = /Page (\d+)\/(\d+)/;
-const EMOJI_REGEX = emojiRegex();
+        if (discordId === guild.id) {
+            return '@everyone';
+        }
 
-export abstract class FormatUtils {
-    public static getRoleName(guild: Guild, roleDiscordId: string): string {
-        return roleDiscordId
-            ? guild.roles.resolve(roleDiscordId)?.toString() || '**Unknown**'
-            : '**None**';
+        return `<@&${discordId}>`;
     }
 
-    public static getMemberDisplayName(memberDiscordId: string, guild: Guild): string {
-        let displayName = guild.members.resolve(memberDiscordId)?.displayName;
-        return displayName ? Util.escapeMarkdown(displayName) : 'Unknown Member';
+    public static channelMention(discordId: string): string {
+        return `<#${discordId}>`;
     }
 
-    public static getMemberMention(memberDiscordId: string, guild: Guild): string {
-        return guild.members.resolve(memberDiscordId)?.toString() || 'Unknown Member';
+    public static userMention(discordId: string): string {
+        return `<@!${discordId}>`;
     }
 
-    public static getPercent(decimal: number): string {
-        return Math.floor(decimal * 100) + '%';
-    }
-
-    public static resolvePage(input: string, maxPageNumber: number): number {
-        return MathUtils.clamp(ParseUtils.parseInt(input) || 1, 1, maxPageNumber);
-    }
-
-    public static isLevel(input: number): boolean {
-        return Number.isInteger(input) && input >= 0 && input <= 1000;
-    }
-
-    public static joinWithAnd(values: string[]): string {
-        return [values.slice(0, -1).join(', '), values.slice(-1)[0]].join(
-            values.length < 2 ? '' : ', and '
-        );
-    }
-
-    public static getIdFromEmojiString(input: string): string {
-        let emoteData = input.replace('<', '').replace('>', '').split(':');
-        return emoteData[emoteData.length - 1];
-    }
-
-    public static getNameFromEmojiString(input: string): string {
-        let emoteData = input.replace('<', '').replace('>', '').split(':');
-        return emoteData[emoteData.length - 2];
-    }
-
-    public static findGuildEmoji(input: string, guild: Guild): GuildEmoji {
-        return guild.emojis.resolve(this.getIdFromEmojiString(input));
+    public static async getGuildEmoji(input: string, guild: Guild): Promise<GuildEmoji> {
+        let id = this.getIdFromGuildEmojiString(input);
+        return id ? await guild.emojis.fetch(id) : null;
     }
 
     public static isUnicodeEmoji(input: string): boolean {
-        return EMOJI_REGEX.exec(input) !== null;
+        return UNICODE_EMOJI_REGEX.exec(input) !== null;
     }
 
-    public static findUnicodeEmoji(input: string): string {
-        if (input.length > 2) return null;
-        let emote = EMOJI_REGEX.exec(input);
+    public static async findGuildEmoji(input: string, guild: Guild): Promise<GuildEmoji> {
+        return await guild.emojis.fetch(input);
+    }
+
+    public static getEmoji(input: string): string {
+        let emoji = EMOJI_REGEX.exec(input);
+        return emoji ? emoji[0] : null;
+    }
+
+    public static getUnicodeEmoji(input: string): string {
+        let emote = UNICODE_EMOJI_REGEX.exec(input);
         if (!emote || emote.length === 0) return null;
         return typeof emote[0] === 'number' ? null : emote[0];
     }
 
-    public static getFieldList(guild: Guild, roleIds: string[], emotes: string[]): string {
-        let fieldList = '';
-        for (let i = 0; i < roleIds.length; i++) {
-            if (!this.getEmoteDisplay(guild, emotes[i]) || !this.getRoleDisplay(guild, roleIds[i]))
-                continue; // Skip if either the role or emote are invalid
-            fieldList += `${this.getEmoteDisplay(guild, emotes[i])} ${this.getRoleName(
-                guild,
-                roleIds[i]
-            )}\n`; // Add to list
-        }
-        return fieldList;
+    public static getIdFromGuildEmojiString(input: string): string {
+        let resolvedEmojis = GUILD_EMOJI_REGEX.exec(input);
+        if (!resolvedEmojis || resolvedEmojis.length == 0) return null;
+
+        let emoteData = resolvedEmojis[0].replace('<', '').replace('>', '').split(':');
+        return emoteData[emoteData.length - 1];
     }
 
-    public static extractPageNumber(input: string): number {
-        let match = PAGE_REGEX.exec(input);
-        return match ? parseInt(match[1]) : null;
-    }
-
-    public static getEmoteDisplay(guild: Guild, emote: string): string {
-        let guildEmote = guild.emojis.resolve(emote);
-        if (guildEmote) return guildEmote.toString();
-        // else if (this.isUnicodeEmoji(emote)) return emote;
-        // else return null;
-        return emote;
-    }
-
-    public static getRoleDisplay(guild: Guild, roleDiscordId: string): string {
-        return guild.roles.resolve(roleDiscordId)?.name;
-    }
-
-    public static async getRoleCallEmbed(
-        guild: Guild,
-        roleCallData: RoleCallData[]
-    ): Promise<MessageEmbed> {
-        let roleCallCategories = Array.from(
-            // Removes duplicate categories
-            new Set(roleCallData.map(roleCall => roleCall.Category))
+    // TODO: Replace with ApplicationCommand#toString() once discord.js #8818 is merged
+    // https://github.com/discordjs/discord.js/pull/8818
+    public static async commandMention(
+        client: Client,
+        langLocation: string,
+        subParts: string[] = []
+    ): Promise<string> {
+        let command = await ClientUtils.findAppCommand(
+            client,
+            Lang.getRef('commands', `chatCommands.${langLocation}`, Language.Default)
         );
 
-        let roleCallEmbed = new MessageEmbed() // Enter Default Values (Eventually make these customizable)
-            .setTitle('Role Manager')
-            .addField(
-                'Use this to obtain your roles.',
-                'React with emotes to the corresponding roles you would like.'
-            )
-            .setFooter(
-                'To remove a role, simply remove your reaction of the corresponding role.',
-                guild.me.user.avatarURL()
-            )
-            .setColor(Config.colors.default);
-
-        for (let category of roleCallCategories) {
-            // Go through all of the categories
-
-            let roleCallRoles = roleCallData // Get an array of Roles under this category
-                .filter(roleCall => roleCall.Category === category)
-                .map(roleCall => roleCall.RoleDiscordId);
-
-            let roleCallEmotes = roleCallData // Get an array of Emotes under this category
-                .filter(roleCall => roleCall.Category === category)
-                .map(roleCall => roleCall.Emote);
-
-            let list = FormatUtils.getFieldList(guild, roleCallRoles, roleCallEmotes); // Returns a formatted list of Emotes and Role names
-            let categoryName = category || 'Roles';
-            if (!list) continue; // If all emotes or roles are invalid in this category, list will be null
-            roleCallEmbed.addField(categoryName, list);
-        }
-
-        roleCallEmbed.addField('Administration', '♻️ Refresh Message'); // Add Administrative refresh button
-
-        return roleCallEmbed;
+        let name = [command.name, ...subParts].join(' ');
+        return `</${name}:${command.id}>`;
     }
 
-    public static async getXpLeaderBoardEmbed(
-        guild: Guild,
-        userDataResults: UserDataResults,
-        page: number,
-        pageSize: number
-    ): Promise<MessageEmbed> {
-        let embed = new MessageEmbed()
-            .setTitle(`__**Xp Leaderboard**__ **| Page ${page}**`)
-            .setThumbnail(guild.iconURL())
-            .setColor(Config.colors.default)
-            .setFooter('Talk in Text & Voice Channels to level up!', guild.iconURL())
-            .setTimestamp();
-
-        let i = (page - 1) * pageSize + 1;
-
-        if (userDataResults.userData.length === 0) {
-            let errorEmbed = new MessageEmbed()
-                .setDescription('No users in the database!')
-                .setColor(Config.colors.error);
-            return errorEmbed;
-        }
-
-        let description = '';
-
-        if (guild.id === '777956000857980938' && page === 1) {
-            description += `#${i.toLocaleString()}: **Stqlth** \nLevel: **69420** (Total XP: **∞**)\n\n`;
-            i++;
-        }
-
-        for (let userData of userDataResults.userData) {
-            description += `#${i.toLocaleString()}: ${
-                guild.members.resolve(userData.UserDiscordId)?.toString() || 'Unknown'
-            } \nLevel: **${XpUtils.getLevelFromXp(
-                userData.XpAmount
-            ).toLocaleString()}** (Total XP: **${userData.XpAmount.toLocaleString()}**)\n\n`;
-            i++;
-        }
-
-        embed.setDescription(description);
-
-        return embed;
+    public static duration(milliseconds: number, langCode: Locale): string {
+        return Duration.fromObject(
+            Object.fromEntries(
+                Object.entries(
+                    Duration.fromMillis(milliseconds, { locale: langCode })
+                        .shiftTo(
+                            'year',
+                            'quarter',
+                            'month',
+                            'week',
+                            'day',
+                            'hour',
+                            'minute',
+                            'second'
+                        )
+                        .toObject()
+                ).filter(([_, value]) => !!value) // Remove units that are 0
+            )
+        ).toHuman({ maximumFractionDigits: 0 });
     }
 
-    public static async getQuoteEmbed(
-        quoted: User,
-        quoter: GuildMember,
-        quote: string
-    ): Promise<MessageEmbed> {
-        return new MessageEmbed()
-            .setTitle(`Quote From ${quoted.username}`)
-            .setThumbnail(quoted.avatarURL())
-            .setDescription(quote)
-            .setFooter(`Quoted by ${quoter.user.username}`)
-            .setTimestamp()
-            .setColor(Config.colors.default);
+    public static fileSize(bytes: number): string {
+        return filesize(bytes, { output: 'string', pad: true, round: 2 });
+    }
+
+    /**
+     *
+     * @param values
+     * @param langCode
+     * @param extraUsers The amount of users that are not included in the list because of the Discord character limit
+     * @returns
+     */
+    public static joinWithAnd(values: string[], langCode: Locale, extraUsers: number = 0): string {
+        if (values.length === 0) return 'NOTHING TO JOIN';
+        if (extraUsers > 0) {
+            // add the "X more" to the end of the list
+            values.push(
+                Lang.getRef('info', `terms.xMoreMember${extraUsers > 1 ? 's' : ''}`, langCode, {
+                    AMOUNT: extraUsers.toString(),
+                })
+            );
+        }
+
+        return values.length === 2
+            ? values[0] + ` ${Lang.getRef('info', 'terms.and', langCode)} ` + values[1]
+            : [values.slice(0, -1).join(', '), values.slice(-1)[0]].join(
+                  values.length < 2 ? '' : `, ${Lang.getRef('info', 'terms.and', langCode)} `
+              );
     }
 }

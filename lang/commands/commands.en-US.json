@@ -1,0 +1,137 @@
+{
+    "data": {},
+    "refs": {
+        "chatCommands": {
+            "dev": "dev",
+            "help": "help",
+            "info": "info",
+            "test": "test",
+            "xp": "xp",
+            "leaderboard": "leaderboard",
+            "reward": "reward",
+            "add": "add",
+            "remove": "remove",
+            "clear": "clear",
+            "edit": "edit",
+            "channel": "channel",
+            "addRole": "add_role",
+            "role": "role",
+            "clearRoles": "clear_roles",
+            "list": "list",
+            "id": "id",
+            "viewRewards": "view_rewards",
+            "quote": "quote",
+            "eightBall": "eight_ball",
+            "serverInfo": "server_info",
+            "joinRoles": "join_roles",
+            "addJoinRole": "add_join_role",
+            "viewJoinRoles": "view_join_roles",
+            "settings": "settings"
+        },
+        "userCommands": {},
+        "messageCommands": {
+            "quote": "Quote"
+        },
+        "arguments": {
+            "command": "command",
+            "option": "option",
+            "user": "user",
+            "page": "page",
+            "channel": "channel",
+            "type": "type",
+            "role": "role",
+            "level": "level",
+            "levelingRewardAlias": "alias",
+            "roleId": "role_id",
+            "id": "id",
+            "quote": "quote",
+            "question": "question"
+        },
+        "commandDescs": {
+            "dev": "Developer use only.",
+            "help": "Find help or contact support.",
+            "info": "View bot info.",
+            "test": "Run the test command.",
+            "xp": "View your or another user's XP and level.",
+            "leaderboard": "View the leaderboard.",
+            "edit": "Edit one of the bot's settings.",
+            "channel": "The channel type to edit.",
+            "reward": "Customize rewards for players reaching a certain level.",
+            "levelRoleAdd": "Add a role reward for a given level.",
+            "levelRoleClear": "Clear all the role rewards for a given level.",
+            "removeLevelRole": "Remove a leveling role reward.",
+            "removeId": "Remove a role reward by ID. Used when the discord (ex: role, user, etc.) object has been deleted.",
+            "viewRewards": "View the list of leveling rewards.",
+            "quote": "Quote something. The quote will be sent to your server's quote channel.",
+            "eightBall": "Ask the bot a question!",
+            "serverInfo": "View information about the server.",
+            "joinRoles": "Manage roles that are given to users when they join the server.",
+            "addJoinRole": "Add a role that will be given to users when they join.",
+            "removeJoinRole": "Remove a join role.",
+            "removeJoinRoleId": "Remove a join role by ID. Used when the role has been deleted.",
+            "clearJoinRoles": "Clear all join roles.",
+            "viewJoinRoles": "View all roles that are given to users when they join.",
+            "settings": "View the bot's settings for this server."
+        },
+        "argDescs": {
+            "devCommand": "Command.",
+            "user": "Which user this command should use.",
+            "page": "Which page to view.",
+            "channel": "Which channel to set for this command. Leave blank to remove the channel.",
+            "channelType": "The type of channel to set.",
+            "role": "The role you would like to use in this command.",
+            "level": "The level you would like to use in this command.",
+            "alias": "The 6 character alias of the option you would like to use. This is found via the list commands.",
+            "helpOption": "Select what section you need help with.",
+            "infoOption": "Select what section you would like to view.",
+            "removeId": "Which id to remove. Used when the discord (ex: role, user, etc.) object has been deleted.",
+            "quote": "The text you would like to quote.",
+            "quoteUser": "The user you would like to quote. If blank, the quote will be from Unknown.",
+            "question": "The question you would like to ask the bot."
+        },
+        "helpOptions": {
+            "commands": "Commands",
+            "permissions": "Permissions"
+        },
+        "helpOptionDescs": {
+            "commands": "{{REF:helpOptions.commands}} -- What commands are there? How do I restrict who is allowed to use commands?",
+            "permissions": "{{REF:helpOptions.permissions}} -- How do I restrict who is allowed to use commands?"
+        },
+        "infoOptions": {
+            "about": "About"
+        },
+        "infoOptionDescs": {
+            "about": "{{REF:infoOptions.about}} -- General information about the bot."
+        },
+        "claimRoleOptions": {
+            "welcome": "Welcome",
+            "leveling": "Leveling",
+            "quote": "Quote",
+            "poll": "Poll"
+        },
+        "claimRoleOptionDescs": {
+            "welcome": "{{REF:claimRoleOptions.welcome}} -- Where to send the welcome message to when a user joins the server.",
+            "leveling": "{{REF:claimRoleOptions.leveling}} -- Where to send the leveling message to when a user levels up.",
+            "quote": "{{REF:claimRoleOptions.quote}} -- Where to send the quote message to when a user posts a quote.",
+            "poll": "{{REF:claimRoleOptions.poll}} -- Where to send the poll message to when a user posts a poll."
+        },
+        "channelTypes": {
+            "welcome": "Welcome",
+            "leveling": "Leveling",
+            "quote": "Quote",
+            "poll": "Poll"
+        },
+        "linkChoices": {
+            "docs": "Docs",
+            "faq": "FAQ",
+            "donate": "Donate",
+            "invite": "Invite",
+            "support": "Support",
+            "vote": "Vote",
+            "map": "Map"
+        },
+        "meta": {
+            "translators": "[Stqlth#0001](https://github.com/scottbucher)"
+        }
+    }
+}
