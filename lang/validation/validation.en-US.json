@@ -1,0 +1,120 @@
+{
+    "data": {
+        "embeds": {
+            "missingClientPerms": {
+                "description": [
+                    "I don't have all permissions required to run that command here! Please check the server and channel permissions to make sure I have the following permissions.",
+                    "",
+                    "Required permissions: {{PERMISSIONS}}"
+                ],
+                "color": "{{COM:colors.warn}}"
+            },
+            "oldPrefixUsed": {
+                "title": "Slash Commands Update",
+                "description": [
+                    "{{COM:bot.name}} now uses **Slash Commands**! Try it by typing {{HELP_COMMAND}}!",
+                    "",
+                    "If you don't see any slash commands listed for {{COM:bot.name}}:",
+                    "",
+                    "1. Check that you have the **Use Application Commands** permission in this channel.",
+                    "2. Try kicking and [re-inviting {{COM:bot.name}}]({{COM:links.invite}})."
+                ],
+                "color": "{{COM:colors.warn}}"
+            },
+            "cannotGiveRole": {
+                "title": "Cannot Give Role!",
+                "description": [
+                    "Any role that the bot has to give must be below {{BOT}}'s highest role.",
+                    "Additional Note: {{BOT}} must have the `Manage Roles` permission to give roles to users.",
+                    "",
+                    "Example Role Hierarchy:",
+                    "`{{COM:bot.name}}'s Highest Role`",
+                    "`Role being given`"
+                ],
+                "timestamp": true,
+                "color": "{{COM:colors.error}}"
+            }
+        },
+        "errorEmbeds": {
+            "cooldownHit": "You can only run this command {{AMOUNT}} time(s) every {{INTERVAL}}. Please wait before attempting this command again.",
+            "devOnly": "This action can only be done by developers.",
+            "levelingRewardAlreadyHasRole": "The role {{ROLE}} is already a reward for reaching level {{LEVEL}}!",
+            "levelingRewardDoesNotHaveRole": "The role {{ROLE}} is not a reward for reaching level {{LEVEL}}!",
+            "levelingRewardDoesNotHaveRoleId": "The role id {{ROLE_ID}} is not a reward for reaching level {{LEVEL}}!",
+            "levelingRewardDoesNotHaveRoles": "There are no role rewards for level {{LEVEL}}!",
+            "rawAPIInteractionDataReceived": "Please reinvite the bot with the guild scope.",
+            "roleManaged": "Please give a role that is not managed by an external service!",
+            "everyoneIsNotAValidRole": "{{EVERYONE}} is not a valid role!",
+            "quoteChannelDeleted": "The quote channel has been deleted! Please set a new one using the {{EDIT_CHANNEL_COMMAND}} command.",
+            "noQuoteChannel": "No quote channel has been set for this server! Please set one using the {{EDIT_CHANNEL_COMMAND}} command.",
+            "noPermissionToSendToChannel": "I don't have permission to send messages to {{CHANNEL_MENTION}}! Please contact an administrator to change my permissions.",
+            "cannotQuoteBot": "You cannot quote a bot!",
+            "noPunctuation": "Shouldn't you have learned proper punctuation at school?",
+            "joinRoleAlreadyExists": "The role {{ROLE}} is already set as a join role!",
+            "joinRoleDoesNotExist": "The role {{ROLE}} is not set as a join role!",
+            "joinRoleIdDoesNotExist": "The role ID {{ROLE_ID}} is not set as a join role!",
+            "noJoinRoles": "There are no join roles set for this server!"
+        }
+    },
+    "refs": {
+        "meta": {
+            "translators": "[Stqlth#0001](https://github.com/scottbucher)"
+        },
+        "permissions": {
+            "AddReactions": "Add Reactions",
+            "Administrator": "Administrator",
+            "AttachFiles": "Attach Files",
+            "BanMembers": "Ban Members",
+            "ChangeNickname": "Change Nickname",
+            "Connect": "Connect",
+            "CreateEvents": "Create Events",
+            "CreateGuildExpressions": "Create Expressions",
+            "CreateInstantInvite": "Create Invite",
+            "CreatePrivateThreads": "Create Private Threads",
+            "CreatePublicThreads": "Create Public Threads",
+            "DeafenMembers": "Deafen Members",
+            "EmbedLinks": "Embed Links",
+            "KickMembers": "Kick Members",
+            "ManageChannels": "Manage Channel(s)",
+            "ManageEmojisAndStickers": "Manage Emoji and Stickers",
+            "ManageEvents": "Manage Events",
+            "ManageGuild": "Manage Server",
+            "ManageMessages": "Manage Messages",
+            "ManageNicknames": "Manage Nicknames",
+            "ManageRoles": "Manage Roles / Permissions",
+            "ManageThreads": "Manage Threads / Posts",
+            "ManageWebhooks": "Manage Webhooks",
+            "MentionEveryone": "Mention Everyone, Here, and All Roles",
+            "ModerateMembers": "Timeout Members",
+            "MoveMembers": "Move Members",
+            "MuteMembers": "Mute Members",
+            "PrioritySpeaker": "Priority Speaker",
+            "ReadMessageHistory": "Read Message History",
+            "RequestToSpeak": "Request to Speak",
+            "SendMessages": "Send Messages / Create Posts",
+            "SendMessagesInThreads": "Send Messages in Threads / Posts",
+            "SendPolls": "Create Polls",
+            "SendTTSMessages": "Send Text-to-Speech Messages",
+            "Speak": "Speak",
+            "Stream": "Video",
+            "UseApplicationCommands": "Use Application Commands",
+            "UseEmbeddedActivities": "Use Activities",
+            "UseExternalApps": "Use External Apps",
+            "UseExternalEmojis": "Use External Emoji",
+            "UseExternalStickers": "Use External Stickers",
+            "UseVAD": "Use Voice Activity",
+            "ViewAuditLog": "View Audit Log",
+            "ViewChannel": "View Channel(s)",
+            "ViewGuildInsights": "View Server Insights"
+        },
+        "footers": {
+            "tryAgain": "Please try again!",
+            "whyPremium": "Premium helps us support and maintain the bot!",
+            "joinSupport": "Please join our support server if you have any questions.",
+            "irreversible": "This action is irreversible!"
+        },
+        "other": {
+            "na": "N/A"
+        }
+    }
+}

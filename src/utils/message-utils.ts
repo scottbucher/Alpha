@@ -1,58 +1,50 @@
 import {
-    CommandInteraction,
+    BaseMessageOptions,
     DiscordAPIError,
+    RESTJSONErrorCodes as DiscordApiErrors,
+    EmbedBuilder,
     EmojiResolvable,
-    Guild,
     Message,
-    MessageEmbed,
-    MessageOptions,
+    MessageEditOptions,
     MessageReaction,
-    TextBasedChannels,
+    PartialGroupDMChannel,
+    StartThreadOptions,
+    TextBasedChannel,
+    ThreadChannel,
     User,
 } from 'discord.js';
-import { MessageLinkData } from '../models/message-link-data-models';
+import { ListUtils } from './index.js';
 
-const MESSAGE_LINK_REGEX = /https:\/\/discordapp.com\/channels\/(\d+)\/(\d+)\/(\d+)/;
+const IGNORED_ERRORS = [
+    DiscordApiErrors.UnknownMessage,
+    DiscordApiErrors.UnknownChannel,
+    DiscordApiErrors.UnknownGuild,
+    DiscordApiErrors.UnknownUser,
+    DiscordApiErrors.UnknownInteraction,
+    DiscordApiErrors.CannotSendMessagesToThisUser, // User blocked bot or DM disabled
+    DiscordApiErrors.ReactionWasBlocked, // User blocked bot or DM disabled
+    DiscordApiErrors.MaximumActiveThreads,
+];
 
 export class MessageUtils {
     public static async send(
-        target: User | TextBasedChannels,
-        content: string | MessageEmbed | MessageOptions
+        target: User | TextBasedChannel,
+        content: string | EmbedBuilder | BaseMessageOptions
     ): Promise<Message> {
+        if (target instanceof PartialGroupDMChannel) return;
         try {
-            let msgOptions = this.messageOptions(content);
-            return await target.send(msgOptions);
+            let options: BaseMessageOptions =
+                typeof content === 'string'
+                    ? { content }
+                    : content instanceof EmbedBuilder
+                      ? { embeds: [content] }
+                      : content;
+            return await target.send(options);
         } catch (error) {
-            // 10003: "Unknown channel"
-            // 10004: "Unknown guild"
-            // 10013: "Unknown user"
-            // 50007: "Cannot send messages to this user" (User blocked bot or DM disabled)
             if (
                 error instanceof DiscordAPIError &&
-                [10003, 10004, 10013, 50007].includes(error.code)
-            ) {
-                return;
-            } else {
-                throw error;
-            }
-        }
-    }
-
-    public static async sendIntr(
-        intr: CommandInteraction,
-        content: string | MessageEmbed | MessageOptions
-    ): Promise<Message> {
-        try {
-            let msgOptions = this.messageOptions(content);
-            return (await intr.webhook.send(msgOptions)) as Message;
-        } catch (error) {
-            // 10003: "Unknown channel"
-            // 10004: "Unknown guild"
-            // 10013: "Unknown user"
-            // 50007: "Cannot send messages to this user" (User blocked bot or DM disabled)
-            if (
-                error instanceof DiscordAPIError &&
-                [10003, 10004, 10013, 50007].includes(error.code)
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
             ) {
                 return;
             } else {
@@ -63,15 +55,22 @@ export class MessageUtils {
 
     public static async reply(
         msg: Message,
-        content: string | MessageEmbed | MessageOptions
+        content: string | EmbedBuilder | BaseMessageOptions
     ): Promise<Message> {
         try {
-            let msgOptions = this.messageOptions(content);
-            return await msg.reply(msgOptions);
+            let options: BaseMessageOptions =
+                typeof content === 'string'
+                    ? { content }
+                    : content instanceof EmbedBuilder
+                      ? { embeds: [content] }
+                      : content;
+            return await msg.reply(options);
         } catch (error) {
-            // 10008: "Unknown Message" (Message was deleted)
-            // 50007: "Cannot send messages to this user" (User blocked bot or DM disabled)
-            if (error instanceof DiscordAPIError && [10008, 50007].includes(error.code)) {
+            if (
+                error instanceof DiscordAPIError &&
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
+            ) {
                 return;
             } else {
                 throw error;
@@ -81,15 +80,22 @@ export class MessageUtils {
 
     public static async edit(
         msg: Message,
-        content: string | MessageEmbed | MessageOptions
+        content: string | EmbedBuilder | MessageEditOptions
     ): Promise<Message> {
         try {
-            let msgOptions = this.messageOptions(content);
-            return await msg.edit(msgOptions);
+            let options: MessageEditOptions =
+                typeof content === 'string'
+                    ? { content }
+                    : content instanceof EmbedBuilder
+                      ? { embeds: [content] }
+                      : content;
+            return await msg.edit(options);
         } catch (error) {
-            // 10008: "Unknown Message" (Message was deleted)
-            // 50007: "Cannot send messages to this user" (User blocked bot or DM disabled)
-            if (error instanceof DiscordAPIError && [10008, 50007].includes(error.code)) {
+            if (
+                error instanceof DiscordAPIError &&
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
+            ) {
                 return;
             } else {
                 throw error;
@@ -101,9 +107,46 @@ export class MessageUtils {
         try {
             return await msg.react(emoji);
         } catch (error) {
-            // 10008: "Unknown Message" (Message was deleted)
-            // 90001: "Reaction Blocked" (User blocked bot)
-            if (error instanceof DiscordAPIError && [10008, 90001].includes(error.code)) {
+            if (
+                error instanceof DiscordAPIError &&
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
+            ) {
+                return;
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    public static async pin(msg: Message, pinned: boolean = true): Promise<Message> {
+        try {
+            return pinned ? await msg.pin() : await msg.unpin();
+        } catch (error) {
+            if (
+                error instanceof DiscordAPIError &&
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
+            ) {
+                return;
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    public static async startThread(
+        msg: Message,
+        options: StartThreadOptions
+    ): Promise<ThreadChannel> {
+        try {
+            return await msg.startThread(options);
+        } catch (error) {
+            if (
+                error instanceof DiscordAPIError &&
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
+            ) {
                 return;
             } else {
                 throw error;
@@ -115,9 +158,11 @@ export class MessageUtils {
         try {
             return await msg.delete();
         } catch (error) {
-            // 10008: "Unknown Message" (Message was deleted)
-            // 50007: "Cannot send messages to this user" (User blocked bot or DM disabled)
-            if (error instanceof DiscordAPIError && [10008, 50007].includes(error.code)) {
+            if (
+                error instanceof DiscordAPIError &&
+                typeof error.code == 'number' &&
+                IGNORED_ERRORS.includes(error.code)
+            ) {
                 return;
             } else {
                 throw error;
@@ -125,32 +170,10 @@ export class MessageUtils {
         }
     }
 
-    private static messageOptions(content: string | MessageEmbed | MessageOptions): MessageOptions {
-        let options: MessageOptions = {};
-        if (typeof content === 'string') {
-            options.content = content;
-        } else if (content instanceof MessageEmbed) {
-            options.embeds = [content];
-        } else {
-            options = content;
-        }
-        return options;
-    }
-
-    public static getRoleName(roleDiscordId: string, guild: Guild): string {
-        return roleDiscordId
-            ? guild.roles.resolve(roleDiscordId)?.toString() || '**Unknown**'
-            : '**None**';
-    }
-
-    public static extractMessageLinkData(input: string): MessageLinkData {
-        let match = MESSAGE_LINK_REGEX.exec(input);
-        if (match) {
-            return {
-                GuildId: match[1],
-                ChannelId: match[2],
-                MessageId: match[3],
-            } as MessageLinkData;
-        }
+    public static async enableButtons(msg: Message, names: string[]): Promise<void> {
+        let components = ListUtils.getListButtonComponentData(msg.guild, msg.channel.id, names, 1);
+        await msg.edit({
+            components: [components],
+        });
     }
 }

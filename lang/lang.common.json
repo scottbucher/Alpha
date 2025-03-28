@@ -1,0 +1,46 @@
+{
+    "bot": {
+        "name": "Alpha Bot",
+        "author": "Scott Bucher"
+    },
+    "emojis": {
+        "yes": "✅",
+        "no": "❌",
+        "enabled": "🟢",
+        "disabled": "🔴",
+        "info": "ℹ️",
+        "warning": "⚠️",
+        "previous": "◀️",
+        "next": "▶️",
+        "first": "⏪",
+        "last": "⏩",
+        "refresh": "🔄",
+        "percentComplete": "🟩",
+        "percentRemaining": "⬛",
+        "reuse": "🔄",
+        "forward": "➡️",
+        "back": "⬅️",
+        "fastForward": "⏩",
+        "fastBack": "⏪"
+    },
+    "colors": {
+        "default": "#4eefff",
+        "success": "#1cfe86",
+        "warn": "#ffa255",
+        "error": "#ff0000",
+        "role": "#ac1cfe"
+    },
+    "plurals": {
+        "s": "s"
+    },
+    "links": {
+        "author": "https://github.com/scottbucher",
+        "docs": "https://top.gg/",
+        "donate": "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=PE97AGAPRX35Q&currency_code=USD&source=url",
+        "invite": "https://discord.com/",
+        "source": "https://github.com/scottbucher/Alpha",
+        "stream": "https://www.twitch.tv/stqlth",
+        "template": "https://github.com/KevinNovak/Discord-Bot-TypeScript-Template",
+        "terms": "https://github.com/KevinNovak/Discord-Bot-TypeScript-Template/blob/master/LEGAL.md#terms-of-service"
+    }
+}

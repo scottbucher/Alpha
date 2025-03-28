@@ -1,10 +1,9 @@
 {
     "apps": [
         {
-            "name": "alpha",
-            "script": "dist/app.js",
+            "name": "my-bot",
+            "script": "dist/start-manager.js",
             "node_args": ["--enable-source-maps"],
-            "log_date_format": "YYYY-MM-DD HH:mm:ss",
             "restart_delay": 10000
         }
     ]
