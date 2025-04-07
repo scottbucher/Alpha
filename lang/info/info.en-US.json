@@ -205,6 +205,30 @@
                 ]
             }
         },
+        "xpEvents": {
+            "hasStarted": {
+                "title": "{{MULTIPLIER_NAME_CAPS}} XP WEEKEND HAS STARTED!",
+                "description": "The {{MULTIPLIER_NAME}} XP Weekend has started! Talk in text and voice channels to gain {{MULTIPLIER_AMOUNT}}x XP!\n\n**Event ends at {{END_TIME}}** (**{{END_TIME_RELATIVE}}**)",
+                "footer": {
+                    "text": "Time to level up!",
+                    "icon": "{{SERVER_ICON}}"
+                },
+                "thumbnail": "{{XP_EVENT_ICON}}",
+                "timestamp": true,
+                "color": "{{COM:colors.success}}"
+            },
+            "hasEnded": {
+                "title": "{{MULTIPLIER_NAME}} XP WEEKEND HAS ENDED!",
+                "description": "The {{MULTIPLIER_NAME}} XP Weekend has ended!",
+                "footer": {
+                    "text": "Thanks for participating!",
+                    "icon": "{{SERVER_ICON}}"
+                },
+                "thumbnail": "{{XP_EVENT_ICON}}",
+                "timestamp": true,
+                "color": "{{COM:colors.error}}"
+            }
+        },
         "lists": {
             "leaderboard": {
                 "title": "{{REF:lists.xpLeaderBoardTitle}}",
@@ -347,7 +371,10 @@
             "pollChannel": "Poll Channel",
             "notSet": "Not Set",
             "deletedChannel": "Deleted Channel",
-            "serverLanguage": "Server Language"
+            "serverLanguage": "Server Language",
+            "double": "Double",
+            "triple": "Triple",
+            "quadruple": "Quadruple"
         },
         "links": {
             "authorEmbed": "[{{COM:bot.author}}]({{COM:links.author}})",

@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import { createRequire } from 'node:module';
+import { GuildData } from '../database/entities/index.js';
 
 const require = createRequire(import.meta.url);
 const Config = require('../../config/config.json');
@@ -11,6 +12,71 @@ const voiceXpAmount = Config.experience.voiceAmount;
  * Utility class for managing experience points and leveling system
  */
 export abstract class ExperienceUtils {
+    /**
+     * Cache for XP multipliers. Since we check xp multipliers for every message and voice event, we should cache the results so we don't have to query the database every time.
+     */
+    private static xpMultiplierCache = new Map<
+        string,
+        {
+            multiplier: number;
+            expiresAt: number;
+        }
+    >();
+
+    // TODO: evaluate if this is a good cache ttl
+    // TODO: We could cache it for a long time if we track when events start and end
+    private static CACHE_TTL_MS = 60000 * 5; // Cache for 5 minutes
+
+    /**
+     * Get the XP multiplier for a guild
+     * @param guildData The guild data to get the multiplier for
+     * @returns The XP multiplier for the guild
+     */
+    public static async getXpMultiplier(guildData: GuildData): Promise<number> {
+        const now = Date.now();
+        const cached = this.xpMultiplierCache.get(guildData.discordId);
+
+        // Return cached value if it exists and hasn't expired
+        if (cached && cached.expiresAt > now) {
+            return cached.multiplier;
+        }
+
+        // If cache missed or expired, fetch from database
+        await guildData.eventDatas.init();
+        let eventData = guildData.eventDatas.getItems();
+
+        // Find all active events and get the highest multiplier
+        const activeEvents = eventData.filter(event => event.timeProperties.isActive);
+        const multiplier =
+            activeEvents.length > 0
+                ? Math.max(...activeEvents.map(event => event.xpProperties.multiplier ?? 1))
+                : 1;
+
+        // Update cache
+        this.setMultiplierCache(guildData.discordId, multiplier);
+
+        return multiplier;
+    }
+
+    /**
+     * Clear the cache for a specific guild or all guilds
+     * @param guildId The guild ID to clear the cache for, or undefined to clear all caches
+     */
+    public static clearMultiplierCache(guildId?: string): void {
+        if (guildId) {
+            this.xpMultiplierCache.delete(guildId);
+        } else {
+            this.xpMultiplierCache.clear();
+        }
+    }
+
+    public static setMultiplierCache(guildId: string, multiplier: number): void {
+        this.xpMultiplierCache.set(guildId, {
+            multiplier,
+            expiresAt: Date.now() + this.CACHE_TTL_MS,
+        });
+    }
+
     /**
      * Calculate XP required to complete a specific level (ex: you are level 5, the amount of XP needed to reach level 6)
      * @param level The level to calculate XP for
@@ -75,19 +141,21 @@ export abstract class ExperienceUtils {
 
     /**
      * Generate a random XP amount for message rewards
+     * @param multiplier The multiplier for the message XP
      * @returns Random XP amount within configured range
      */
-    public static generateMessageXp(): number {
-        return Math.round(Math.random() * (textXpMax - textXpMin) + textXpMin);
+    public static generateMessageXp(multiplier: number = 1): number {
+        return Math.round(Math.random() * (textXpMax - textXpMin) + textXpMin) * multiplier;
     }
 
     /**
      * Generate a random XP amount for voice activity
      * @param minutesInVoice Minutes spent in voice channel
+     * @param multiplier The multiplier for the voice XP
      * @returns XP amount for voice activity
      */
-    public static generateVoiceXp(minutesInVoice: number = 1): number {
-        return Math.round(voiceXpAmount * minutesInVoice);
+    public static generateVoiceXp(minutesInVoice: number = 1, multiplier: number = 1): number {
+        return Math.round(voiceXpAmount * minutesInVoice) * multiplier;
     }
 
     /**

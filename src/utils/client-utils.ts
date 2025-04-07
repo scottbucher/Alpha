@@ -152,6 +152,39 @@ export class ClientUtils {
         }
     }
 
+    /**
+     * Returns a text channel if it exists and the bot has permission to send messages to it.
+     * @param guild The guild to search in
+     * @param discordId The discord id of the channel to search for
+     * @returns The text channel if it exists and the bot has permission to send messages to it, otherwise null
+     */
+    public static async getConfiguredTextChannelIfExists(
+        guild: Guild,
+        discordId?: string
+    ): Promise<TextChannel | null> {
+        if (!discordId) {
+            return null;
+        }
+
+        let channel = await guild.channels.fetch(discordId);
+
+        if (
+            !channel ||
+            !(channel instanceof TextChannel) ||
+            !PermissionUtils.canSend(channel, true)
+        ) {
+            return null;
+        }
+
+        return channel;
+    }
+
+    /**
+     * Returns a news channel or text channel if it exists.
+     * @param guild The guild to search in
+     * @param input The input to search for
+     * @returns The news channel or text channel if it exists, otherwise null
+     */
     public static async findTextChannel(
         guild: Guild,
         input: string
