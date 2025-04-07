@@ -87,6 +87,17 @@ export class Args {
         type: ApplicationCommandOptionType.Integer,
     };
 
+    public static readonly CHANNEL_PERMISSIONS_OPTION: APIApplicationCommandBasicOption = {
+        name: Lang.getRef('commands', 'arguments.channel', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap('commands', 'arguments.channel'),
+        description: Lang.getRef('commands', 'argDescs.channelPermissions', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap(
+            'commands',
+            'argDescs.channelPermissions'
+        ),
+        type: ApplicationCommandOptionType.Channel.valueOf(),
+    };
+
     public static readonly CHANNEL_OPTION: APIApplicationCommandBasicOption = {
         name: Lang.getRef('commands', 'arguments.channel', Language.Default),
         name_localizations: Lang.getRefLocalizationMap('commands', 'arguments.channel'),

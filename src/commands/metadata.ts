@@ -55,6 +55,26 @@ export const ChatCommandMetadata: {
             },
         ],
     },
+    CHANNEL_PERMISSIONS: {
+        name: Lang.getRef('commands', 'chatCommands.channelPermissions', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap(
+            'commands',
+            'chatCommands.channelPermissions'
+        ),
+        description: Lang.getRef('commands', 'commandDescs.channelPermissions', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap(
+            'commands',
+            'commandDescs.channelPermissions'
+        ),
+        dm_permission: false,
+        default_member_permissions: undefined,
+        options: [
+            {
+                ...Args.CHANNEL_PERMISSIONS_OPTION,
+                required: false,
+            },
+        ],
+    },
     XP: {
         type: ApplicationCommandType.ChatInput,
         name: Lang.getRef('commands', 'chatCommands.xp', Language.Default),

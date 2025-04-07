@@ -18,3 +18,4 @@ export { JoinRoleRemoveCommand } from './join-role-remove-command.js';
 export { JoinRoleRemoveIdCommand } from './join-role-remove-id-command.js';
 export { JoinRoleClearCommand } from './join-role-clear-command.js';
 export { SettingsCommand } from './settings-command.js';
+export { ChannelPermissionsCommand } from './channel-permissions-command.js';

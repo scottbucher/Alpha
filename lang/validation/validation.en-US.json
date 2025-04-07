@@ -53,7 +53,8 @@
             "joinRoleAlreadyExists": "The role {{ROLE}} is already set as a join role!",
             "joinRoleDoesNotExist": "The role {{ROLE}} is not set as a join role!",
             "joinRoleIdDoesNotExist": "The role ID {{ROLE_ID}} is not set as a join role!",
-            "noJoinRoles": "There are no join roles set for this server!"
+            "noJoinRoles": "There are no join roles set for this server!",
+            "unsupportedChannelType": "Unsupported channel type! Please try again."
         }
     },
     "refs": {
