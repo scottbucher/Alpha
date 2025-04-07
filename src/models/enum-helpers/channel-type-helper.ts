@@ -14,34 +14,42 @@ export class ChannelTypeHelper {
     } = {
         WELCOME: {
             displayName(langCode: Locale): string {
-                return Lang.getRef('commands', 'claimRoleOptionDescs.welcome', langCode);
+                return Lang.getRef('commands', 'editChannelOptionDescs.welcome', langCode);
             },
             localizationMap(): LocalizationMap {
-                return Lang.getRefLocalizationMap('commands', 'claimRoleOptionDescs.welcome');
+                return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.welcome');
             },
         },
         LEVELING: {
             displayName(langCode: Locale): string {
-                return Lang.getRef('commands', 'claimRoleOptionDescs.leveling', langCode);
+                return Lang.getRef('commands', 'editChannelOptionDescs.leveling', langCode);
             },
             localizationMap(): LocalizationMap {
-                return Lang.getRefLocalizationMap('commands', 'claimRoleOptionDescs.leveling');
+                return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.leveling');
             },
         },
         QUOTE: {
             displayName(langCode: Locale): string {
-                return Lang.getRef('commands', 'claimRoleOptionDescs.quote', langCode);
+                return Lang.getRef('commands', 'editChannelOptionDescs.quote', langCode);
             },
             localizationMap(): LocalizationMap {
-                return Lang.getRefLocalizationMap('commands', 'claimRoleOptionDescs.quote');
+                return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.quote');
             },
         },
         POLL: {
             displayName(langCode: Locale): string {
-                return Lang.getRef('commands', 'claimRoleOptionDescs.poll', langCode);
+                return Lang.getRef('commands', 'editChannelOptionDescs.poll', langCode);
             },
             localizationMap(): LocalizationMap {
-                return Lang.getRefLocalizationMap('commands', 'claimRoleOptionDescs.poll');
+                return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.poll');
+            },
+        },
+        EVENT: {
+            displayName(langCode: Locale): string {
+                return Lang.getRef('commands', 'editChannelOptionDescs.event', langCode);
+            },
+            localizationMap(): LocalizationMap {
+                return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.event');
             },
         },
     };

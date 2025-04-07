@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 
 import { EventHandler } from './index.js';
 import { Lang, Logger } from '../services/index.js';
-import { ActionUtils, DatabaseUtils, MessageUtils } from '../utils/index.js';
+import { ActionUtils, ClientUtils, DatabaseUtils, MessageUtils } from '../utils/index.js';
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
 import { Language } from '../models/enum-helpers/index.js';
@@ -31,11 +31,9 @@ export class UserJoinHandler implements EventHandler {
         let welcomeChannel = guildData.welcomeSettings.channelDiscordId;
         let joinRoles = guildData.welcomeSettings.joinRoleDiscordIds;
 
-        if (welcomeChannel) {
-            let channel = (await guild.channels.fetch(welcomeChannel)) as TextChannel;
+        let channel = await ClientUtils.getConfiguredTextChannelIfExists(guild, welcomeChannel);
 
-            if (!channel) return;
-
+        if (channel) {
             await MessageUtils.send(
                 channel,
                 Lang.getEmbed('info', 'embeds.welcomeMember', Language.Default, {

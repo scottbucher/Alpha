@@ -1,6 +1,12 @@
 import { Guild, Role, TextChannel } from 'discord.js';
 import { GuildData } from '../database/entities/index.js';
-import { ActionUtils, FormatUtils, MessageUtils, PermissionUtils } from '../utils/index.js';
+import {
+    ActionUtils,
+    ClientUtils,
+    FormatUtils,
+    MessageUtils,
+    PermissionUtils,
+} from '../utils/index.js';
 import { Language } from '../models/enum-helpers/index.js';
 import { Lang, Logger } from './index.js';
 import { createRequire } from 'node:module';
@@ -14,9 +20,10 @@ export class LevelUpService {
         guildData: GuildData,
         leveledUpUsers: { userId: string; oldLevel: number; newLevel: number }[]
     ): Promise<void> {
-        let levelingChannel = (await guild.channels.fetch(
+        let levelingChannel = await ClientUtils.getConfiguredTextChannelIfExists(
+            guild,
             guildData.levelingSettings.channelDiscordId
-        )) as TextChannel;
+        );
 
         let allNewLevels = new Set(leveledUpUsers.map(user => user.newLevel));
 
@@ -48,8 +55,6 @@ export class LevelUpService {
             const level = leveledUpUser.newLevel;
             const roles = roleToLevelMap.get(level);
             const givenRoles: Role[] = [];
-
-            let canSend = PermissionUtils.canSend(levelingChannel);
 
             if (roles.length > 0) {
                 const member = await guild.members.fetch(leveledUpUser.userId);
@@ -86,7 +91,7 @@ export class LevelUpService {
                 });
             }
 
-            if (canSend) await MessageUtils.send(levelingChannel, levelUpMessage);
+            if (levelingChannel) await MessageUtils.send(levelingChannel, levelUpMessage);
         }
     }
 }

@@ -106,23 +106,26 @@
         "infoOptionDescs": {
             "about": "{{REF:infoOptions.about}} -- General information about the bot."
         },
-        "claimRoleOptions": {
+        "editChannelOptions": {
             "welcome": "Welcome",
             "leveling": "Leveling",
             "quote": "Quote",
-            "poll": "Poll"
+            "poll": "Poll",
+            "event": "Event"
         },
-        "claimRoleOptionDescs": {
-            "welcome": "{{REF:claimRoleOptions.welcome}} -- Where to send the welcome message to when a user joins the server.",
-            "leveling": "{{REF:claimRoleOptions.leveling}} -- Where to send the leveling message to when a user levels up.",
-            "quote": "{{REF:claimRoleOptions.quote}} -- Where to send the quote message to when a user posts a quote.",
-            "poll": "{{REF:claimRoleOptions.poll}} -- Where to send the poll message to when a user posts a poll."
+        "editChannelOptionDescs": {
+            "welcome": "{{REF:editChannelOptions.welcome}} -- Where to send the welcome message to when a user joins the server.",
+            "leveling": "{{REF:editChannelOptions.leveling}} -- Where to send the leveling message to when a user levels up.",
+            "quote": "{{REF:editChannelOptions.quote}} -- Where to send the quote message to when a user posts a quote.",
+            "poll": "{{REF:editChannelOptions.poll}} -- Where to send the poll message to when a user posts a poll.",
+            "event": "{{REF:editChannelOptions.event}} -- Where to send event messages."
         },
         "channelTypes": {
             "welcome": "Welcome",
             "leveling": "Leveling",
             "quote": "Quote",
-            "poll": "Poll"
+            "poll": "Poll",
+            "event": "Event"
         },
         "linkChoices": {
             "docs": "Docs",

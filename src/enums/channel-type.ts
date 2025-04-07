@@ -3,4 +3,5 @@ export enum ChannelType {
     LEVELING = 'LEVELING',
     QUOTE = 'QUOTE',
     POLL = 'POLL',
+    EVENT = 'EVENT',
 }

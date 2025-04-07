@@ -42,7 +42,9 @@ export class GenericTrigger implements Trigger {
             let memberXpBefore = guildUserData.experience;
             let currentLevel = ExperienceUtils.getLevelFromXp(memberXpBefore); // Get current level
 
-            guildUserData.experience += ExperienceUtils.generateMessageXp();
+            guildUserData.experience += ExperienceUtils.generateMessageXp(
+                await ExperienceUtils.getXpMultiplier(guildData)
+            );
             let memberXpAfter = guildUserData.experience;
             await data.em.persistAndFlush(guildUserData);
 

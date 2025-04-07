@@ -60,7 +60,9 @@ export class GiveVoiceXpJob extends Job {
                     let memberXpBefore = guildUserData.experience;
                     let memberLevelBefore = ExperienceUtils.getLevelFromXp(memberXpBefore);
 
-                    guildUserData.experience += ExperienceUtils.generateVoiceXp();
+                    guildUserData.experience += ExperienceUtils.generateVoiceXp(
+                        await ExperienceUtils.getXpMultiplier(guildData)
+                    );
                     let memberXpAfter = guildUserData.experience;
                     await em.persistAndFlush(guildUserData);
 

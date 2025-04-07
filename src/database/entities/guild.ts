@@ -13,7 +13,7 @@ import {
 import { ObjectId } from '@mikro-orm/mongodb';
 
 import { TimeUtils } from '../../utils/index.js';
-import { GuildUserData, LevelingRewardData } from './index.js';
+import { EventData, GuildUserData, LevelingRewardData } from './index.js';
 import { LangCode } from '../../enums/index.js';
 
 @Embeddable()
@@ -23,6 +23,12 @@ export class GuildSettings {
 
     @Property()
     timeZone?: string;
+}
+
+@Embeddable()
+export class EventSettings {
+    @Property()
+    channelDiscordId?: string;
 }
 
 @Embeddable()
@@ -79,6 +85,9 @@ export class GuildData {
     @Embedded({ object: true })
     pollSettings = new PollSettings();
 
+    @Embedded({ object: true })
+    eventSettings = new EventSettings();
+
     @Property()
     created = TimeUtils.now().toISO();
 
@@ -87,6 +96,9 @@ export class GuildData {
 
     @OneToMany(() => GuildUserData, guildUser => guildUser.guild, { cascade: [Cascade.ALL] })
     userDatas = new Collection<GuildUserData>(this);
+
+    @OneToMany(() => EventData, event => event.guild, { cascade: [Cascade.ALL] })
+    eventDatas = new Collection<EventData>(this);
 
     constructor(discordId: string) {
         this.discordId = discordId;

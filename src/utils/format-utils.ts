@@ -127,4 +127,8 @@ export class FormatUtils {
                   values.length < 2 ? '' : `, ${Lang.getRef('info', 'terms.and', langCode)} `
               );
     }
+
+    public static discordTimestampRelative(date: Date): string {
+        return `<t:${Math.floor(date.getTime() / 1000)}:R>`;
+    }
 }
