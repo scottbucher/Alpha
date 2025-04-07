@@ -39,6 +39,10 @@ export class TimeProperties {
     @Property()
     hasEnded = false;
 
+    // Used so we don't send duplicate announcement messages when the event is announced that it will be in 2 weeks
+    @Property()
+    hasAnnounced = false;
+
     // Used for fast checks if the event is active
     @Property()
     isActive = false;

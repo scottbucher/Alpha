@@ -47,6 +47,11 @@
         "rewards": 10,
         "joinRoles": 10
     },
+    "events": {
+        "announce": {
+            "daysBefore": 14
+        }
+    },
     "chase": {
         "guildIds": ["<GUILD_ID>"],
         "id": "<CHASE_USER_ID>",

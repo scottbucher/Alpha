@@ -9,6 +9,7 @@ import { Client, Guild, TextChannel } from 'discord.js';
 import { ClientUtils, FormatUtils, MessageUtils } from '../utils/index.js';
 import { Lang, Logger } from '../services/index.js';
 import { Language } from '../models/enum-helpers/index.js';
+import { EventStage } from '../enums/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -17,6 +18,8 @@ let Logs = require('../../lang/logs.json');
 const XP_EVENT_START_ICON =
     'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
 const XP_EVENT_END_ICON =
+    'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
+const XP_EVENT_ANNOUNCED_ICON =
     'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
 
 const MULTIPLIER_NAMES = {
@@ -74,10 +77,15 @@ export class EventJob extends Job {
             }
 
             try {
+                let channel = await ClientUtils.getConfiguredTextChannelIfExists(
+                    guild,
+                    guildData.eventSettings.channelDiscordId
+                );
+
                 let hasChangedEventsForGuild = await this.processGuildEvents(
                     guild,
                     guildData,
-                    null,
+                    channel,
                     now
                 );
 
@@ -134,6 +142,27 @@ export class EventJob extends Job {
                 continue;
             }
 
+            // Check if we should announce the upcoming event (2 weeks before)
+            const timeBeforeStart = new Date(eventStartTime);
+            timeBeforeStart.setDate(timeBeforeStart.getDate() - Config.events.announce.daysBefore);
+
+            if (
+                !event.timeProperties.hasAnnounced &&
+                now >= timeBeforeStart &&
+                now < eventStartTime
+            ) {
+                event.timeProperties.hasAnnounced = true;
+                hasChangedEventsForGuild = true;
+
+                Logger.info(Logs.info.xpEventAnnounced, {
+                    guildId: guild.id,
+                    eventId: event.id,
+                    multiplier: event.xpProperties.multiplier,
+                });
+
+                await this.sendXpEventMessage(guild, event, channel, EventStage.Announced);
+            }
+
             // Check if event should start
             if (!event.timeProperties.hasStarted && now >= eventStartTime) {
                 event.timeProperties.hasStarted = true;
@@ -146,7 +175,7 @@ export class EventJob extends Job {
                     multiplier: event.xpProperties.multiplier,
                 });
 
-                await this.sendXpEventMessage(guild, event, channel, true);
+                await this.sendXpEventMessage(guild, event, channel, EventStage.Started);
             }
 
             // Check if event should end
@@ -161,7 +190,7 @@ export class EventJob extends Job {
                     multiplier: event.xpProperties.multiplier,
                 });
 
-                await this.sendXpEventMessage(guild, event, channel, false);
+                await this.sendXpEventMessage(guild, event, channel, EventStage.Ended);
             }
 
             // Ensure active status correctly reflects if we're in the event's time window
@@ -185,7 +214,7 @@ export class EventJob extends Job {
         guild: Guild,
         event: EventData,
         eventChannel: TextChannel | null,
-        isStarting: boolean
+        type: EventStage
     ) {
         if (!eventChannel) return;
 
@@ -202,24 +231,31 @@ export class EventJob extends Job {
         }
 
         const multiplierName = Lang.getRef('info', `terms.${multiplierKey}`, Language.Default);
-        let eventStartTime = event.timeProperties.startTime;
+        const eventStartTime = new Date(event.timeProperties.startTime);
 
         await MessageUtils.send(
             eventChannel,
             Lang.getEmbed(
                 'info',
-                `events.has${isStarting ? 'Started' : 'Ended'}`,
+                type === EventStage.Announced
+                    ? 'events.announced'
+                    : `events.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
                 Language.Default,
                 {
                     MULTIPLIER_NAME_CAPS: multiplierName.toLocaleUpperCase(),
                     MULTIPLIER_NAME: multiplierName.toLocaleLowerCase(),
                     MULTIPLIER_AMOUNT: multiplier.toString(),
-                    END_TIME: eventStartTime,
-                    END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(
-                        new Date(eventStartTime)
+                    START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
+                    END_TIME: FormatUtils.discordTimestampRelative(
+                        new Date(event.timeProperties.endTime)
                     ),
                     SERVER_ICON: guild.iconURL() ?? '',
-                    XP_EVENT_ICON: isStarting ? XP_EVENT_START_ICON : XP_EVENT_END_ICON,
+                    XP_EVENT_ICON:
+                        type === EventStage.Announced
+                            ? XP_EVENT_ANNOUNCED_ICON
+                            : type === EventStage.Ended
+                              ? XP_EVENT_END_ICON
+                              : XP_EVENT_START_ICON,
                 }
             )
         );

@@ -227,6 +227,17 @@
                 "thumbnail": "{{XP_EVENT_ICON}}",
                 "timestamp": true,
                 "color": "{{COM:colors.error}}"
+            },
+            "announced": {
+                "title": "UPCOMING {{MULTIPLIER_NAME_CAPS}} XP WEEKEND!",
+                "description": "Get ready! A {{MULTIPLIER_NAME}} XP Weekend is coming up!\n\n**Starts**: {{START_TIME}}\n**Ends**: {{END_TIME}}\n\nDuring this event, you'll earn {{MULTIPLIER_AMOUNT}}x XP from text and voice channels!",
+                "footer": {
+                    "text": "Mark your calendars!",
+                    "icon": "{{SERVER_ICON}}"
+                },
+                "thumbnail": "{{XP_EVENT_ICON}}",
+                "timestamp": true,
+                "color": "{{COM:colors.info}}"
             }
         },
         "lists": {
