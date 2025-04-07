@@ -67,7 +67,9 @@ export const ChatCommandMetadata: {
             'commandDescs.channelPermissions'
         ),
         dm_permission: false,
-        default_member_permissions: undefined,
+        default_member_permissions: PermissionsBitField.resolve([
+            PermissionFlagsBits.ManageGuild,
+        ]).toString(),
         options: [
             {
                 ...Args.CHANNEL_PERMISSIONS_OPTION,
