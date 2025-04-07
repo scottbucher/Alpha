@@ -26,7 +26,8 @@
             "joinRoles": "join_roles",
             "addJoinRole": "add_join_role",
             "viewJoinRoles": "view_join_roles",
-            "settings": "settings"
+            "settings": "settings",
+            "channelPermissions": "channel_permissions"
         },
         "userCommands": {},
         "messageCommands": {
@@ -71,12 +72,14 @@
             "removeJoinRoleId": "Remove a join role by ID. Used when the role has been deleted.",
             "clearJoinRoles": "Clear all join roles.",
             "viewJoinRoles": "View all roles that are given to users when they join.",
-            "settings": "View the bot's settings for this server."
+            "settings": "View the bot's settings for this server.",
+            "channelPermissions": "Check the bot's permissions for a channel."
         },
         "argDescs": {
             "devCommand": "Command.",
             "user": "Which user this command should use.",
             "page": "Which page to view.",
+            "channelPermissions": "The channel to check the bot's permissions for. Leave blank to use current channel.",
             "channel": "Which channel to set for this command. Leave blank to remove the channel.",
             "channelType": "The type of channel to set.",
             "role": "The role you would like to use in this command.",

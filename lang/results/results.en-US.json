@@ -20,6 +20,43 @@
             "goodNight": {
                 "description": "{{EMOJI}} **Good night {{USER_MENTION}}!** {{EMOJI}}"
             }
+        },
+        "info": {
+            "channelPermissions": {
+                "title": "Bot Permissions: `#{{CHANNEL_NAME}}`",
+                "description": "Below is the status of permissions I need to work properly. If necessary you can adjust my permissions in the server and channel settings.",
+                "fields": [
+                    {
+                        "name": "Essential",
+                        "value": [
+                            "{{VIEW_CHANNEL_ENABLED}} {{REF:permissions.ViewChannel}}",
+                            "{{SEND_MESSAGES_ENABLED}} {{REF:permissions.SendMessages}}",
+                            "{{EMBED_LINKS_ENABLED}} {{REF:permissions.EmbedLinks}}"
+                        ]
+                    },
+                    {
+                        "name": "Needed to Ping",
+                        "value": [
+                            "{{MENTION_EVERYONE_ENABLED}} {{REF:permissions.MentionEveryone}}"
+                        ]
+                    },
+                    {
+                        "name": "Needed to Pin Messages",
+                        "value": [
+                            "{{MANAGE_MESSAGES_ENABLED}} {{REF:permissions.ManageMessages}}",
+                            "{{READ_MESSAGE_HISTORY_ENABLED}} {{REF:permissions.ReadMessageHistory}}"
+                        ]
+                    },
+                    {
+                        "name": "Needed for Threads",
+                        "value": [
+                            "{{CREATE_PUBLIC_THREADS_ENABLED}} {{REF:permissions.CreatePublicThreads}}",
+                            "{{MANAGE_THREADS_ENABLED}} {{REF:permissions.ManageThreads}}",
+                            "{{READ_MESSAGE_HISTORY_ENABLED}} {{REF:permissions.ReadMessageHistory}}"
+                        ]
+                    }
+                ]
+            }
         }
     },
     "refs": {
