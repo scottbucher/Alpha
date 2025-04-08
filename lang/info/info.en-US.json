@@ -278,8 +278,11 @@
     },
     "refs": {
         "meta": {},
+        "fields": {
+            "links": "Links"
+        },
         "bot": {
-            "description": "{{REF:links.templateEmbed}} helps give developers a starting point for new Discord bots, so that much of the initial setup can be avoided and developers can instead focus on meaningful bot features."
+            "description": "Alpha Bot is a fun addition to your server and offers a variety of features to help you and your members have a great time as well as help administrators manage their servers."
         },
         "chatCommands": {
             "dev": "dev",
@@ -396,7 +399,8 @@
             "sourceEmbed": "[View Source Code]({{COM:links.source}})",
             "alphaBotEmbed": "[Alpha Bot]({{COM:links.template}})",
             "termsEmbed": "[View Terms of Service]({{COM:links.terms}})",
-            "voteEmbed": "[Vote for {{COM:bot.name}}!]({{COM:links.vote}})"
+            "voteEmbed": "[Vote for {{COM:bot.name}}!]({{COM:links.vote}})",
+            "templateEmbed": "[Discord Bot TypeScript Template]({{COM:links.template}})"
         },
         "lists": {
             "xpLeaderBoardTitle": "**__{{REF:terms.xpLeaderboard}}__ | {{REF:lists.pageTitle}}**",
