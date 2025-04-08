@@ -122,6 +122,15 @@ export class Args {
         ),
     };
 
+    public static readonly TIME_ZONE_OPTION: APIApplicationCommandBasicOption = {
+        name: Lang.getRef('commands', 'arguments.timeZone', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap('commands', 'arguments.timeZone'),
+        description: Lang.getRef('commands', 'argDescs.timeZone', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap('commands', 'argDescs.timeZone'),
+        type: ApplicationCommandOptionType.String.valueOf(),
+        autocomplete: true,
+    };
+
     public static readonly ROLE_OPTION: APIApplicationCommandBasicOption = {
         name: Lang.getRef('commands', 'arguments.role', Language.Default),
         name_localizations: Lang.getRefLocalizationMap('commands', 'arguments.role'),

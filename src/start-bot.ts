@@ -25,6 +25,8 @@ import {
     JoinRoleRemoveIdCommand,
     SettingsCommand,
     ChannelPermissionsCommand,
+    EditTimeZoneCommand,
+    MapCommand,
 } from './commands/chat/index.js';
 import {
     ChatCommandMetadata,
@@ -111,6 +113,8 @@ async function start(): Promise<void> {
         new JoinRoleClearCommand(),
         new SettingsCommand(),
         new ChannelPermissionsCommand(),
+        new EditTimeZoneCommand(),
+        new MapCommand(),
 
         // Chat Commands with a corresponding button implementation
         leaderboardCommand,

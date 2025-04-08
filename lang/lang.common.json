@@ -41,6 +41,7 @@
         "source": "https://github.com/scottbucher/Alpha",
         "stream": "https://www.twitch.tv/stqlth",
         "template": "https://github.com/KevinNovak/Discord-Bot-TypeScript-Template",
-        "terms": "https://github.com/KevinNovak/Discord-Bot-TypeScript-Template/blob/master/LEGAL.md#terms-of-service"
+        "terms": "https://github.com/KevinNovak/Discord-Bot-TypeScript-Template/blob/master/LEGAL.md#terms-of-service",
+        "map": "https://zones.arilyn.cc/"
     }
 }

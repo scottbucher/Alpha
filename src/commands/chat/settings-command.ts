@@ -19,7 +19,8 @@ export class SettingsCommand implements Command {
         let date = new Date().getFullYear().toString();
         let deletedChannel = `**${Lang.getRef('info', 'terms.deletedChannel', data.lang)}**`;
 
-        const serverLanguage = Language.Data[guildData.settings.language].nativeName;
+        const serverLanguage = Language.Data[guildData.generalSettings.language].nativeName;
+        const serverTimeZone = guildData.generalSettings.timeZone ?? notSet;
         const channelSettings = {
             WELCOME_CHANNEL: guildData.welcomeSettings.channelDiscordId,
             LEVELING_CHANNEL: guildData.levelingSettings.channelDiscordId,
@@ -38,6 +39,7 @@ export class SettingsCommand implements Command {
         let embed = Lang.getEmbed('info', 'embeds.settings', data.lang, {
             ...Object.fromEntries(channelDisplays),
             SERVER_LANGUAGE: serverLanguage,
+            SERVER_TIME_ZONE: serverTimeZone,
             SERVER_NAME: intr.guild.name,
             GUILD_ID: intr.guild.id,
             DATE: date,

@@ -32,6 +32,14 @@
                     }
                 ]
             },
+            "map": {
+                "description": [
+                    "[Kevin Novak](https://github.com/KevinNovak) has created a handy [map time zone picker]({{COM:links.map}})!",
+                    "",
+                    "Simply click your location on the map and copy the name of the selected time zone. You can then use it in the {{EDIT_TIME_ZONE}} command."
+                ],
+                "color": "{{COM:colors.default}}"
+            },
             "devInfo": {
                 "title": "{{COM:bot.name}} - Developer Info",
                 "fields": [
@@ -161,6 +169,11 @@
                     {
                         "name": "{{REF:terms.eventChannel}}",
                         "value": "{{EVENT_CHANNEL}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.serverTimeZone}}",
+                        "value": "{{SERVER_TIME_ZONE}}",
                         "inline": true
                     },
                     {
@@ -387,6 +400,7 @@
             "notSet": "Not Set",
             "deletedChannel": "Deleted Channel",
             "serverLanguage": "Server Language",
+            "serverTimeZone": "Server Time Zone",
             "double": "Double",
             "triple": "Triple",
             "quadruple": "Quadruple"

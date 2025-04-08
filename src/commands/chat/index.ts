@@ -19,3 +19,5 @@ export { JoinRoleRemoveIdCommand } from './join-role-remove-id-command.js';
 export { JoinRoleClearCommand } from './join-role-clear-command.js';
 export { SettingsCommand } from './settings-command.js';
 export { ChannelPermissionsCommand } from './channel-permissions-command.js';
+export { EditTimeZoneCommand } from './edit-time-zone-command.js';
+export { MapCommand } from './map-command.js';
