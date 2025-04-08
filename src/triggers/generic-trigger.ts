@@ -4,7 +4,7 @@ import { Trigger } from './index.js';
 import { EventData } from '../models/internal-models.js';
 import { LevelUpService } from '../services/index.js';
 import { EventDataType } from '../enums/index.js';
-import { ExperienceUtils } from '../utils/experience-utils.js';
+import { ExperienceUtils } from '../utils/index.js';
 import { createRequire } from 'node:module';
 import { FormatUtils } from '../utils/format-utils.js';
 import { MessageUtils } from '../utils/message-utils.js';

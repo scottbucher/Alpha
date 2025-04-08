@@ -20,7 +20,10 @@ export class RewardAddRoleCommand implements Command {
     ];
     public deferType = CommandDeferType.HIDDEN;
     public requireClientPerms: PermissionsString[] = [];
-    public requireEventData: EventDataType[] = [EventDataType.GUILD_DATA];
+    public requireEventData: EventDataType[] = [
+        EventDataType.GUILD_DATA,
+        EventDataType.LEVELING_REWARD_DATA,
+    ];
 
     public async execute(intr: ChatInputCommandInteraction, data: EventData): Promise<void> {
         let role = intr.options.getRole(
@@ -35,8 +38,6 @@ export class RewardAddRoleCommand implements Command {
         if (!validatedRole) {
             return;
         }
-
-        await data.guildData.levelingRewardDatas.init();
 
         let levelingRewardDatas = data.guildData.levelingRewardDatas.getItems();
         let levelingRewardData = levelingRewardDatas.find(

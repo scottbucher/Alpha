@@ -19,7 +19,10 @@ export class ViewRewardsCommand implements Command {
     public names = [Lang.getRef('commands', 'chatCommands.viewRewards', Language.Default)];
     public deferType = CommandDeferType.HIDDEN;
     public requireClientPerms: PermissionsString[] = [];
-    public requireEventData: EventDataType[] = [EventDataType.GUILD_DATA];
+    public requireEventData: EventDataType[] = [
+        EventDataType.GUILD_DATA,
+        EventDataType.LEVELING_REWARD_DATA,
+    ];
 
     public async execute(intr: ChatInputCommandInteraction, data: EventData): Promise<void> {
         let page =

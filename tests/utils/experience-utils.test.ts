@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ExperienceUtils } from '../../src/utils/experience-utils.js';
+import { ExperienceUtils } from '../../src/utils/index.js';
 import { DateTime } from 'luxon';
 
 describe('ExperienceUtils', () => {

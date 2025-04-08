@@ -29,9 +29,21 @@ export class EventDataService {
     ): Promise<EventData> {
         let em = this.orm.em.fork();
 
-        let guildData: Loaded<GuildData>;
+        let guildData: Loaded<GuildData, 'levelingRewardDatas'>;
         if (options.guild) {
-            guildData = await em.findOne(GuildData, { discordId: options.guild.id });
+            let shouldPopulateLevelingRewardData = options.requireEventData.includes(
+                EventDataType.LEVELING_REWARD_DATA
+            );
+
+            guildData = await em.findOne(
+                GuildData,
+                { discordId: options.guild.id },
+                {
+                    populate: shouldPopulateLevelingRewardData
+                        ? ['levelingRewardDatas']
+                        : undefined,
+                }
+            );
             if (guildData) {
                 await em.flush();
             }

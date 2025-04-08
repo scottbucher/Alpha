@@ -27,6 +27,7 @@ import {
     ChannelPermissionsCommand,
     EditTimeZoneCommand,
     MapCommand,
+    ClaimRewardsCommand,
 } from './commands/chat/index.js';
 import {
     ChatCommandMetadata,
@@ -115,6 +116,7 @@ async function start(): Promise<void> {
         new ChannelPermissionsCommand(),
         new EditTimeZoneCommand(),
         new MapCommand(),
+        new ClaimRewardsCommand(),
 
         // Chat Commands with a corresponding button implementation
         leaderboardCommand,

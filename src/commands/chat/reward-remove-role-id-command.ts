@@ -15,15 +15,16 @@ export class RewardRemoveRoleIdCommand implements Command {
     ];
     public deferType = CommandDeferType.HIDDEN;
     public requireClientPerms: PermissionsString[] = [];
-    public requireEventData: EventDataType[] = [EventDataType.GUILD_DATA];
+    public requireEventData: EventDataType[] = [
+        EventDataType.GUILD_DATA,
+        EventDataType.LEVELING_REWARD_DATA,
+    ];
 
     public async execute(intr: ChatInputCommandInteraction, data: EventData): Promise<void> {
         let id = intr.options.getString(Lang.getRef('commands', 'arguments.id', Language.Default));
         let level = intr.options.getInteger(
             Lang.getRef('commands', 'arguments.level', Language.Default)
         );
-
-        await data.guildData.levelingRewardDatas.init();
 
         let levelingRewardDatas = data.guildData.levelingRewardDatas.getItems();
         let levelingRewardData = levelingRewardDatas.find(
