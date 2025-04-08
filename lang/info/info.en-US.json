@@ -218,7 +218,7 @@
                 "color": "{{COM:colors.success}}"
             },
             "hasEnded": {
-                "title": "{{MULTIPLIER_NAME}} XP WEEKEND HAS ENDED!",
+                "title": "{{MULTIPLIER_NAME_CAPS}} XP WEEKEND HAS ENDED!",
                 "description": "The {{MULTIPLIER_NAME}} XP Weekend has ended!",
                 "footer": {
                     "text": "Thanks for participating!",
@@ -237,7 +237,7 @@
                 },
                 "thumbnail": "{{XP_EVENT_ICON}}",
                 "timestamp": true,
-                "color": "{{COM:colors.info}}"
+                "color": "{{COM:colors.default}}"
             }
         },
         "lists": {
