@@ -159,8 +159,8 @@
                         "inline": true
                     },
                     {
-                        "name": "{{REF:terms.welcomeChannel}}",
-                        "value": "{{SERVER_LANGUAGE}}",
+                        "name": "{{REF:terms.eventChannel}}",
+                        "value": "{{EVENT_CHANNEL}}",
                         "inline": true
                     },
                     {
@@ -380,6 +380,7 @@
             "levelingChannel": "Leveling Channel",
             "quoteChannel": "Quote Channel",
             "pollChannel": "Poll Channel",
+            "eventChannel": "Event Channel",
             "notSet": "Not Set",
             "deletedChannel": "Deleted Channel",
             "serverLanguage": "Server Language",

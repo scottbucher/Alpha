@@ -30,16 +30,15 @@ export class GenerateXpEventsJob extends Job {
 
     public async run(): Promise<void> {
         let em = this.orm.em.fork();
+        let guildIds = this.client.guilds.cache.map(guild => guild.id);
 
         try {
             // Get active Discord guilds
-            const discordGuilds = await this.client.guilds.fetch();
-            const activeGuildIds = [...discordGuilds.keys()];
 
             // Get database guilds that are still active
             const guilds = await em.find(
                 GuildData,
-                { discordId: { $in: activeGuildIds } },
+                { discordId: { $in: guildIds } },
                 {
                     populate: ['eventDatas'],
                 }

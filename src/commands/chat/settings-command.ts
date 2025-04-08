@@ -25,6 +25,7 @@ export class SettingsCommand implements Command {
             LEVELING_CHANNEL: guildData.levelingSettings.channelDiscordId,
             QUOTE_CHANNEL: guildData.quoteSettings.channelDiscordId,
             POLL_CHANNEL: guildData.pollSettings.channelDiscordId,
+            EVENT_CHANNEL: guildData.eventSettings.channelDiscordId,
         };
 
         let channelDisplays = await Promise.all(
