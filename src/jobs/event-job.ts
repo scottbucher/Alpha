@@ -9,7 +9,7 @@ import { Client, Guild, TextChannel } from 'discord.js';
 import { ClientUtils, FormatUtils, MessageUtils } from '../utils/index.js';
 import { Lang, Logger } from '../services/index.js';
 import { Language } from '../models/enum-helpers/index.js';
-import { EventStage } from '../enums/index.js';
+import { EventStage, EventType } from '../enums/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -76,15 +76,22 @@ export class EventJob extends Job {
                 continue;
             }
 
+            let eventDatas = guildData.eventDatas.getItems();
+
+            if (eventDatas.length === 0) {
+                continue;
+            }
+
+            // Process increased xp weekend events
             try {
                 let channel = await ClientUtils.getConfiguredTextChannelIfExists(
                     guild,
                     guildData.eventSettings.channelDiscordId
                 );
 
-                let hasChangedEventsForGuild = await this.processGuildEvents(
+                let hasChangedEventsForGuild = await this.processGuildIncreasedXpWeekendEvents(
                     guild,
-                    guildData,
+                    eventDatas.filter(event => event.eventType === EventType.INCREASED_XP_WEEKEND),
                     channel,
                     now
                 );
@@ -118,16 +125,15 @@ export class EventJob extends Job {
         }
     }
 
-    private async processGuildEvents(
+    private async processGuildIncreasedXpWeekendEvents(
         guild: Guild,
-        guildData: GuildData,
+        eventDatas: EventData[],
         channel: TextChannel | null,
         now: Date
     ): Promise<boolean> {
-        let eventData = guildData.eventDatas.getItems();
         let hasChangedEventsForGuild = false;
 
-        for (let event of eventData) {
+        for (let event of eventDatas) {
             const eventStartTime = new Date(event.timeProperties.startTime);
             const eventEndTime = new Date(event.timeProperties.endTime);
 

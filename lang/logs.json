@@ -28,7 +28,9 @@
         "userJoinedServer": "User '{USER_NAME}' ({USER_ID}) joined server '{GUILD_NAME}' ({GUILD_ID}).",
         "xpEventStarted": "XP event with multiplier {MULTIPLIER} started in guild '{GUILD_NAME}' ({GUILD_ID}).",
         "xpEventEnded": "XP event with multiplier {MULTIPLIER} ended in guild '{GUILD_NAME}' ({GUILD_ID}).",
-        "xpEventAnnounced": "XP event with multiplier {MULTIPLIER} announced in guild '{GUILD_NAME}' ({GUILD_ID})."
+        "xpEventAnnounced": "XP event with multiplier {MULTIPLIER} announced in guild '{GUILD_NAME}' ({GUILD_ID}).",
+        "xpEventGenerated": "Generated XP event (x{MULTIPLIER}) for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
+        "noXpEventGenerated": "No XP event generated for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}."
     },
     "warn": {
         "managerNoShards": "No shards to spawn.",
