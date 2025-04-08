@@ -330,7 +330,7 @@ export const ChatCommandMetadata: {
         name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.eightBall'),
         description: Lang.getRef('commands', 'commandDescs.eightBall', Language.Default),
         description_localizations: Lang.getRefLocalizationMap('commands', 'commandDescs.eightBall'),
-        dm_permission: false,
+        dm_permission: true,
         default_member_permissions: undefined,
         options: [
             {
@@ -482,6 +482,17 @@ export const ChatCommandMetadata: {
         default_member_permissions: PermissionsBitField.resolve([
             PermissionFlagsBits.ManageGuild,
         ]).toString(),
+    },
+    CLAIM_REWARDS: {
+        name: Lang.getRef('commands', 'chatCommands.claimRewards', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.claimRewards'),
+        description: Lang.getRef('commands', 'commandDescs.claimRewards', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap(
+            'commands',
+            'commandDescs.claimRewards'
+        ),
+        dm_permission: false,
+        default_member_permissions: undefined,
     },
 };
 

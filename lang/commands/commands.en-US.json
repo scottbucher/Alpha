@@ -29,7 +29,8 @@
             "settings": "settings",
             "channelPermissions": "channel_permissions",
             "timeZone": "time_zone",
-            "map": "map"
+            "map": "map",
+            "claimRewards": "claim_rewards"
         },
         "userCommands": {},
         "messageCommands": {
@@ -49,7 +50,8 @@
             "id": "id",
             "quote": "quote",
             "question": "question",
-            "timeZone": "time_zone"
+            "timeZone": "time_zone",
+            "claimRewards": "claim_rewards"
         },
         "commandDescs": {
             "dev": "Developer use only.",
@@ -78,7 +80,8 @@
             "settings": "View the bot's settings for this server.",
             "channelPermissions": "Check the bot's permissions for a channel.",
             "timeZone": "Set the time zone for the server.",
-            "map": "View the time zone map."
+            "map": "View the time zone map.",
+            "claimRewards": "Claim your rewards."
         },
         "argDescs": {
             "devCommand": "Command.",

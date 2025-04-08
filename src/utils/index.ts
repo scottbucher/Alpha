@@ -18,3 +18,4 @@ export { ListUtils } from './list-utils.js';
 export { ValidationUtils } from './validation-utils.js';
 export { QuoteUtils } from './quote-utils.js';
 export { TimeZoneUtils } from './time-zone-utils.js';
+export { ExperienceUtils } from './experience-utils.js';

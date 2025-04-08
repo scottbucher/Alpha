@@ -6,7 +6,7 @@ import { Lang } from '../../services/index.js';
 import { InteractionUtils, MathUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
 import { EventDataType } from '../../enums/index.js';
-import { ExperienceUtils } from '../../utils/experience-utils.js';
+import { ExperienceUtils } from '../../utils/index.js';
 
 export class XpCommand implements Command {
     public names = [Lang.getRef('commands', 'chatCommands.xp', Language.Default)];

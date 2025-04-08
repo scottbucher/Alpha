@@ -10,10 +10,8 @@ import { createRequire } from 'node:module';
 
 import { ButtonData, EventData, PageStats } from '../models/index.js';
 import { Lang } from '../services/index.js';
-import { FormatUtils } from './format-utils.js';
+import { ExperienceUtils, FormatUtils } from './index.js';
 import { DatabaseUtils } from './database-utils.js';
-import { ExperienceUtils } from './experience-utils.js';
-import { LevelingRewardData } from '../database/entities/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -170,8 +168,6 @@ export class ListUtils {
         let embed: EmbedBuilder;
         let description = '';
 
-        // load the leveling reward data
-        await data.guildData.levelingRewardDatas.init();
         let levelingRewardDatas = data.guildData.levelingRewardDatas.getItems();
 
         // TODO: when we add leveling rewards that aren't roles, we will need a more dynamic way of filtering and constructing the description

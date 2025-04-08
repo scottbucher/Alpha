@@ -6,8 +6,8 @@ import { LevelUpService, Logger } from '../services/index.js';
 import { DatabaseUtils } from '../utils/index.js';
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { GuildData, GuildUserData } from '../database/entities/index.js';
-import { ExperienceUtils } from '../utils/experience-utils.js';
+import { GuildData } from '../database/entities/index.js';
+import { ExperienceUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');

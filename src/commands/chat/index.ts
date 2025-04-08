@@ -21,3 +21,4 @@ export { SettingsCommand } from './settings-command.js';
 export { ChannelPermissionsCommand } from './channel-permissions-command.js';
 export { EditTimeZoneCommand } from './edit-time-zone-command.js';
 export { MapCommand } from './map-command.js';
+export { ClaimRewardsCommand } from './claim-rewards-command.js';
