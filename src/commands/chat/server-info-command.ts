@@ -18,6 +18,7 @@ export class ServerInfoCommand implements Command {
 
         let members = guild.members.cache.filter(member => !member.user.bot);
         let bots = guild.members.cache.filter(member => member.user.bot);
+        let presenceStatuses = members.map(member => member.presence?.status);
         let onlineMembers = members.filter(
             member => member.presence?.status === 'online' || member.presence?.status === 'dnd'
         );

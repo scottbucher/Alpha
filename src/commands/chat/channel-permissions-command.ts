@@ -30,8 +30,8 @@ export class ChannelPermissionsCommand implements Command {
             return;
         }
 
-        let confirm = Lang.getEmoji('confirm', intr.guild);
-        let deny = Lang.getEmoji('deny', intr.guild);
+        let confirm = Lang.getEmoji('yes', intr.guild);
+        let deny = Lang.getEmoji('no', intr.guild);
 
         let clientPermissions = channel.permissionsFor(intr.client.user);
 

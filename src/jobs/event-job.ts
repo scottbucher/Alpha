@@ -47,11 +47,12 @@ export class EventJob extends Job {
 
     public async run(): Promise<void> {
         let em = this.orm.em.fork();
+        let guildIds = this.client.guilds.cache.map(guild => guild.id);
 
         // Load guilds with their event datas, except for events that have ended
         let guildDatas = await em.find(
             GuildData,
-            {},
+            { discordId: { $in: guildIds } },
             {
                 populate: ['eventDatas'],
                 filters: {
