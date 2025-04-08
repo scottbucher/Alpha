@@ -42,7 +42,7 @@ import {
     TriggerHandler,
 } from './events/index.js';
 import { CustomClient } from './extensions/index.js';
-import { GiveVoiceXpJob, Job } from './jobs/index.js';
+import { EventJob, GenerateXpEventsJob, GiveVoiceXpJob, Job } from './jobs/index.js';
 import { Bot } from './models/index.js';
 import { Reaction } from './reactions/index.js';
 import {
@@ -153,7 +153,11 @@ async function start(): Promise<void> {
     let reactionHandler = new ReactionHandler(reactions, eventDataService);
 
     // Jobs
-    let jobs: Job[] = [new GiveVoiceXpJob(client, orm, levelUpService)];
+    let jobs: Job[] = [
+        new GiveVoiceXpJob(client, orm, levelUpService),
+        new EventJob(client, orm),
+        new GenerateXpEventsJob(client, orm),
+    ];
 
     // Bot
     let bot = new Bot(

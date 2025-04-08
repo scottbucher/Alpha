@@ -93,6 +93,12 @@
             "log": false,
             "runOnce": false,
             "initialDelaySecs": 0
+        },
+        "generateXpEvents": {
+            "schedule": "0 0 1 * * 1",
+            "log": false,
+            "runOnce": false,
+            "initialDelaySecs": 0
         }
     },
     "rateLimiting": {
