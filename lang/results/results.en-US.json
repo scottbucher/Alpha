@@ -11,7 +11,8 @@
             "joinRoleAdded": "Successfully added the {{ROLE}} role as a join role!",
             "joinRoleRemoved": "Successfully removed the {{ROLE}} role as a join role!",
             "joinRoleIdRemoved": "Successfully removed the {{ROLE_ID}} role ID as a join role!",
-            "joinRolesCleared": "Successfully cleared all join roles!"
+            "joinRolesCleared": "Successfully cleared all join roles!",
+            "timeZoneSet": "Successfully set the time zone to {{TIME_ZONE}}!"
         },
         "triggerResponses": {
             "goodMorning": {

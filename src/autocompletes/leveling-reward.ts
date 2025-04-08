@@ -10,6 +10,7 @@ import { EventData } from '../models/internal-models.js';
 import { RegexUtils, StringUtils } from '../utils/index.js';
 import { LevelingRewardData } from '../database/entities/leveling-reward-data.js';
 
+// TODO: unused?
 export async function levelingReward(
     intr: AutocompleteInteraction,
     option: AutocompleteFocusedOption,

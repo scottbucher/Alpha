@@ -72,7 +72,8 @@ export class CommandHandler implements EventHandler {
 
             try {
                 let option = intr.options.getFocused(true);
-                let choices = await command.autocomplete(intr, option);
+                let data = await this.eventDataService.create();
+                let choices = await command.autocomplete(intr, option, data);
                 await InteractionUtils.respond(
                     intr,
                     choices?.slice(0, DiscordLimits.CHOICES_PER_AUTOCOMPLETE)

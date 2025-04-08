@@ -19,7 +19,8 @@ export interface Command {
     isDevOnly?: boolean;
     autocomplete?(
         intr: AutocompleteInteraction,
-        option: AutocompleteFocusedOption
+        option: AutocompleteFocusedOption,
+        data: EventData
     ): Promise<ApplicationCommandOptionChoiceData[]>;
     execute(intr: CommandInteraction, data: EventData): Promise<void>;
 }

@@ -64,7 +64,7 @@ export class GenerateXpEventsJob extends Job {
     }
 
     private async generateEventsForGuild(guild: GuildData, em: any): Promise<void> {
-        const timezone = guild.settings.timeZone ?? 'UTC';
+        const timezone = guild.generalSettings.timeZone ?? 'UTC';
         let now = DateTime.now().setZone(timezone);
 
         // Get the next 4 weekends

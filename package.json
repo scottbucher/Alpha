@@ -45,6 +45,7 @@
         "@mikro-orm/mongodb": "^6.1.0",
         "@mikro-orm/reflection": "^6.1.0",
         "@mikro-orm/seeder": "^6.1.0",
+        "@vvo/tzdb": "^6.161.0",
         "class-transformer": "0.5.1",
         "class-validator": "0.14.1",
         "cron-parser": "^4.9.0",

@@ -27,7 +27,9 @@
             "addJoinRole": "add_join_role",
             "viewJoinRoles": "view_join_roles",
             "settings": "settings",
-            "channelPermissions": "channel_permissions"
+            "channelPermissions": "channel_permissions",
+            "timeZone": "time_zone",
+            "map": "map"
         },
         "userCommands": {},
         "messageCommands": {
@@ -46,7 +48,8 @@
             "roleId": "role_id",
             "id": "id",
             "quote": "quote",
-            "question": "question"
+            "question": "question",
+            "timeZone": "time_zone"
         },
         "commandDescs": {
             "dev": "Developer use only.",
@@ -73,7 +76,9 @@
             "clearJoinRoles": "Clear all join roles.",
             "viewJoinRoles": "View all roles that are given to users when they join.",
             "settings": "View the bot's settings for this server.",
-            "channelPermissions": "Check the bot's permissions for a channel."
+            "channelPermissions": "Check the bot's permissions for a channel.",
+            "timeZone": "Set the time zone for the server.",
+            "map": "View the time zone map."
         },
         "argDescs": {
             "devCommand": "Command.",
@@ -90,7 +95,8 @@
             "removeId": "Which id to remove. Used when the discord (ex: role, user, etc.) object has been deleted.",
             "quote": "The text you would like to quote.",
             "quoteUser": "The user you would like to quote. If blank, the quote will be from Unknown.",
-            "question": "The question you would like to ask the bot."
+            "question": "The question you would like to ask the bot.",
+            "timeZone": "The time zone you would like to set for the server."
         },
         "helpOptions": {
             "commands": "Commands",

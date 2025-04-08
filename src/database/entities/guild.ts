@@ -71,7 +71,7 @@ export class GuildData {
     discordId!: string;
 
     @Embedded({ object: true })
-    settings = new GuildSettings();
+    generalSettings = new GuildSettings();
 
     @Embedded({ object: true })
     levelingSettings = new LevelingSettings();

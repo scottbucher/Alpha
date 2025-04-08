@@ -55,6 +55,14 @@ export const ChatCommandMetadata: {
             },
         ],
     },
+    MAP: {
+        name: Lang.getRef('commands', 'chatCommands.map', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.map'),
+        description: Lang.getRef('commands', 'commandDescs.map', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap('commands', 'commandDescs.map'),
+        dm_permission: true,
+        default_member_permissions: undefined,
+    },
     CHANNEL_PERMISSIONS: {
         name: Lang.getRef('commands', 'chatCommands.channelPermissions', Language.Default),
         name_localizations: Lang.getRefLocalizationMap(
@@ -137,6 +145,22 @@ export const ChatCommandMetadata: {
                     {
                         ...Args.CHANNEL_OPTION,
                         required: false,
+                    },
+                ],
+            },
+            {
+                name: Lang.getRef('commands', 'chatCommands.timeZone', Language.Default),
+                name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.timeZone'),
+                description: Lang.getRef('commands', 'commandDescs.timeZone', Language.Default),
+                description_localizations: Lang.getRefLocalizationMap(
+                    'commands',
+                    'commandDescs.timeZone'
+                ),
+                type: ApplicationCommandOptionType.Subcommand.valueOf(),
+                options: [
+                    {
+                        ...Args.TIME_ZONE_OPTION,
+                        required: true,
                     },
                 ],
             },
