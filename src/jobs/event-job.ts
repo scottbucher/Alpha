@@ -114,10 +114,7 @@ export class EventJob extends Job {
                     hasChangedEvents = true;
                 }
             } catch (error) {
-                Logger.error(Logs.error.eventJobError, {
-                    guildId: guild.id,
-                    error: error.message,
-                });
+                Logger.error(Logs.error.eventJobError, error);
             }
         }
 
@@ -140,12 +137,13 @@ export class EventJob extends Job {
 
             // This is probably overkill, but it's good to have
             if (isNaN(eventStartTime.getTime()) || isNaN(eventEndTime.getTime())) {
-                Logger.error(Logs.error.invalidEventTimes, {
-                    guildId: guild.id,
-                    eventId: event.id,
-                    startTime: event.timeProperties.startTime,
-                    endTime: event.timeProperties.endTime,
-                });
+                Logger.error(
+                    Logs.error.invalidEventTimes
+                        .replaceAll('{GUILD_ID}', guild.id)
+                        .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{START_TIME}', event.timeProperties.startTime)
+                        .replaceAll('{END_TIME}', event.timeProperties.endTime)
+                );
                 continue;
             }
 
@@ -176,11 +174,12 @@ export class EventJob extends Job {
                 event.timeProperties.isActive = true;
                 hasChangedEventsForGuild = true;
 
-                Logger.info(Logs.info.xpEventStarted, {
-                    guildId: guild.id,
-                    eventId: event.id,
-                    multiplier: event.xpProperties.multiplier,
-                });
+                Logger.info(
+                    Logs.info.xpEventStarted
+                        .replaceAll('{GUILD_ID}', guild.id)
+                        .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
+                );
 
                 await this.sendXpEventMessage(guild, event, channel, EventStage.Started);
             }
@@ -229,11 +228,12 @@ export class EventJob extends Job {
         const multiplierKey = MULTIPLIER_NAMES[multiplier];
 
         if (!multiplierKey) {
-            Logger.error(Logs.error.invalidMultiplier, {
-                guildId: guild.id,
-                eventId: event.id,
-                multiplier: multiplier,
-            });
+            Logger.error(
+                Logs.error.invalidMultiplier
+                    .replaceAll('{GUILD_ID}', guild.id)
+                    .replaceAll('{EVENT_ID}', event.id)
+                    .replaceAll('{MULTIPLIER}', multiplier.toString())
+            );
             return;
         }
 
@@ -245,15 +245,16 @@ export class EventJob extends Job {
             Lang.getEmbed(
                 'info',
                 type === EventStage.Announced
-                    ? 'events.announced'
-                    : `events.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
+                    ? 'xpEvents.announced'
+                    : `xpEvents.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
                 Language.Default,
                 {
                     MULTIPLIER_NAME_CAPS: multiplierName.toLocaleUpperCase(),
                     MULTIPLIER_NAME: multiplierName.toLocaleLowerCase(),
                     MULTIPLIER_AMOUNT: multiplier.toString(),
                     START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
-                    END_TIME: FormatUtils.discordTimestampRelative(
+                    END_TIME: eventStartTime.toLocaleString(),
+                    END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(
                         new Date(event.timeProperties.endTime)
                     ),
                     SERVER_ICON: guild.iconURL() ?? '',
