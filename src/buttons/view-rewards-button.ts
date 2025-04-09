@@ -6,6 +6,7 @@ import { ButtonData, EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { Command } from '../commands/index.js';
 import { ViewRewardsCommand } from '../commands/chat/index.js';
+import { EventDataType } from '../enums/index.js';
 
 export class ViewRewardsButton implements Button {
     public ids = [Lang.getRef('commands', 'chatCommands.viewRewards', Language.Default)];
@@ -13,6 +14,11 @@ export class ViewRewardsButton implements Button {
     public requireGuild = true;
     public requireEmbedAuthorTag = false;
     public correspondingCommand: Command;
+    public requireEventData: EventDataType[] = [
+        EventDataType.GUILD_DATA,
+        EventDataType.LEVELING_REWARD_DATA,
+    ];
+
     constructor(private viewRewardsCommand: ViewRewardsCommand) {
         this.correspondingCommand = viewRewardsCommand;
     }

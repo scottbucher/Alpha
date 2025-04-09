@@ -2,6 +2,7 @@ import { ButtonInteraction } from 'discord.js';
 
 import { ButtonData, EventData } from '../models/internal-models.js';
 import { Command } from '../commands/index.js';
+import { EventDataType } from '../enums/index.js';
 
 export interface Button {
     ids: string[];
@@ -9,6 +10,8 @@ export interface Button {
     deferType: ButtonDeferType;
     requireGuild: boolean;
     requireEmbedAuthorTag: boolean;
+    requireEventData: EventDataType[];
+
     execute(intr: ButtonInteraction, btnData: ButtonData, data: EventData): Promise<void>;
 }
 

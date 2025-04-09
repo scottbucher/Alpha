@@ -107,12 +107,13 @@ export class ListUtils {
 
     public static async getLeaderBoardFullEmbed(
         guild: Guild,
-        memberIds: string[],
         page: number,
         data: EventData
     ): Promise<{ embed: EmbedBuilder; pageStats: PageStats }> {
         let embed: EmbedBuilder;
         let description = '';
+
+        let memberIds = data.allGuildUserData?.map(gu => gu.userDiscordId);
 
         let pageStats = ListUtils.getPageStats(page, Config.pageSize.leaderboard, memberIds.length);
 

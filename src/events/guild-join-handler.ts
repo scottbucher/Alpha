@@ -32,7 +32,6 @@ export class GuildJoinHandler implements EventHandler {
 
         // Get data from database
         let data = await this.eventDataService.create({
-            target: owner?.user,
             guild,
         });
 
@@ -43,6 +42,7 @@ export class GuildJoinHandler implements EventHandler {
                 notifyChannel,
                 Lang.getEmbed('info', 'embeds.welcome', data.langGuild, {
                     CMD_LINK_HELP: await FormatUtils.commandMention(guild.client, 'help'),
+                    HELP_DESCRIPTION: Lang.getRef('commands', 'commandDescs.help', data.lang),
                 }).setAuthor({
                     name: guild.name,
                     iconURL: guild.iconURL(),
@@ -56,6 +56,7 @@ export class GuildJoinHandler implements EventHandler {
                 owner.user,
                 Lang.getEmbed('info', 'embeds.welcome', data.lang, {
                     CMD_LINK_HELP: await FormatUtils.commandMention(guild.client, 'help'),
+                    HELP_DESCRIPTION: Lang.getRef('commands', 'commandDescs.help', data.lang),
                 }).setAuthor({
                     name: guild.name,
                     iconURL: guild.iconURL(),

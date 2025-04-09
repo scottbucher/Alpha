@@ -89,6 +89,7 @@ export class ButtonHandler implements EventHandler {
         // TODO: Implement new database data
         let data = await this.eventDataService.create({
             guild: intr.guild,
+            requireEventData: button.requireEventData,
         });
 
         // Check if interaction passes command checks

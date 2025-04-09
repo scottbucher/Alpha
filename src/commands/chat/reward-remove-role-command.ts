@@ -40,8 +40,7 @@ export class RewardRemoveRoleCommand implements Command {
             LEVEL: levelString,
         };
 
-        let hasRoleForLevel =
-            !levelingRewardData || levelingRewardData.roleDiscordIds.includes(role.id);
+        let hasRoleForLevel = levelingRewardData?.roleDiscordIds.includes(role.id);
         if (!hasRoleForLevel) {
             await InteractionUtils.send(
                 intr,

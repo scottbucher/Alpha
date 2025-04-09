@@ -6,6 +6,7 @@ import { ButtonData, EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { Command } from '../commands/index.js';
 import { LeaderboardCommand } from '../commands/chat/index.js';
+import { EventDataType } from '../enums/index.js';
 
 export class LeaderboardButton implements Button {
     public ids = [
@@ -14,7 +15,9 @@ export class LeaderboardButton implements Button {
     public deferType = ButtonDeferType.UPDATE;
     public requireGuild = true;
     public requireEmbedAuthorTag = false;
+    public requireEventData: EventDataType[] = [EventDataType.ALL_GUILD_USER_DATA];
     public correspondingCommand: Command;
+
     constructor(private leaderboardCommand: LeaderboardCommand) {
         this.correspondingCommand = leaderboardCommand;
     }

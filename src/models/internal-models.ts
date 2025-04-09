@@ -11,7 +11,12 @@ export class EventData {
         public em: MongoEntityManager<MongoDriver>,
         public guildData?: Loaded<GuildData>,
         public levelingRewardDatas?: Loaded<LevelingRewardData, 'guild'>,
-        public guildUserData?: Loaded<GuildUserData>
+        // Used when we get the guild user data for the command user or a user used in an argument of the command
+        // TODO: better name?
+        public guildUserData?: Loaded<GuildUserData>,
+        // Used when we get the guild user data for all members in the guild
+        // TODO: better name?
+        public allGuildUserData?: GuildUserData[]
     ) {}
 }
 

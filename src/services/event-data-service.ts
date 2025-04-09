@@ -7,7 +7,7 @@ import { MongoDriver } from '@mikro-orm/mongodb';
 import { GuildData } from '../database/entities/guild.js';
 import { GuildUserData, LevelingRewardData } from '../database/entities/index.js';
 import { EventDataType } from '../enums/index.js';
-import { DatabaseUtils } from '../utils/index.js';
+import { ClientUtils, DatabaseUtils } from '../utils/index.js';
 import { Logger } from './index.js';
 import { createRequire } from 'node:module';
 
@@ -31,7 +31,7 @@ export class EventDataService {
 
         let guildData: Loaded<GuildData, 'levelingRewardDatas'>;
         if (options.guild) {
-            let shouldPopulateLevelingRewardData = options.requireEventData.includes(
+            let shouldPopulateLevelingRewardData = options.requireEventData?.includes(
                 EventDataType.LEVELING_REWARD_DATA
             );
 
@@ -58,6 +58,24 @@ export class EventDataService {
                     guildDiscordId: options.guild.id,
                 });
             }
+        }
+
+        // TODO: potentionally slow if somehow this is used before any guild member datas have been created in a guild
+        let allGuildUserData: GuildUserData[];
+        if (options.requireEventData?.includes(EventDataType.ALL_GUILD_USER_DATA)) {
+            if (!options.guild) {
+                throw new Error('No guild provided');
+            }
+
+            let memberIds = ClientUtils.getAllMemberIds(options.guild, true);
+            let { GuildData: _, GuildUserData: guildMemberDatas } =
+                await DatabaseUtils.getOrCreateDataForGuild(
+                    em,
+                    options.guild,
+                    memberIds,
+                    guildData
+                );
+            allGuildUserData = guildMemberDatas;
         }
 
         let guildUserData: Loaded<GuildUserData>;
@@ -100,6 +118,14 @@ export class EventDataService {
                 ? options.guild.preferredLocale
                 : Language.Default;
 
-        return new EventData(lang, langGuild, em, guildData, levelingRewardDatas, guildUserData);
+        return new EventData(
+            lang,
+            langGuild,
+            em,
+            guildData,
+            levelingRewardDatas,
+            guildUserData,
+            allGuildUserData
+        );
     }
 }
