@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, PermissionsString, Role } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsString } from 'discord.js';
 
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';

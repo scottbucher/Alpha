@@ -13,10 +13,10 @@ import { createRequire } from 'node:module';
 import { EventHandler } from './index.js';
 import { Command, CommandDeferType } from '../commands/index.js';
 import { DiscordLimits } from '../constants/index.js';
+import { Language } from '../models/enum-helpers/index.js';
 import { EventData } from '../models/internal-models.js';
 import { EventDataService, Lang, Logger } from '../services/index.js';
 import { CommandUtils, InteractionUtils } from '../utils/index.js';
-import { Language } from '../models/enum-helpers/language.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');

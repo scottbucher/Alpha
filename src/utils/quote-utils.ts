@@ -1,7 +1,8 @@
-import { CommandInteraction, DiscordAPIError, TextChannel, User } from 'discord.js';
-import { Lang } from '../services/lang.js';
+import { CommandInteraction, TextChannel, User } from 'discord.js';
+
 import { FormatUtils, InteractionUtils, MessageUtils, PermissionUtils } from './index.js';
 import { EventData } from '../models/index.js';
+import { Lang } from '../services/lang.js';
 
 // TODO: Move this to the config
 const UNKNOWN_USER_AVATAR =

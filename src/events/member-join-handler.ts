@@ -1,12 +1,12 @@
-import { Guild, GuildMember, Role, TextChannel } from 'discord.js';
+import { MikroORM } from '@mikro-orm/core';
+import { MongoDriver } from '@mikro-orm/mongodb';
+import { Guild, GuildMember, Role } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { EventHandler } from './index.js';
+import { Language } from '../models/enum-helpers/index.js';
 import { Lang, Logger } from '../services/index.js';
 import { ActionUtils, ClientUtils, DatabaseUtils, MessageUtils } from '../utils/index.js';
-import { MikroORM } from '@mikro-orm/core';
-import { MongoDriver } from '@mikro-orm/mongodb';
-import { Language } from '../models/enum-helpers/index.js';
 
 const require = createRequire(import.meta.url);
 let Logs = require('../../lang/logs.json');

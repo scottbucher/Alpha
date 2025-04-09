@@ -1,8 +1,9 @@
-import { CommandInteraction, Role, APIRole } from 'discord.js';
+import { APIRole, CommandInteraction, Role } from 'discord.js';
+
+import { PermissionUtils } from './index.js';
+import { InteractionUtils } from './interaction-utils.js';
 import { EventData } from '../models/index.js';
 import { Lang } from '../services/lang.js';
-import { InteractionUtils } from './interaction-utils.js';
-import { PermissionUtils } from './index.js';
 
 export class ValidationUtils {
     public static async validateRole(

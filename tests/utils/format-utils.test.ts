@@ -1,11 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
-import { ApplicationCommand, Guild, Locale, Client } from 'discord.js';
-import { FormatUtils } from '../../src/utils/index.js';
+import { ApplicationCommand, Client, Guild, Locale } from 'discord.js';
+import { describe, expect, it, vi } from 'vitest';
+
 import { ClientUtils } from '../../src/utils/client-utils.js';
+import { FormatUtils } from '../../src/utils/index.js';
 
 // Mock the external dependencies
 vi.mock('filesize', () => ({
-    filesize: vi.fn().mockImplementation((bytes, options) => {
+    filesize: vi.fn().mockImplementation(bytes => {
         if (bytes === 1024) return '1.00 KB';
         if (bytes === 1048576) return '1.00 MB';
         return `${bytes} B`;
@@ -14,7 +15,7 @@ vi.mock('filesize', () => ({
 
 vi.mock('luxon', () => ({
     Duration: {
-        fromMillis: vi.fn().mockImplementation((ms, options) => ({
+        fromMillis: vi.fn().mockImplementation(ms => ({
             shiftTo: vi.fn().mockReturnValue({
                 toObject: vi.fn().mockReturnValue({
                     hours: ms === 3600000 ? 1 : 0,
@@ -24,7 +25,7 @@ vi.mock('luxon', () => ({
             }),
         })),
         fromObject: vi.fn().mockImplementation(obj => ({
-            toHuman: vi.fn().mockImplementation(({ maximumFractionDigits }) => {
+            toHuman: vi.fn().mockImplementation(() => {
                 if (obj.hours === 1) return '1 hour';
                 if (obj.minutes === 1) return '1 minute';
                 if (obj.seconds === 5) return '5 seconds';

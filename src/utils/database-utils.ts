@@ -1,8 +1,9 @@
 import { ref } from '@mikro-orm/core';
 import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
-import { GuildData, GuildUserData, UserData } from '../database/entities/index.js';
 import { Guild } from 'discord.js';
+
 import { ClientUtils, TimeUtils } from './index.js';
+import { GuildData, GuildUserData, UserData } from '../database/entities/index.js';
 export class DatabaseUtils {
     /**
      * This is a robust function that serves multiple purposes:

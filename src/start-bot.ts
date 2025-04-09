@@ -3,31 +3,32 @@ import { Options, Partials } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Button, LeaderboardButton, ViewRewardsButton } from './buttons/index.js';
+import { ViewJoinRolesButton } from './buttons/view-join-roles-button.js';
 import {
+    ChannelPermissionsCommand,
+    ClaimRewardsCommand,
     DevCommand,
     EditChannelCommand,
+    EditTimeZoneCommand,
     EightBallCommand,
     HelpCommand,
     InfoCommand,
+    JoinRoleAddCommand,
+    JoinRoleClearCommand,
+    JoinRoleRemoveCommand,
+    JoinRoleRemoveIdCommand,
     LeaderboardCommand,
+    MapCommand,
     QuoteCommand,
     RewardAddRoleCommand,
     RewardRemoveRoleCommand,
     RewardRemoveRoleIdCommand,
     RewardRoleClearCommand,
+    ServerInfoCommand,
+    SettingsCommand,
+    ViewJoinRolesCommand,
     ViewRewardsCommand,
     XpCommand,
-    ServerInfoCommand,
-    ViewJoinRolesCommand,
-    JoinRoleAddCommand,
-    JoinRoleClearCommand,
-    JoinRoleRemoveCommand,
-    JoinRoleRemoveIdCommand,
-    SettingsCommand,
-    ChannelPermissionsCommand,
-    EditTimeZoneCommand,
-    MapCommand,
-    ClaimRewardsCommand,
 } from './commands/chat/index.js';
 import {
     ChatCommandMetadata,
@@ -35,6 +36,8 @@ import {
     MessageCommandMetadata,
     UserCommandMetadata,
 } from './commands/index.js';
+import { QuoteMessage } from './commands/message/index.js';
+import { Database } from './database/index.js';
 import {
     ButtonHandler,
     CommandHandler,
@@ -63,9 +66,6 @@ import {
     OldPrefixTrigger,
     Trigger,
 } from './triggers/index.js';
-import { Database } from './database/index.js';
-import { QuoteMessage } from './commands/message/index.js';
-import { ViewJoinRolesButton } from './buttons/view-join-roles-button.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../config/config.json');

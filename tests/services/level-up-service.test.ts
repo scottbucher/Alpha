@@ -1,11 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { LevelUpService } from '../../src/services/index.js';
-import { Guild, Role, TextChannel, GuildMember } from 'discord.js';
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/typedef */
+import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
+import { Guild, GuildMember, Role, TextChannel } from 'discord.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { GuildData, LevelingRewardData } from '../../src/database/entities/index.js';
-import { ActionUtils, MessageUtils } from '../../src/utils/index.js';
 import { LangCode } from '../../src/enums/index.js';
-import { MikroORM } from '@mikro-orm/core';
-import { MongoEntityManager, MongoDriver } from '@mikro-orm/mongodb';
+import { LevelUpService } from '../../src/services/index.js';
+import { ActionUtils, MessageUtils } from '../../src/utils/index.js';
 
 // Mock utilities
 vi.mock('../../src/utils/index.js', () => ({
@@ -90,12 +92,6 @@ describe('LevelUpService', () => {
 
         // Properly mock the find method with jest.Mock type
         (mockEntityManager.find as any) = vi.fn().mockResolvedValue([]);
-
-        let mockOrm = {
-            em: {
-                fork: vi.fn().mockReturnValue(mockEntityManager),
-            },
-        } as unknown as MikroORM<MongoDriver>;
 
         levelUpService = new LevelUpService();
 

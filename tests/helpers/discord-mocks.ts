@@ -1,14 +1,15 @@
-import { vi } from 'vitest';
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/typedef */
 import {
     ChannelType,
     GuildChannel,
     GuildMember,
     PermissionFlagsBits,
     PermissionsBitField,
-    PermissionsString,
     ThreadChannel,
     User,
 } from 'discord.js';
+import { vi } from 'vitest';
 
 /**
  * Creates a mock Discord.js User that correctly passes instanceof checks

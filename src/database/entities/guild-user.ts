@@ -10,9 +10,9 @@ import {
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
 
-import { TimeUtils } from '../../utils/index.js';
 import { GuildData } from './guild.js';
 import { UserData } from './index.js';
+import { TimeUtils } from '../../utils/index.js';
 
 @Entity({ collection: 'guildUser' })
 @Unique({ properties: ['guildDiscordId', 'userDiscordId'] })

@@ -10,9 +10,10 @@ import {
     SerializedPrimaryKey,
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
-import { TimeUtils } from '../../utils/index.js';
+
 import { GuildData } from './guild.js';
 import { EventType } from '../../enums/index.js';
+import { TimeUtils } from '../../utils/index.js';
 
 // Used to ensure we have language keys for all multipliers
 export type XpMultiplier = 2 | 3 | 4;

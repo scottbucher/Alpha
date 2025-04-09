@@ -1,6 +1,7 @@
 import { Loaded } from '@mikro-orm/core';
-import { MongoEntityManager, MongoDriver } from '@mikro-orm/mongodb';
+import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
 import { Locale } from 'discord.js';
+
 import { GuildData, GuildUserData, LevelingRewardData } from '../database/entities/index.js';
 
 // This class is used to store and pass data along in events

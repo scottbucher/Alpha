@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 
 import { Trigger } from './index.js';
+import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { FormatUtils, MessageUtils } from '../utils/index.js';
-import { EventDataType } from '../enums/index.js';
 
 export class OldPrefixTrigger implements Trigger {
     public requireGuild = false;
