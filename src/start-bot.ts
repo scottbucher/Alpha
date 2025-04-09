@@ -40,6 +40,7 @@ import {
     CommandHandler,
     GuildJoinHandler,
     GuildLeaveHandler,
+    MemberJoinHandler,
     MessageHandler,
     ReactionHandler,
     TriggerHandler,
@@ -175,6 +176,7 @@ async function start(): Promise<void> {
         commandHandler,
         buttonHandler,
         reactionHandler,
+        new MemberJoinHandler(orm),
         new JobService(jobs)
     );
 

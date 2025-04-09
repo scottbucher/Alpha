@@ -86,6 +86,7 @@
                     "text": "{{USER_NAME}} joined!",
                     "icon": "{{ICON}}"
                 },
+                "thumbnail": "{{ICON}}",
                 "timestamp": true
             },
             "userXpBreakdown": {

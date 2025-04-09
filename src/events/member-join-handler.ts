@@ -11,7 +11,7 @@ import { Language } from '../models/enum-helpers/index.js';
 const require = createRequire(import.meta.url);
 let Logs = require('../../lang/logs.json');
 
-export class UserJoinHandler implements EventHandler {
+export class MemberJoinHandler implements EventHandler {
     constructor(private orm: MikroORM<MongoDriver>) {}
 
     public async process(member: GuildMember, guild: Guild): Promise<void> {
