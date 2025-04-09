@@ -6,8 +6,8 @@
                 "description": ["{{REF:bot.description}}"],
                 "fields": [
                     {
-                        "name": "Important {{REF:fields.commands}}",
-                        "value": ["{{CMD_LINK_HELP}} - {{REF:commandDescs.help}}"]
+                        "name": "Important Commands",
+                        "value": ["{{CMD_LINK_HELP}} - {{HELP_DESCRIPTION}}"]
                     }
                 ]
             },
