@@ -5,6 +5,7 @@ import {
     CommandInteraction,
     Events,
     Guild,
+    GuildMember,
     Interaction,
     Message,
     MessageReaction,
@@ -21,6 +22,7 @@ import {
     CommandHandler,
     GuildJoinHandler,
     GuildLeaveHandler,
+    MemberJoinHandler,
     MessageHandler,
     ReactionHandler,
 } from '../events/index.js';
@@ -44,6 +46,7 @@ export class Bot {
         private commandHandler: CommandHandler,
         private buttonHandler: ButtonHandler,
         private reactionHandler: ReactionHandler,
+        private memberJoinHandler: MemberJoinHandler,
         private jobService: JobService
     ) {}
 
@@ -68,6 +71,9 @@ export class Bot {
         );
         this.client.rest.on(RESTEvents.RateLimited, (rateLimitData: RateLimitData) =>
             this.onRateLimit(rateLimitData)
+        );
+        this.client.on(Events.GuildMemberAdd, (member: GuildMember) =>
+            this.onGuildMemberAdd(member)
         );
     }
 
@@ -193,6 +199,10 @@ export class Bot {
         } catch (error) {
             Logger.error(Logs.error.reaction, error);
         }
+    }
+
+    private async onGuildMemberAdd(member: GuildMember): Promise<void> {
+        await this.memberJoinHandler.process(member, member.guild);
     }
 
     private async onRateLimit(rateLimitData: RateLimitData): Promise<void> {
