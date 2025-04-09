@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import os from 'node:os';
 import typescript from 'typescript';
 
-import { DevCommandName, EventDataType } from '../../enums/index.js';
+import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/index.js';

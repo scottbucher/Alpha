@@ -13,6 +13,7 @@ import {
     ThreadChannel,
     User,
 } from 'discord.js';
+
 import { ListUtils } from './index.js';
 
 const IGNORED_ERRORS = [

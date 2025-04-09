@@ -6,13 +6,13 @@ import {
     PermissionsString,
 } from 'discord.js';
 
+import { timeZones } from '../../autocompletes/time-zone.js';
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/language.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/lang.js';
-import { timeZones } from '../../autocompletes/time-zone.js';
-import { Command, CommandDeferType } from '../command.js';
 import { InteractionUtils } from '../../utils/index.js';
+import { Command, CommandDeferType } from '../command.js';
 
 export class EditTimeZoneCommand implements Command {
     public names = [

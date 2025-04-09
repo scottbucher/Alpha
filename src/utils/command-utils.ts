@@ -5,14 +5,14 @@ import {
     ModalSubmitInteraction,
     ThreadChannel,
 } from 'discord.js';
+import { createRequire } from 'node:module';
 
 import { DatabaseUtils, FormatUtils, InteractionUtils } from './index.js';
 import { Command } from '../commands/index.js';
+import { EventDataType } from '../enums/index.js';
 import { Permission } from '../models/enum-helpers/index.js';
 import { EventData } from '../models/internal-models.js';
 import { Lang, Logger } from '../services/index.js';
-import { createRequire } from 'node:module';
-import { EventDataType } from '../enums/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');

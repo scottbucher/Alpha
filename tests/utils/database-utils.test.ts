@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { DatabaseUtils } from '../../src/utils/index.js';
 import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
-import { Guild, Collection } from 'discord.js';
+import { Collection, Guild } from 'discord.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { GuildData, GuildUserData, UserData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
+import { DatabaseUtils } from '../../src/utils/index.js';
 
 // Mock MikroORM entities
 vi.mock('../../src/database/entities/index.js', () => {

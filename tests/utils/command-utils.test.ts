@@ -1,12 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CommandUtils } from '../../src/utils/command-utils.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { Command } from '../../src/commands/index.js';
+import { EventDataType } from '../../src/enums/index.js';
+import { CommandUtils } from '../../src/utils/command-utils.js';
 import {
     createMockCommand,
     createMockCommandInteraction,
     createMockGuildChannel,
 } from '../helpers/discord-mocks.js';
-import { EventDataType } from '../../src/enums/index.js';
 
 // Mock dependencies
 vi.mock('../../src/utils/index.js', () => ({

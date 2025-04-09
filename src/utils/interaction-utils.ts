@@ -14,9 +14,10 @@ import {
     ModalSubmitInteraction,
     WebhookMessageEditOptions,
 } from 'discord.js';
-import { ButtonData } from '../models/internal-models.js';
-import { MessageUtils } from './message-utils.js';
+
 import { ListUtils } from './index.js';
+import { MessageUtils } from './message-utils.js';
+import { ButtonData } from '../models/internal-models.js';
 
 const IGNORED_ERRORS = [
     DiscordApiErrors.UnknownMessage,

@@ -12,9 +12,9 @@ import {
 } from '@mikro-orm/core';
 import { ObjectId } from '@mikro-orm/mongodb';
 
-import { TimeUtils } from '../../utils/index.js';
 import { EventData, GuildUserData, LevelingRewardData } from './index.js';
 import { LangCode } from '../../enums/index.js';
+import { TimeUtils } from '../../utils/index.js';
 
 @Embeddable()
 export class GuildSettings {

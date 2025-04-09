@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ExperienceUtils } from '../../src/utils/index.js';
 import { DateTime } from 'luxon';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { ExperienceUtils } from '../../src/utils/index.js';
 
 describe('ExperienceUtils', () => {
     describe('getXpForNextLevel', () => {

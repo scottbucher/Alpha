@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 
 import { Trigger } from './index.js';
+import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { MessageUtils } from '../utils/index.js';
-import { EventDataType } from '../enums/index.js';
 
 const GOOD_NIGHT_TRIGGER = /(?:g['`]?(?:oo+d+|d)?\s*n+[iy]+(?:g+h+)?t+[ez]*[!1.]*|^gn[!1.]*$)/i;
 const GOOD_NIGHT_EMOJIS = [

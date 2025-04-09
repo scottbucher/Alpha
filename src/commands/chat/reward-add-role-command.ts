@@ -1,17 +1,12 @@
-import { ChatInputCommandInteraction, PermissionsString, Role } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsString } from 'discord.js';
 
+import { LevelingRewardData } from '../../database/entities/index.js';
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/index.js';
-import {
-    FormatUtils,
-    InteractionUtils,
-    PermissionUtils,
-    ValidationUtils,
-} from '../../utils/index.js';
+import { FormatUtils, InteractionUtils, ValidationUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
-import { LevelingRewardData } from '../../database/entities/index.js';
 
 export class RewardAddRoleCommand implements Command {
     public names = [

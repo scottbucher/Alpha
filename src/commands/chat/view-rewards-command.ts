@@ -4,16 +4,15 @@ import {
     ChatInputCommandInteraction,
     EmbedBuilder,
     PermissionsString,
-    Role,
 } from 'discord.js';
 
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { ButtonData, EventData } from '../../models/internal-models.js';
+import { PageStats } from '../../models/page-stats.js';
 import { Lang } from '../../services/index.js';
 import { InteractionUtils, ListUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
-import { PageStats } from '../../models/page-stats.js';
 
 export class ViewRewardsCommand implements Command {
     public names = [Lang.getRef('commands', 'chatCommands.viewRewards', Language.Default)];

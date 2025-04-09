@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
 
 import { Trigger } from './index.js';
+import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { MessageUtils } from '../utils/index.js';
-import { EventDataType } from '../enums/index.js';
 
 const GOOD_MORNING_TRIGGER = /g['`]?(?:oo+d+|d)?\s*m+o+r+n+[ie]+n+g*[!1.]*$/i;
 const GOOD_MORNING_EMOJIS = ['🔅', '🔆', '☀️', '🌅', '🌄', '☕', '🥞'];

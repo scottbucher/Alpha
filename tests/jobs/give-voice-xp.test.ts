@@ -1,12 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { GiveVoiceXpJob } from '../../src/jobs/give-voice-xp-job.js';
-import { Client, Collection, Guild, GuildMember, VoiceState } from 'discord.js';
-import { MikroORM, EntityManager } from '@mikro-orm/core';
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/typedef */
+import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
+import { Client, Collection, Guild, GuildMember, VoiceState } from 'discord.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { GuildData, GuildUserData } from '../../src/database/entities/index.js';
+import { LangCode } from '../../src/enums/index.js';
+import { GiveVoiceXpJob } from '../../src/jobs/give-voice-xp-job.js';
 import { LevelUpService } from '../../src/services/index.js';
 import { DatabaseUtils } from '../../src/utils/index.js';
-import { LangCode } from '../../src/enums/index.js';
 
 // Mock DatabaseUtils
 vi.mock('../../src/utils/index.js', () => ({
@@ -132,10 +135,12 @@ describe('GiveVoiceXpJob', () => {
         vi.clearAllMocks();
 
         // Setup DatabaseUtils mock return value for getOrCreateDataForGuild
-        vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockResolvedValue({
-            GuildUserData: mockGuildUserDatas,
-            GuildData: mockGuildData,
-        });
+        vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation(() =>
+            Promise.resolve({
+                GuildUserData: mockGuildUserDatas,
+                GuildData: mockGuildData,
+            })
+        );
     });
 
     afterEach(() => {
@@ -145,7 +150,7 @@ describe('GiveVoiceXpJob', () => {
     it('should award XP to users in voice channels', async () => {
         await giveVoiceXpJob.run();
 
-        // Verify getOrCreateDataForGuild was called with the correct parameters
+        // Verify getOrCreateDataForGuild was called with the correct parameters@typescript-eslint/unbound-method
         expect(DatabaseUtils.getOrCreateDataForGuild).toHaveBeenCalledWith(
             mockEntityManager,
             mockGuild,
@@ -340,10 +345,12 @@ describe('GiveVoiceXpJob', () => {
         const updatedGuildUserDatas = [mockGuildUserDatas[0], mockGuildUserData2];
 
         // Update the DatabaseUtils mock for this test
-        vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockResolvedValue({
-            GuildUserData: updatedGuildUserDatas,
-            GuildData: mockGuildData,
-        });
+        vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation(() =>
+            Promise.resolve({
+                GuildUserData: updatedGuildUserDatas,
+                GuildData: mockGuildData,
+            })
+        );
 
         await giveVoiceXpJob.run();
 

@@ -1,14 +1,14 @@
+import { MikroORM } from '@mikro-orm/core';
+import { MongoDriver } from '@mikro-orm/mongodb';
+import { Client, Guild, TextChannel } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
-import { MikroORM } from '@mikro-orm/core';
-import { MongoDriver } from '@mikro-orm/mongodb';
 import { EventData, GuildData } from '../database/entities/index.js';
-import { Client, Guild, TextChannel } from 'discord.js';
-import { ClientUtils, ExperienceUtils, FormatUtils, MessageUtils } from '../utils/index.js';
-import { Lang, Logger } from '../services/index.js';
-import { Language } from '../models/enum-helpers/index.js';
 import { EventStage, EventType } from '../enums/index.js';
+import { Language } from '../models/enum-helpers/index.js';
+import { Lang, Logger } from '../services/index.js';
+import { ClientUtils, ExperienceUtils, FormatUtils, MessageUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -220,7 +220,7 @@ export class EventJob extends Job {
         event: EventData,
         eventChannel: TextChannel | null,
         type: EventStage
-    ) {
+    ): Promise<void> {
         if (!eventChannel) return;
 
         const multiplier = event.xpProperties.multiplier;

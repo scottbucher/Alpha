@@ -8,10 +8,10 @@ import {
 } from 'discord.js';
 import { createRequire } from 'node:module';
 
+import { DatabaseUtils } from './database-utils.js';
+import { ExperienceUtils, FormatUtils } from './index.js';
 import { ButtonData, EventData, PageStats } from '../models/index.js';
 import { Lang } from '../services/index.js';
-import { ExperienceUtils, FormatUtils } from './index.js';
-import { DatabaseUtils } from './database-utils.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');

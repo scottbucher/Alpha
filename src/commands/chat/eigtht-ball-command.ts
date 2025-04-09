@@ -4,14 +4,14 @@ import {
     EmbedBuilder,
     PermissionsString,
 } from 'discord.js';
+import { createRequire } from 'node:module';
 
+import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/index.js';
 import { InteractionUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
-import { EventDataType } from '../../enums/index.js';
-import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 // TODO: Eightball should be in the lang system
@@ -38,7 +38,7 @@ export class EightBallCommand implements Command {
 
         const outcomes = ['yes', 'maybe', 'no'];
         const outcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-        let response: string = `${Lang.getRef('info', 'terms.question', data.lang)}: ${question}\n\n${Lang.getRef('info', 'terms.eightBallSays', data.lang)}: `;
+        let response = `${Lang.getRef('info', 'terms.question', data.lang)}: ${question}\n\n${Lang.getRef('info', 'terms.eightBallSays', data.lang)}: `;
         let color: string;
 
         switch (outcome) {

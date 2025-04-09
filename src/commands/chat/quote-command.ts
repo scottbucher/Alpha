@@ -1,11 +1,11 @@
-import { ChatInputCommandInteraction, PermissionsString, TextChannel } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsString } from 'discord.js';
 
+import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/index.js';
 import { QuoteUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
-import { EventDataType } from '../../enums/index.js';
 
 export class QuoteCommand implements Command {
     public names = [Lang.getRef('commands', 'chatCommands.quote', Language.Default)];
@@ -29,6 +29,6 @@ export class QuoteCommand implements Command {
             return;
         }
 
-        await QuoteUtils.sendQuote(intr, data, quote, target, resolvedQuoteChannel as TextChannel);
+        await QuoteUtils.sendQuote(intr, data, quote, target, resolvedQuoteChannel);
     }
 }

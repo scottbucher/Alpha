@@ -7,8 +7,8 @@ import {
 } from 'discord.js';
 import { RateLimiter } from 'discord.js-rate-limiter';
 
-import { EventData } from '../models/internal-models.js';
 import { EventDataType } from '../enums/index.js';
+import { EventData } from '../models/internal-models.js';
 
 export interface Command {
     names: string[];

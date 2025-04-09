@@ -1,13 +1,14 @@
-import { createRequire } from 'node:module';
-import { DateTime } from 'luxon';
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { EventData, GuildData } from '../database/entities/index.js';
-import { Job } from './index.js';
-import { Logger } from '../services/index.js';
-import { EventType } from '../enums/index.js';
-import { XpMultiplier } from '../database/entities/event-data.js';
 import { Client } from 'discord.js';
+import { DateTime } from 'luxon';
+import { createRequire } from 'node:module';
+
+import { Job } from './index.js';
+import { XpMultiplier } from '../database/entities/event-data.js';
+import { EventData, GuildData } from '../database/entities/index.js';
+import { EventType } from '../enums/index.js';
+import { Logger } from '../services/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
