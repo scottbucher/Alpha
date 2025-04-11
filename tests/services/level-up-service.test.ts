@@ -7,24 +7,27 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuildData, LevelingRewardData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { LevelUpService } from '../../src/services/index.js';
-import { ActionUtils, MessageUtils } from '../../src/utils/index.js';
+import { ActionUtils, ClientUtils, MessageUtils } from '../../src/utils/index.js';
 
 // Mock utilities
-vi.mock('../../src/utils/index.js', () => ({
-    ActionUtils: {
-        giveRole: vi.fn().mockResolvedValue(undefined),
-    },
-    FormatUtils: {
-        userMention: vi.fn().mockImplementation(userId => `<@${userId}>`),
-        joinWithAnd: vi.fn().mockImplementation(items => items.join(' and ')),
-    },
-    MessageUtils: {
-        send: vi.fn().mockResolvedValue(undefined),
-    },
-    PermissionUtils: {
-        canSend: vi.fn().mockResolvedValue(true),
-    },
-}));
+vi.mock('../../src/utils/index.js', async () => {
+    const actual = await vi.importActual('../../src/utils/index.js');
+    return {
+        ...actual,
+        ActionUtils: {
+            giveRole: vi.fn().mockResolvedValue(undefined),
+        },
+        MessageUtils: {
+            send: vi.fn().mockResolvedValue(undefined),
+        },
+        PermissionUtils: {
+            canSend: vi.fn().mockResolvedValue(true),
+        },
+        ClientUtils: {
+            getConfiguredTextChannelIfExists: vi.fn().mockResolvedValue(undefined),
+        },
+    };
+});
 
 describe('LevelUpService', () => {
     let levelUpService: LevelUpService;
@@ -82,6 +85,10 @@ describe('LevelUpService', () => {
             settings: {
                 language: LangCode.EN_US,
             },
+            levelingRewardDatas: {
+                init: vi.fn(),
+                getItems: vi.fn().mockResolvedValue([]),
+            },
         } as unknown as GuildData;
 
         mockEntityManager = {
@@ -95,8 +102,13 @@ describe('LevelUpService', () => {
 
         levelUpService = new LevelUpService();
 
-        // Reset mocks
+        // Reset all mocks
         vi.clearAllMocks();
+
+        // Setup ClientUtils mock to return the leveling channel
+        vi.mocked(ClientUtils.getConfiguredTextChannelIfExists).mockResolvedValue(
+            mockLevelingChannel
+        );
     });
 
     afterEach(() => {
@@ -105,28 +117,23 @@ describe('LevelUpService', () => {
 
     it('should handle users leveling up with no rewards', async () => {
         // Mock find to return empty array (no rewards for these levels)
-        (mockEntityManager.find as any).mockResolvedValue([]);
+        mockGuildData.levelingRewardDatas.getItems = vi.fn().mockReturnValue([]);
 
         const leveledUpUsers = [{ userId: 'user123', oldLevel: 0, newLevel: 1 }];
 
         await levelUpService.handleLevelUpsForGuild(mockGuild, mockGuildData, leveledUpUsers);
 
-        // Verify channel was fetched
-        expect(mockGuild.channels.fetch).toHaveBeenCalledWith('channel123');
-
-        // Verify roles were fetched
-        expect(mockGuild.roles.fetch).toHaveBeenCalled();
+        // Verify getItems was called
+        expect(mockGuildData.levelingRewardDatas.getItems).toHaveBeenCalled();
 
         // Verify we looked for rewards
-        expect(mockEntityManager.find).toHaveBeenCalledWith(LevelingRewardData, {
-            guildDiscordId: 'guild123',
-            level: { $in: [1] },
-        });
+        expect(mockGuildData.levelingRewardDatas.init).toHaveBeenCalled();
+        expect(mockGuildData.levelingRewardDatas.getItems).toHaveBeenCalled();
 
         // Verify message was sent - matching the actual implementation
         expect(MessageUtils.send).toHaveBeenCalledWith(
             mockLevelingChannel,
-            "**Congratulations** <@user123> you've reached level __**1**__!"
+            "**Congratulations** <@!user123> you've reached level __**1**__!"
         );
 
         // Verify no role assignments happened
@@ -142,7 +149,7 @@ describe('LevelUpService', () => {
             } as unknown as LevelingRewardData,
         ];
 
-        (mockEntityManager.find as any).mockResolvedValue(mockRewards);
+        mockGuildData.levelingRewardDatas.getItems = vi.fn().mockReturnValue(mockRewards);
 
         const leveledUpUsers = [{ userId: 'user123', oldLevel: 1, newLevel: 2 }];
 
@@ -150,6 +157,10 @@ describe('LevelUpService', () => {
 
         // Verify member was fetched
         expect(mockGuild.members.fetch).toHaveBeenCalledWith('user123');
+
+        // Verify we looked for rewards
+        expect(mockGuildData.levelingRewardDatas.init).toHaveBeenCalled();
+        expect(mockGuildData.levelingRewardDatas.getItems).toHaveBeenCalled();
 
         // Verify roles were assigned
         expect(ActionUtils.giveRole).toHaveBeenCalledTimes(2);
@@ -159,7 +170,7 @@ describe('LevelUpService', () => {
         // Verify level up message with roles was sent - matching the actual implementation
         expect(MessageUtils.send).toHaveBeenCalledWith(
             mockLevelingChannel,
-            "**Congratulations** <@user123> you've reached level __**2**__ and have unlocked the following roles: @Role1 and @Role2!"
+            "**Congratulations** <@!user123> you've reached level __**2**__ and have unlocked the following roles: @Role1 and @Role2!"
         );
     });
 
@@ -175,7 +186,7 @@ describe('LevelUpService', () => {
             } as unknown as LevelingRewardData,
         ];
 
-        (mockEntityManager.find as any).mockResolvedValue(mockRewards);
+        mockGuildData.levelingRewardDatas.getItems = vi.fn().mockReturnValue(mockRewards);
 
         // Prepare a mock for guild.members.fetch that can handle multiple users
         const fetchMemberMock = vi.fn();
@@ -199,6 +210,10 @@ describe('LevelUpService', () => {
         // Spy directly on the LevelUpService
         await levelUpService.handleLevelUpsForGuild(mockGuild, mockGuildData, leveledUpUsers);
 
+        // Verify we looked for rewards
+        expect(mockGuildData.levelingRewardDatas.init).toHaveBeenCalled();
+        expect(mockGuildData.levelingRewardDatas.getItems).toHaveBeenCalled();
+
         // In the implementation, members.fetch is only called for users who get roles
         // Only the first user (level 3) gets roles, so fetch should only be called once
         expect(fetchMemberMock).toHaveBeenCalledTimes(1);
@@ -215,12 +230,12 @@ describe('LevelUpService', () => {
         expect(MessageUtils.send).toHaveBeenNthCalledWith(
             1,
             mockLevelingChannel,
-            "**Congratulations** <@user123> you've reached level __**3**__ and have unlocked the following roles: @Role1!"
+            "**Congratulations** <@!user123> you've reached level __**3**__ and have unlocked the following roles: @Role1!"
         );
         expect(MessageUtils.send).toHaveBeenNthCalledWith(
             2,
             mockLevelingChannel,
-            "**Congratulations** <@user456> you've reached level __**2**__!"
+            "**Congratulations** <@!user456> you've reached level __**2**__!"
         );
     });
 });

@@ -9,14 +9,7 @@ import { GuildData, GuildUserData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { GiveVoiceXpJob } from '../../src/jobs/give-voice-xp-job.js';
 import { LevelUpService } from '../../src/services/index.js';
-import { DatabaseUtils } from '../../src/utils/index.js';
-
-// Mock DatabaseUtils
-vi.mock('../../src/utils/index.js', () => ({
-    DatabaseUtils: {
-        getOrCreateDataForGuild: vi.fn(),
-    },
-}));
+import { DatabaseUtils, ExperienceUtils } from '../../src/utils/index.js';
 
 describe('GiveVoiceXpJob', () => {
     let giveVoiceXpJob: GiveVoiceXpJob;
@@ -48,6 +41,14 @@ describe('GiveVoiceXpJob', () => {
             channel: { id: channelId, name: channelName },
         } as unknown as VoiceState;
     };
+
+    // Even though I dislike mocking any utils, we already heavily mock the database utils in it's own test file
+    // And this simplifies the tests a lot
+    vi.mock('../../src/utils/database-utils.js', () => ({
+        DatabaseUtils: {
+            getOrCreateDataForGuild: vi.fn(),
+        },
+    }));
 
     beforeEach(() => {
         // === Setup Discord User/Member Mocks ===
@@ -130,6 +131,8 @@ describe('GiveVoiceXpJob', () => {
 
         // === Create Job Instance ===
         giveVoiceXpJob = new GiveVoiceXpJob(mockClient, mockOrm, mockLevelUpService);
+
+        ExperienceUtils.setMultiplierCache('guild123', 1);
 
         // Reset all mocks before each test
         vi.clearAllMocks();
