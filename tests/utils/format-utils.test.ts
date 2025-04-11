@@ -4,37 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { ClientUtils } from '../../src/utils/client-utils.js';
 import { FormatUtils } from '../../src/utils/index.js';
 
-// Mock the external dependencies
-vi.mock('filesize', () => ({
-    filesize: vi.fn().mockImplementation(bytes => {
-        if (bytes === 1024) return '1.00 KB';
-        if (bytes === 1048576) return '1.00 MB';
-        return `${bytes} B`;
-    }),
-}));
-
-vi.mock('luxon', () => ({
-    Duration: {
-        fromMillis: vi.fn().mockImplementation(ms => ({
-            shiftTo: vi.fn().mockReturnValue({
-                toObject: vi.fn().mockReturnValue({
-                    hours: ms === 3600000 ? 1 : 0,
-                    minutes: ms === 60000 ? 1 : 0,
-                    seconds: ms === 5000 ? 5 : 0,
-                }),
-            }),
-        })),
-        fromObject: vi.fn().mockImplementation(obj => ({
-            toHuman: vi.fn().mockImplementation(() => {
-                if (obj.hours === 1) return '1 hour';
-                if (obj.minutes === 1) return '1 minute';
-                if (obj.seconds === 5) return '5 seconds';
-                return 'unknown duration';
-            }),
-        })),
-    },
-}));
-
 describe('FormatUtils', () => {
     describe('roleMention', () => {
         it('should return @here for @here mentions', () => {
@@ -140,17 +109,17 @@ describe('FormatUtils', () => {
     describe('fileSize', () => {
         it('should format bytes to KB correctly', () => {
             const result = FormatUtils.fileSize(1024);
-            expect(result).toBe('1.00 KB');
+            expect(result).toBe('1.02 kB');
         });
 
         it('should format bytes to MB correctly', () => {
             const result = FormatUtils.fileSize(1048576);
-            expect(result).toBe('1.00 MB');
+            expect(result).toBe('1.05 MB');
         });
 
         it('should handle small byte values', () => {
             const result = FormatUtils.fileSize(100);
-            expect(result).toBe('100 B');
+            expect(result).toBe('100.00 B');
         });
     });
 });

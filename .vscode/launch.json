@@ -133,6 +133,21 @@
             "internalConsoleOptions": "openOnSessionStart",
             "skipFiles": ["<node_internals>/**"],
             "restart": false
+        },
+        {
+            "name": "Debug Vitest Tests",
+            "type": "node",
+            "request": "launch",
+            "autoAttachChildProcesses": true,
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+            "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+            "args": ["--config", "./vitest.config.ts"],
+            "smartStep": true,
+            "console": "integratedTerminal",
+            "cwd": "${workspaceRoot}",
+            "env": {
+                "NODE_ENV": "test"
+            }
         }
     ]
 }
