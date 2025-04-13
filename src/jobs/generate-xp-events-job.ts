@@ -177,8 +177,9 @@ export class GenerateXpEventsJob extends Job {
             // Start time is Friday 6 PM
             const startTime = current.set({ hour: 18, minute: 0, second: 0, millisecond: 0 });
 
-            // End time is Sunday midnight (Monday 00:00)
-            const endTime = current.plus({ days: 2 }).set({
+            // End time is Sunday night at midnight (Monday 00:00)
+            // Need to add 3 days from Friday to get to Monday
+            const endTime = current.plus({ days: 3 }).set({
                 hour: 0,
                 minute: 0,
                 second: 0,
