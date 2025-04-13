@@ -1,13 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/typedef */
 import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
-import { Guild, GuildMember, Role, TextChannel } from 'discord.js';
+import { TextChannel } from 'discord.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { GuildData, LevelingRewardData } from '../../src/database/entities/index.js';
+import { LevelingRewardData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { LevelUpService } from '../../src/services/index.js';
 import { ActionUtils, ClientUtils, MessageUtils } from '../../src/utils/index.js';
+import {
+    createMockGuild,
+    createMockGuildData,
+    createMockGuildMember,
+    createMockTextChannel,
+} from '../helpers/test-mocks.js';
 
 // Mock utilities
 vi.mock('../../src/utils/index.js', async () => {
@@ -31,74 +37,53 @@ vi.mock('../../src/utils/index.js', async () => {
 
 describe('LevelUpService', () => {
     let levelUpService: LevelUpService;
-    let mockEntityManager: MongoEntityManager<MongoDriver>;
-    let mockGuild: Guild;
-    let mockGuildData: GuildData;
+    let _mockEntityManager: MongoEntityManager<MongoDriver>;
+    let mockGuild: any;
+    let mockGuildData: any;
     let mockLevelingChannel: TextChannel;
-    let mockRoles: Map<string, Role>;
-    let mockMember: GuildMember;
-    let mockMember2: GuildMember;
+    let mockRoles: Map<string, any>;
+    let mockMember: any;
+    let mockMember2: any;
 
     beforeEach(() => {
-        // Create mocks
+        // Create mocks using the shared helpers
+        mockGuild = createMockGuild('guild123', 'Test Guild');
+        mockGuildData = createMockGuildData('guilddata123', 'guild123');
+        mockLevelingChannel = createMockTextChannel('channel123', 'level-ups');
+        mockMember = createMockGuildMember('user123', 'TestUser');
+        mockMember2 = createMockGuildMember('user456', 'TestUser2');
+
+        // Setup roles map
         mockRoles = new Map();
-        const role1 = { id: 'role1', toString: () => '@Role1' } as unknown as Role;
-        const role2 = { id: 'role2', toString: () => '@Role2' } as unknown as Role;
+        const role1 = { id: 'role1', toString: () => '@Role1' };
+        const role2 = { id: 'role2', toString: () => '@Role2' };
         mockRoles.set('role1', role1);
         mockRoles.set('role2', role2);
 
-        mockLevelingChannel = {
-            id: 'channel123',
-            name: 'level-ups',
-        } as unknown as TextChannel;
+        // Setup guild with our specific mock needs
+        mockGuild.roles.cache = mockRoles;
+        mockGuild.roles.fetch = vi.fn().mockResolvedValue(mockRoles);
+        mockGuild.members.fetch = vi.fn().mockResolvedValue(mockMember);
+        mockGuild.channels.fetch = vi.fn().mockResolvedValue(mockLevelingChannel);
 
-        mockMember = {
-            id: 'user123',
-            user: { id: 'user123', username: 'TestUser' },
-        } as unknown as GuildMember;
+        // Configure guild data for testing
+        mockGuildData.levelingSettings = {
+            channelDiscordId: 'channel123',
+        };
+        mockGuildData.settings = {
+            language: LangCode.EN_US,
+        };
+        mockGuildData.levelingRewardDatas = {
+            init: vi.fn(),
+            getItems: vi.fn().mockReturnValue([]),
+        };
 
-        mockMember2 = {
-            id: 'user456',
-            user: { id: 'user456', username: 'TestUser2' },
-        } as unknown as GuildMember;
-
-        mockGuild = {
-            id: 'guild123',
-            name: 'Test Guild',
-            channels: {
-                fetch: vi.fn().mockResolvedValue(mockLevelingChannel),
-            },
-            roles: {
-                fetch: vi.fn().mockResolvedValue(mockRoles),
-            },
-            members: {
-                fetch: vi.fn().mockResolvedValue(mockMember),
-            },
-        } as unknown as Guild;
-
-        mockGuildData = {
-            id: 'guilddata123',
-            discordId: 'guild123',
-            levelingSettings: {
-                channelDiscordId: 'channel123',
-            },
-            settings: {
-                language: LangCode.EN_US,
-            },
-            levelingRewardDatas: {
-                init: vi.fn(),
-                getItems: vi.fn().mockResolvedValue([]),
-            },
-        } as unknown as GuildData;
-
-        mockEntityManager = {
-            find: vi.fn(),
+        // Setup entity manager
+        _mockEntityManager = {
+            find: vi.fn().mockResolvedValue([]),
             findOne: vi.fn(),
             persistAndFlush: vi.fn(),
         } as unknown as MongoEntityManager<MongoDriver>;
-
-        // Properly mock the find method with jest.Mock type
-        (mockEntityManager.find as any) = vi.fn().mockResolvedValue([]);
 
         levelUpService = new LevelUpService();
 
