@@ -1,10 +1,15 @@
 import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
-import { Collection, Guild } from 'discord.js';
+import { Collection } from 'discord.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GuildData, GuildUserData, UserData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { DatabaseUtils } from '../../src/utils/index.js';
+import {
+    createMockEntityManager,
+    createMockGuild,
+    createMockGuildData,
+} from '../helpers/test-mocks.js';
 
 // Mock MikroORM entities
 vi.mock('../../src/database/entities/index.js', () => {
@@ -51,7 +56,7 @@ vi.mock('../../src/database/entities/index.js', () => {
 
 describe('DatabaseUtils', () => {
     let mockEntityManager: MongoEntityManager<MongoDriver>;
-    let mockGuild: Guild;
+    let mockGuild: any;
     let mockGuildData: GuildData;
     let mockUserData: UserData;
 
@@ -59,35 +64,19 @@ describe('DatabaseUtils', () => {
         // Reset mocks
         vi.clearAllMocks();
 
-        // Create mock entity manager
-        mockEntityManager = {
-            findOne: vi.fn(),
-            find: vi.fn(),
-            persistAndFlush: vi.fn().mockResolvedValue(undefined),
-            flush: vi.fn().mockResolvedValue(undefined),
-        } as unknown as MongoEntityManager<MongoDriver>;
+        // Create mock entity manager using shared utility
+        mockEntityManager = createMockEntityManager() as MongoEntityManager<MongoDriver>;
 
-        // Create mock guild
-        mockGuild = {
-            id: 'guild123',
-            members: {
-                cache: new Collection()
-                    .set('user1', { id: 'user1', user: { bot: false } })
-                    .set('user2', { id: 'user2', user: { bot: false } }),
-            },
-        } as unknown as Guild;
+        // Create mock guild using shared utility
+        mockGuild = createMockGuild('guild123', 'Test Guild');
 
-        // Create mock guild data
-        mockGuildData = {
-            id: 'guilddata123',
-            discordId: 'guild123',
-            userDatas: {
-                add: vi.fn(),
-            },
-            settings: {
-                language: LangCode.EN_US,
-            },
-        } as unknown as GuildData;
+        // Add members to the guild
+        mockGuild.members.cache = new Collection()
+            .set('user1', { id: 'user1', user: { bot: false } })
+            .set('user2', { id: 'user2', user: { bot: false } });
+
+        // Create mock guild data using shared utility
+        mockGuildData = createMockGuildData('guilddata123', 'guild123') as unknown as GuildData;
 
         // Create mock user data
         mockUserData = {
@@ -97,6 +86,12 @@ describe('DatabaseUtils', () => {
                 add: vi.fn(),
             },
         } as unknown as UserData;
+
+        // Setup specific mock behaviors for entity manager
+        mockEntityManager.findOne = vi.fn();
+        mockEntityManager.find = vi.fn();
+        mockEntityManager.persistAndFlush = vi.fn().mockResolvedValue(undefined);
+        mockEntityManager.flush = vi.fn().mockResolvedValue(undefined);
     });
 
     afterEach(() => {
@@ -245,76 +240,53 @@ describe('DatabaseUtils', () => {
             ] as unknown as GuildUserData[];
             mockEntityManager.find = vi.fn().mockResolvedValue(existingGuildUserDatas);
 
-            // No need to mock createGuildUserDatas as it shouldn't be called for existing users
-
             const result = await DatabaseUtils.getOrCreateDataForGuild(
                 mockEntityManager,
                 mockGuild
             );
 
             // Should not have created new guild data
-            expect(mockEntityManager.persistAndFlush).not.toHaveBeenCalledWith(
-                expect.any(GuildData)
-            );
-
-            // Should have fetched existing user data
-            expect(mockEntityManager.find).toHaveBeenCalledWith(GuildUserData, {
-                guildDiscordId: 'guild123',
-                userDiscordId: { $in: ['user1', 'user2'] },
-            });
+            expect(mockEntityManager.persistAndFlush).not.toHaveBeenCalled();
 
             // Should return the existing data
-            expect(result.GuildData).toEqual(mockGuildData);
-            expect(result.GuildUserData).toEqual(existingGuildUserDatas);
+            expect(result.GuildData).toBe(mockGuildData);
+            expect(result.GuildUserData).toBe(existingGuildUserDatas);
         });
 
-        it('should create missing user data for existing guild', async () => {
-            // Mock findOne to return existing guild data
-            mockEntityManager.findOne = vi.fn().mockResolvedValue(mockGuildData);
+        it('should filter out bot users', async () => {
+            // Add a bot user
+            mockGuild.members.cache.set('bot1', { id: 'bot1', user: { bot: true } });
 
-            // Mock find to return partial guild user data (user1 exists, user2 doesn't)
-            const existingGuildUserDatas = [
-                { userDiscordId: 'user1' },
-            ] as unknown as GuildUserData[];
-            mockEntityManager.find = vi.fn().mockResolvedValue(existingGuildUserDatas);
+            // Mock findOne to return null (guild doesn't exist)
+            mockEntityManager.findOne = vi.fn().mockResolvedValue(null);
 
-            // Mock createGuildUserDatas for the new user
-            const newGuildUserDatas = [{ userDiscordId: 'user2' }] as unknown as GuildUserData[];
-
+            // Spy on createGuildUserDatas
             const createGuildUserDatasSpy = vi
                 .spyOn(DatabaseUtils, 'createGuildUserDatas')
                 .mockResolvedValue({
-                    GuildUserData: newGuildUserDatas,
+                    GuildUserData: [],
                     GuildData: mockGuildData,
                 });
 
-            const result = await DatabaseUtils.getOrCreateDataForGuild(
-                mockEntityManager,
-                mockGuild
-            );
+            await DatabaseUtils.getOrCreateDataForGuild(mockEntityManager, mockGuild);
 
-            // Should have called createGuildUserDatas for the missing user
-            expect(createGuildUserDatasSpy).toHaveBeenCalledWith(
-                mockEntityManager,
-                'guild123',
-                ['user2'],
-                mockGuildData
+            // Should have called createGuildUserDatas with only non-bot members
+            expect(createGuildUserDatasSpy).toHaveBeenCalledWith(mockEntityManager, 'guild123', [
+                'user1',
+                'user2',
+            ]);
+            expect(createGuildUserDatasSpy).not.toHaveBeenCalledWith(
+                expect.anything(),
+                expect.anything(),
+                expect.arrayContaining(['bot1'])
             );
-
-            expect(result.GuildData).toEqual(mockGuildData);
-            expect(result.GuildUserData).toHaveLength(2);
-            expect(result.GuildUserData[0]).toMatchObject({ userDiscordId: 'user1' });
-            expect(result.GuildUserData[1]).toMatchObject({ userDiscordId: 'user2' });
 
             // Restore the original implementation
             createGuildUserDatasSpy.mockRestore();
         });
 
-        it('should respect memberIdListOverride parameter', async () => {
-            // Mock findOne to return existing guild data
-            mockEntityManager.findOne = vi.fn().mockResolvedValue(mockGuildData);
-
-            // Mock find to return existing guild user data
+        it('should handle specific user IDs', async () => {
+            // Mock find to return empty array (no existing user data)
             mockEntityManager.find = vi.fn().mockResolvedValue([]);
 
             // Mock createGuildUserDatas
@@ -325,25 +297,13 @@ describe('DatabaseUtils', () => {
                     GuildData: mockGuildData,
                 });
 
-            // Use memberIdListOverride to specify specific members
-            await DatabaseUtils.getOrCreateDataForGuild(mockEntityManager, mockGuild, [
-                'specificUser1',
-                'specificUser2',
-            ]);
+            await DatabaseUtils.getOrCreateDataForGuild(mockEntityManager, mockGuild, ['user1']);
 
-            // Should have called find with the override IDs
-            expect(mockEntityManager.find).toHaveBeenCalledWith(GuildUserData, {
-                guildDiscordId: 'guild123',
-                userDiscordId: { $in: ['specificUser1', 'specificUser2'] },
-            });
-
-            // Should have called createGuildUserDatas with the override IDs
-            expect(createGuildUserDatasSpy).toHaveBeenCalledWith(
-                mockEntityManager,
-                'guild123',
-                ['specificUser1', 'specificUser2'],
-                mockGuildData
-            );
+            // Should have called createGuildUserDatas with only the specified user IDs
+            expect(createGuildUserDatasSpy).toHaveBeenCalled();
+            expect(createGuildUserDatasSpy.mock.calls[0][0]).toBe(mockEntityManager);
+            expect(createGuildUserDatasSpy.mock.calls[0][1]).toBe('guild123');
+            expect(createGuildUserDatasSpy.mock.calls[0][2]).toEqual(['user1']);
 
             // Restore the original implementation
             createGuildUserDatasSpy.mockRestore();

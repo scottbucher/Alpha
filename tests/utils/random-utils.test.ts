@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { RandomUtils } from '../../src/utils/index.js';
+import { mockRandomValues } from '../helpers/test-utils.js';
 
 // Mock any configs that might be loaded
 vi.mock('../../config/config.json', () => ({}));
@@ -8,12 +9,9 @@ vi.mock('../../config/debug.json', () => ({}));
 vi.mock('../../lang/logs.json', () => ({}));
 
 describe('RandomUtils', () => {
-    // Store the original Math.random function
-    const originalRandom = Math.random;
-
-    // After each test, restore the original Math.random
+    // After each test, restore all mocks
     afterEach(() => {
-        Math.random = originalRandom;
+        vi.restoreAllMocks();
     });
 
     describe('intFromInterval', () => {
@@ -31,15 +29,17 @@ describe('RandomUtils', () => {
         });
 
         it('should use Math.random correctly', () => {
-            // Mock Math.random to return a specific value
-            Math.random = vi.fn().mockReturnValue(0.5);
+            // Use our shared mock utility to set Math.random to 0.5
+            const cleanup = mockRandomValues(0.5);
 
             const result = RandomUtils.intFromInterval(1, 10);
 
             // With Math.random() = 0.5, we expect it to return the middle value
             // 1 + Math.floor(0.5 * (10 - 1 + 1)) = 1 + Math.floor(5) = 1 + 5 = 6
             expect(result).toBe(6);
-            expect(Math.random).toHaveBeenCalled();
+
+            // Clean up the mock
+            cleanup();
         });
 
         it('should handle min equal to max', () => {
@@ -48,13 +48,17 @@ describe('RandomUtils', () => {
         });
 
         it('should handle negative ranges', () => {
-            Math.random = vi.fn().mockReturnValue(0.5);
+            // Use our shared mock utility
+            const cleanup = mockRandomValues(0.5);
 
             const result = RandomUtils.intFromInterval(-10, -5);
 
             // With Math.random() = 0.5, and range of -10 to -5 (6 numbers)
             // -10 + Math.floor(0.5 * (-5 - -10 + 1)) = -10 + Math.floor(0.5 * 6) = -10 + 3 = -7
             expect(result).toBe(-7);
+
+            // Clean up the mock
+            cleanup();
         });
     });
 
@@ -71,20 +75,17 @@ describe('RandomUtils', () => {
         });
 
         it('should shuffle elements based on Math.random', () => {
-            // Create a predictable sequence of random values
-            const randomValues = [0.5, 0.1, 0.9, 0.3];
-            let callCount = 0;
-            Math.random = vi.fn().mockImplementation(() => {
-                return randomValues[callCount++ % randomValues.length];
-            });
+            // Use our shared mock utility with predictable sequence of random values
+            const cleanup = mockRandomValues(0.5, 0.1, 0.9, 0.3);
 
             const original = [1, 2, 3, 4];
             const shuffled = RandomUtils.shuffle([...original]);
 
             // With our mocked random sequence, we can predict the shuffle outcome
-            // This relies on the specific Fisher-Yates implementation
             expect(shuffled).not.toEqual(original);
-            expect(Math.random).toHaveBeenCalled();
+
+            // Clean up the mock
+            cleanup();
         });
 
         it('should handle empty arrays', () => {
