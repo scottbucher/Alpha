@@ -2,6 +2,8 @@ import parser, { CronDate } from 'cron-parser';
 import { DateTime } from 'luxon';
 import { promisify } from 'node:util';
 
+import { GuildData } from '../database/entities/index.js';
+
 let setTimeoutAsync = promisify(setTimeout);
 
 export class TimeUtils {
@@ -15,6 +17,12 @@ export class TimeUtils {
             now = now.setZone(timeZone);
         }
         return now;
+    }
+
+    public static getNowForGuild(guild: GuildData): DateTime {
+        return guild.generalSettings.timeZone
+            ? this.now(guild.generalSettings.timeZone)
+            : this.now();
     }
 
     // Function to take in a date string and timeZone and return the date in UTC
