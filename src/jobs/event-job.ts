@@ -1,6 +1,6 @@
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { Client, Guild, TextChannel } from 'discord.js';
+import { BaseMessageOptions, Client, Guild, TextChannel } from 'discord.js';
 import { DateTime } from 'luxon';
 import { createRequire } from 'node:module';
 
@@ -97,9 +97,10 @@ export class EventJob extends Job {
 
                 let hasChangedEventsForGuild = await this.processGuildIncreasedXpWeekendEvents(
                     guild,
+                    guildData,
                     eventDatas.filter(event => event.eventType === EventType.INCREASED_XP_WEEKEND),
                     channel,
-                    TimeUtils.now()
+                    TimeUtils.getNowForGuild(guildData)
                 );
 
                 if (hasChangedEventsForGuild) {
@@ -130,6 +131,7 @@ export class EventJob extends Job {
 
     private async processGuildIncreasedXpWeekendEvents(
         guild: Guild,
+        guildData: GuildData,
         eventDatas: EventData[],
         channel: TextChannel | null,
         now: DateTime
@@ -137,9 +139,15 @@ export class EventJob extends Job {
         let hasChangedEventsForGuild = false;
 
         for (let event of eventDatas) {
-            // Convert string dates to DateTime objects
-            const eventStartTime = DateTime.fromISO(event.timeProperties.startTime);
-            const eventEndTime = DateTime.fromISO(event.timeProperties.endTime);
+            let timeZone = guildData.generalSettings.timeZone;
+
+            // Convert string dates to DateTime objects in the guild's time zone
+            const eventStartTime = DateTime.fromISO(event.timeProperties.startTime, {
+                zone: timeZone,
+            });
+            const eventEndTime = DateTime.fromISO(event.timeProperties.endTime, {
+                zone: timeZone,
+            });
 
             // This is probably overkill, but it's good to have
             if (!eventStartTime.isValid || !eventEndTime.isValid) {
@@ -152,6 +160,18 @@ export class EventJob extends Job {
                 );
                 continue;
             }
+
+            // For debugging time zones
+            Logger.info(`Guild: ${guild.name}, Time Zone: ${timeZone}`);
+            Logger.info(
+                `Event start time: ${eventStartTime.toISO()} (${eventStartTime.toLocaleString(DateTime.DATETIME_FULL)})`
+            );
+            Logger.info(
+                `Event end time: ${eventEndTime.toISO()} (${eventEndTime.toLocaleString(DateTime.DATETIME_FULL)})`
+            );
+            Logger.info(
+                `Current time in guild's time zone: ${now.toISO()} (${now.toLocaleString(DateTime.DATETIME_FULL)})`
+            );
 
             // Check if we should announce the upcoming event (2 weeks before)
             const timeBeforeStart = eventStartTime.minus({
@@ -173,7 +193,13 @@ export class EventJob extends Job {
                         .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
                 );
 
-                await this.sendXpEventMessage(guild, event, channel, EventStage.Announced);
+                await this.sendXpEventMessage(
+                    guild,
+                    guildData,
+                    event,
+                    channel,
+                    EventStage.Announced
+                );
             }
 
             // Check if event should start
@@ -189,7 +215,7 @@ export class EventJob extends Job {
                         .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
                 );
 
-                await this.sendXpEventMessage(guild, event, channel, EventStage.Started);
+                await this.sendXpEventMessage(guild, guildData, event, channel, EventStage.Started);
             }
 
             // Check if event should end
@@ -205,7 +231,7 @@ export class EventJob extends Job {
                         .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
                 );
 
-                await this.sendXpEventMessage(guild, event, channel, EventStage.Ended);
+                await this.sendXpEventMessage(guild, guildData, event, channel, EventStage.Ended);
             }
 
             // Ensure active status correctly reflects if we're in the event's time window
@@ -227,6 +253,7 @@ export class EventJob extends Job {
 
     private async sendXpEventMessage(
         guild: Guild,
+        guildData: GuildData,
         event: EventData,
         eventChannel: TextChannel | null,
         type: EventStage
@@ -246,34 +273,48 @@ export class EventJob extends Job {
             return;
         }
 
-        const multiplierName = Lang.getRef('info', `terms.${multiplierKey}`, Language.Default);
-        const eventStartTime = DateTime.fromISO(event.timeProperties.startTime).toJSDate();
-        const eventEndTime = DateTime.fromISO(event.timeProperties.endTime).toJSDate();
+        const timeZone = guildData?.generalSettings.timeZone;
 
-        await MessageUtils.send(
-            eventChannel,
-            Lang.getEmbed(
-                'info',
-                type === EventStage.Announced
-                    ? 'xpEvents.announced'
-                    : `xpEvents.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
-                Language.Default,
-                {
-                    MULTIPLIER_NAME_CAPS: multiplierName.toLocaleUpperCase(),
-                    MULTIPLIER_NAME: multiplierName.toLocaleLowerCase(),
-                    MULTIPLIER_AMOUNT: multiplier.toString(),
-                    START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
-                    END_TIME: eventStartTime.toLocaleString(),
-                    END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(eventEndTime),
-                    SERVER_ICON: guild.iconURL() ?? '',
-                    XP_EVENT_ICON:
-                        type === EventStage.Announced
-                            ? XP_EVENT_ANNOUNCED_ICON
-                            : type === EventStage.Ended
-                              ? XP_EVENT_END_ICON
-                              : XP_EVENT_START_ICON,
-                }
-            )
+        const multiplierName = Lang.getRef('info', `terms.${multiplierKey}`, Language.Default);
+
+        // Parse dates with the guild's time zone
+        const eventStartTime = DateTime.fromISO(event.timeProperties.startTime, {
+            zone: timeZone,
+        }).toJSDate();
+
+        const eventEndTime = DateTime.fromISO(event.timeProperties.endTime, {
+            zone: timeZone,
+        }).toJSDate();
+
+        const embed = Lang.getEmbed(
+            'info',
+            type === EventStage.Announced
+                ? 'xpEvents.announced'
+                : `xpEvents.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
+            Language.Default,
+            {
+                MULTIPLIER_NAME_CAPS: multiplierName.toLocaleUpperCase(),
+                MULTIPLIER_NAME: multiplierName.toLocaleLowerCase(),
+                MULTIPLIER_AMOUNT: multiplier.toString(),
+                START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
+                END_TIME: eventEndTime.toLocaleString(),
+                END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(eventEndTime),
+                SERVER_ICON: guild.iconURL() ?? '',
+                XP_EVENT_ICON:
+                    type === EventStage.Announced
+                        ? XP_EVENT_ANNOUNCED_ICON
+                        : type === EventStage.Ended
+                          ? XP_EVENT_END_ICON
+                          : XP_EVENT_START_ICON,
+            }
         );
+
+        // TODO: make this a configurable mention
+        let mention = `@everyone`;
+
+        await MessageUtils.send(eventChannel, {
+            content: mention,
+            embeds: [embed],
+        } as BaseMessageOptions);
     }
 }
