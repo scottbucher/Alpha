@@ -9,6 +9,7 @@ import { XpMultiplier } from '../database/entities/event-data.js';
 import { EventData, GuildData } from '../database/entities/index.js';
 import { EventType } from '../enums/index.js';
 import { Logger } from '../services/index.js';
+import { TimeUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -65,8 +66,7 @@ export class GenerateXpEventsJob extends Job {
     }
 
     private async generateEventsForGuild(guild: GuildData, em: any): Promise<void> {
-        const timezone = guild.generalSettings.timeZone ?? 'UTC';
-        let now = DateTime.now().setZone(timezone);
+        let now = TimeUtils.getNowForGuild(guild);
 
         // Get the next 4 weekends
         const weekends = this.getNextWeekends(now, 4);

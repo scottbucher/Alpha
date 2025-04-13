@@ -1,6 +1,7 @@
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
 import { Client, Guild, TextChannel } from 'discord.js';
+import { DateTime } from 'luxon';
 import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
@@ -8,7 +9,13 @@ import { EventData, GuildData } from '../database/entities/index.js';
 import { EventStage, EventType } from '../enums/index.js';
 import { Language } from '../models/enum-helpers/index.js';
 import { Lang, Logger } from '../services/index.js';
-import { ClientUtils, ExperienceUtils, FormatUtils, MessageUtils } from '../utils/index.js';
+import {
+    ClientUtils,
+    ExperienceUtils,
+    FormatUtils,
+    MessageUtils,
+    TimeUtils,
+} from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -59,7 +66,6 @@ export class EventJob extends Job {
                 },
             }
         );
-        let now = new Date();
 
         // Efficiency check to see if we need to flush the database
         let hasChangedEvents = false;
@@ -93,7 +99,7 @@ export class EventJob extends Job {
                     guild,
                     eventDatas.filter(event => event.eventType === EventType.INCREASED_XP_WEEKEND),
                     channel,
-                    now
+                    TimeUtils.now()
                 );
 
                 if (hasChangedEventsForGuild) {
@@ -126,16 +132,17 @@ export class EventJob extends Job {
         guild: Guild,
         eventDatas: EventData[],
         channel: TextChannel | null,
-        now: Date
+        now: DateTime
     ): Promise<boolean> {
         let hasChangedEventsForGuild = false;
 
         for (let event of eventDatas) {
-            const eventStartTime = new Date(event.timeProperties.startTime);
-            const eventEndTime = new Date(event.timeProperties.endTime);
+            // Convert string dates to DateTime objects
+            const eventStartTime = DateTime.fromISO(event.timeProperties.startTime);
+            const eventEndTime = DateTime.fromISO(event.timeProperties.endTime);
 
             // This is probably overkill, but it's good to have
-            if (isNaN(eventStartTime.getTime()) || isNaN(eventEndTime.getTime())) {
+            if (!eventStartTime.isValid || !eventEndTime.isValid) {
                 Logger.error(
                     Logs.error.invalidEventTimes
                         .replaceAll('{GUILD_ID}', guild.id)
@@ -147,8 +154,9 @@ export class EventJob extends Job {
             }
 
             // Check if we should announce the upcoming event (2 weeks before)
-            const timeBeforeStart = new Date(eventStartTime);
-            timeBeforeStart.setDate(timeBeforeStart.getDate() - Config.events.announce.daysBefore);
+            const timeBeforeStart = eventStartTime.minus({
+                days: Config.events.announce.daysBefore,
+            });
 
             if (
                 !event.timeProperties.hasAnnounced &&
@@ -237,7 +245,8 @@ export class EventJob extends Job {
         }
 
         const multiplierName = Lang.getRef('info', `terms.${multiplierKey}`, Language.Default);
-        const eventStartTime = new Date(event.timeProperties.startTime);
+        const eventStartTime = DateTime.fromISO(event.timeProperties.startTime).toJSDate();
+        const eventEndTime = DateTime.fromISO(event.timeProperties.endTime).toJSDate();
 
         await MessageUtils.send(
             eventChannel,
@@ -253,9 +262,7 @@ export class EventJob extends Job {
                     MULTIPLIER_AMOUNT: multiplier.toString(),
                     START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
                     END_TIME: eventStartTime.toLocaleString(),
-                    END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(
-                        new Date(event.timeProperties.endTime)
-                    ),
+                    END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(eventEndTime),
                     SERVER_ICON: guild.iconURL() ?? '',
                     XP_EVENT_ICON:
                         type === EventStage.Announced
