@@ -1,12 +1,12 @@
 import { ButtonInteraction } from 'discord.js';
 
 import { Button, ButtonDeferType } from './index.js';
+import { ViewRewardsCommand } from '../commands/chat/index.js';
+import { Command } from '../commands/index.js';
+import { EventDataType } from '../enums/index.js';
 import { Language } from '../models/enum-helpers/index.js';
 import { ButtonData, EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
-import { Command } from '../commands/index.js';
-import { ViewRewardsCommand } from '../commands/chat/index.js';
-import { EventDataType } from '../enums/index.js';
 
 export class ViewRewardsButton implements Button {
     public ids = [Lang.getRef('commands', 'chatCommands.viewRewards', Language.Default)];
