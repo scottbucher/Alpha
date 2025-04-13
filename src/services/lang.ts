@@ -200,7 +200,7 @@ export class Lang {
             `${
                 guild &&
                 guild?.roles.everyone.permissions.has(PermissionFlagsBits.UseExternalEmojis)
-                    ? 'guildEmotes'
+                    ? 'emojis'
                     : 'emojis'
             }.${name}`
         );
