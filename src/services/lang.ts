@@ -195,6 +195,7 @@ export class Lang {
         });
     };
 
+    // TODO: add bot emojis
     public static getEmoji(name: string, guild?: Guild): string {
         return Lang.getCom(
             `${
