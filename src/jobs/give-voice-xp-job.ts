@@ -4,7 +4,7 @@ import { Client } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
-import { GuildData } from '../database/entities/index.js';
+import { GuildData, GuildUserData } from '../database/entities/index.js';
 import { LevelUpService, Logger } from '../services/index.js';
 import { DatabaseUtils } from '../utils/index.js';
 import { ExperienceUtils } from '../utils/index.js';
@@ -13,13 +13,23 @@ const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
 let Logs = require('../../lang/logs.json');
 
-// TODO: This job runs every minute so we are constantly fetching this from the database. A robust cache system would be ideal.
+// Interface for cached guild user data
+interface CachedGuildUserData {
+    guildData: GuildData;
+    guildUserDatas: GuildUserData[];
+    expiresAt: number;
+}
+
 export class GiveVoiceXpJob extends Job {
     public name = 'Give Voice XP';
     public schedule: string = Config.jobs.giveVoiceXp.schedule;
     public log: boolean = Config.jobs.giveVoiceXp.log;
     public runOnce: boolean = Config.jobs.giveVoiceXp.runOnce;
     public initialDelaySecs: number = Config.jobs.giveVoiceXp.initialDelaySecs;
+
+    // Cache for guild user data to reduce database calls
+    private static guildUserDataCache = new Map<string, CachedGuildUserData>();
+    private static CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
     constructor(
         private client: Client,
@@ -47,10 +57,73 @@ export class GiveVoiceXpJob extends Job {
             // Get all the GuildUserData objects for this guild but only the for the GuildMembers that are in the voiceState array
             let voiceUserIds = guildVoiceStates.map(voiceState => voiceState.member.id);
 
-            let { GuildData: guildData, GuildUserData: guildUserDatas } =
-                await DatabaseUtils.getOrCreateDataForGuild(em, guild, voiceUserIds);
+            // Try to get data from cache first
+            let guildData: GuildData | null = null;
+            let guildUserDatas: GuildUserData[] = [];
+            let shouldUpdateCache = true;
+
+            // Check cache first
+            const now = Date.now();
+            const cachedData = GiveVoiceXpJob.guildUserDataCache.get(guild.id);
+
+            if (cachedData && cachedData.expiresAt > now) {
+                // We have valid cache, let's use it
+                guildData = cachedData.guildData;
+
+                // Check if all needed users are in the cache
+                const cachedUserIds = new Set(
+                    cachedData.guildUserDatas.map(gud => gud.userDiscordId)
+                );
+                const missingUserIds = voiceUserIds.filter(id => !cachedUserIds.has(id));
+
+                if (missingUserIds.length === 0) {
+                    // All users are in the cache, filter to only the ones we need
+                    guildUserDatas = cachedData.guildUserDatas.filter(gud =>
+                        voiceUserIds.includes(gud.userDiscordId)
+                    );
+                    shouldUpdateCache = false;
+
+                    Logger.info(
+                        Logs.info?.cacheHitVoiceXp?.replaceAll('{GUILD_ID}', guild.id) ||
+                            `Voice XP cache hit for guild ${guild.id}`
+                    );
+                } else {
+                    // Some users are missing, fetch all data
+                    Logger.info(
+                        Logs.info?.cachePartialVoiceXp?.replaceAll('{GUILD_ID}', guild.id) ||
+                            `Voice XP partial cache hit for guild ${guild.id}`
+                    );
+                    const result = await DatabaseUtils.getOrCreateDataForGuild(
+                        em,
+                        guild,
+                        voiceUserIds,
+                        guildData
+                    );
+                    guildData = result.GuildData;
+                    guildUserDatas = result.GuildUserData;
+                }
+            } else {
+                // No cache or expired, fetch from database
+                Logger.info(
+                    Logs.info?.cacheMissVoiceXp?.replaceAll('{GUILD_ID}', guild.id) ||
+                        `Voice XP cache miss for guild ${guild.id}`
+                );
+                const result = await DatabaseUtils.getOrCreateDataForGuild(em, guild, voiceUserIds);
+                guildData = result.GuildData;
+                guildUserDatas = result.GuildUserData;
+            }
+
+            // Update cache if needed
+            if (shouldUpdateCache) {
+                GiveVoiceXpJob.guildUserDataCache.set(guild.id, {
+                    guildData,
+                    guildUserDatas,
+                    expiresAt: now + GiveVoiceXpJob.CACHE_TTL_MS,
+                });
+            }
 
             let leveledUpUsers: { userId: string; oldLevel: number; newLevel: number }[] = [];
+            let updatedGuildUserDatas: GuildUserData[] = [];
 
             for (let voiceState of guildVoiceStates) {
                 let guildUserData = guildUserDatas.find(
@@ -64,7 +137,7 @@ export class GiveVoiceXpJob extends Job {
                         await ExperienceUtils.getXpMultiplier(guildData)
                     );
                     let memberXpAfter = guildUserData.experience;
-                    await em.persistAndFlush(guildUserData);
+                    updatedGuildUserDatas.push(guildUserData);
 
                     let hasLeveledUp = ExperienceUtils.hasLeveledUp(memberXpBefore, memberXpAfter);
                     if (hasLeveledUp) {
@@ -83,15 +156,42 @@ export class GiveVoiceXpJob extends Job {
                 }
             }
 
-            if (leveledUpUsers.length === 0) {
-                return;
+            // Persist all updated guild user data in a single batch
+            if (updatedGuildUserDatas.length > 0) {
+                await em.persistAndFlush(updatedGuildUserDatas);
+
+                // Update the cache with the new values
+                if (cachedData) {
+                    // Update the cached data with new experience values
+                    const cachedUserDatas = cachedData.guildUserDatas;
+                    for (const updatedData of updatedGuildUserDatas) {
+                        const cachedIndex = cachedUserDatas.findIndex(
+                            c => c.userDiscordId === updatedData.userDiscordId
+                        );
+                        if (cachedIndex >= 0) {
+                            cachedUserDatas[cachedIndex] = updatedData;
+                        }
+                    }
+                }
             }
 
-            if (!guildData) {
-                guildData = await em.findOne(GuildData, { discordId: guild.id });
+            if (leveledUpUsers.length === 0) {
+                continue;
             }
 
             await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
+        }
+    }
+
+    /**
+     * Clear the cache for a specific guild or all guilds
+     * @param guildId The guild ID to clear the cache for, or undefined to clear all caches
+     */
+    public static clearGuildUserDataCache(guildId?: string): void {
+        if (guildId) {
+            GiveVoiceXpJob.guildUserDataCache.delete(guildId);
+        } else {
+            GiveVoiceXpJob.guildUserDataCache.clear();
         }
     }
 }
