@@ -16,7 +16,7 @@ import { Command, CommandDeferType } from '../index.js';
 
 export class ViewRewardsCommand implements Command {
     public names = [Lang.getRef('commands', 'chatCommands.viewRewards', Language.Default)];
-    public deferType = CommandDeferType.HIDDEN;
+    public deferType = CommandDeferType.PUBLIC;
     public requireClientPerms: PermissionsString[] = [];
     public requireEventData: EventDataType[] = [
         EventDataType.GUILD_DATA,
