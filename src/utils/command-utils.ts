@@ -64,7 +64,7 @@ export class CommandUtils {
                 intr,
                 Lang.getErrorEmbed('validation', 'errorEmbeds.devOnly', data.lang)
             );
-            return;
+            return false;
         }
 
         if (

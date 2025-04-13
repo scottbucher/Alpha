@@ -1,7 +1,7 @@
-import { DateTime } from 'luxon';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ExperienceUtils } from '../../src/utils/index.js';
+import { mockRandomValues } from '../helpers/test-utils.js';
 
 describe('ExperienceUtils', () => {
     describe('getXpForNextLevel', () => {
@@ -124,21 +124,25 @@ describe('ExperienceUtils', () => {
     });
 
     describe('generateMessageXp', () => {
-        beforeEach(() => {
-            // Reset Math.random for each test
-            vi.spyOn(global.Math, 'random').mockRestore();
+        afterEach(() => {
+            vi.restoreAllMocks();
         });
 
         it('should return value within configured range', () => {
-            // Mock Math.random to return specific values
-            vi.spyOn(global.Math, 'random').mockReturnValueOnce(0);
-            expect(ExperienceUtils.generateMessageXp()).toBe(15); // Min
+            // Use our shared random value mocking utility
+            const cleanup = mockRandomValues(0, 1, 0.5);
 
-            vi.spyOn(global.Math, 'random').mockReturnValueOnce(1);
-            expect(ExperienceUtils.generateMessageXp()).toBe(25); // Max
+            // Test min value
+            expect(ExperienceUtils.generateMessageXp()).toBe(15);
 
-            vi.spyOn(global.Math, 'random').mockReturnValueOnce(0.5);
-            expect(ExperienceUtils.generateMessageXp()).toBe(20); // Middle
+            // Test max value
+            expect(ExperienceUtils.generateMessageXp()).toBe(25);
+
+            // Test middle value
+            expect(ExperienceUtils.generateMessageXp()).toBe(20);
+
+            // Clean up the mock
+            cleanup();
         });
     });
 
@@ -151,31 +155,35 @@ describe('ExperienceUtils', () => {
     });
 
     describe('canEarnXp', () => {
-        beforeEach(() => {
-            // Use vi.spyOn instead of direct assignment
-            vi.spyOn(DateTime, 'now').mockImplementation(
-                () => DateTime.utc(2023, 1, 1, 12, 0, 0) as DateTime<true>
-            );
-        });
-
         afterEach(() => {
-            // Clear all mocks
             vi.restoreAllMocks();
         });
 
         it('should return true if cooldown has passed', () => {
+            // Mock current date/time
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date('2023-01-01T12:00:00.000Z'));
+
             // Last updated 2 minutes ago, cooldown is 1 minute
             const lastUpdated = '2023-01-01T11:58:00.000Z';
             expect(ExperienceUtils.canEarnXp(lastUpdated)).toBe(true);
         });
 
         it('should return false if within cooldown period', () => {
+            // Mock current date/time
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date('2023-01-01T12:00:00.000Z'));
+
             // Last updated 30 seconds ago, cooldown is 1 minute
             const lastUpdated = '2023-01-01T11:59:30.000Z';
             expect(ExperienceUtils.canEarnXp(lastUpdated)).toBe(false);
         });
 
         it('should respect custom cooldown period', () => {
+            // Mock current date/time
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date('2023-01-01T12:00:00.000Z'));
+
             // Last updated 3 minutes ago, cooldown is 5 minutes
             const lastUpdated = '2023-01-01T11:57:00.000Z';
             expect(ExperienceUtils.canEarnXp(lastUpdated, 5)).toBe(false);
@@ -186,6 +194,10 @@ describe('ExperienceUtils', () => {
         });
 
         it('should handle Date objects', () => {
+            // Mock current date/time
+            vi.useFakeTimers();
+            vi.setSystemTime(new Date('2023-01-01T12:00:00.000Z'));
+
             // Last updated 30 seconds ago
             const lastUpdated = new Date('2023-01-01T11:59:30.000Z');
             expect(ExperienceUtils.canEarnXp(lastUpdated)).toBe(false);

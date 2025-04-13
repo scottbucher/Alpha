@@ -1,3 +1,4 @@
+import { GuildChannel } from 'discord.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Command } from '../../src/commands/index.js';
@@ -7,7 +8,7 @@ import {
     createMockCommand,
     createMockCommandInteraction,
     createMockGuildChannel,
-} from '../helpers/discord-mocks.js';
+} from '../helpers/test-mocks.js';
 
 // Mock dependencies
 vi.mock('../../src/utils/index.js', () => ({
@@ -18,6 +19,22 @@ vi.mock('../../src/utils/index.js', () => ({
         duration: vi.fn().mockReturnValue('5 seconds'),
     },
 }));
+
+// TODO: This is a hack to get around the fact that GuildChannel is not a class in discord.js, we
+// need to mock it so that instanceof checks pass.
+// Mock the GuildChannel class for proper instanceof checks in tests
+vi.mock('discord.js', async importOriginal => {
+    const original = await importOriginal<typeof import('discord.js')>();
+
+    // Create a proper GuildChannel constructor that allows instanceof checks
+    const GuildChannelMock = function () {} as any;
+    GuildChannelMock.prototype = Object.create(Object.prototype);
+
+    return {
+        ...original,
+        GuildChannel: GuildChannelMock,
+    };
+});
 
 describe('CommandUtils', () => {
     // Test findCommand method
@@ -130,14 +147,21 @@ describe('CommandUtils', () => {
             // Mock the imported InteractionUtils.send function
             const { InteractionUtils } = await import('../../src/utils/index.js');
 
-            // Create a GuildChannel mock with failing permission check
-            mockInteraction.channel = createMockGuildChannel({
+            // Create a mock channel that will properly pass instanceof GuildChannel checks
+            const mockChannel = createMockGuildChannel({
                 permissionsFor: vi.fn().mockReturnValue({
                     has: vi.fn().mockReturnValue(false),
                 }),
             });
 
-            // Set up command for test
+            // Set prototype to GuildChannel.prototype to pass instanceof check
+            Object.setPrototypeOf(mockChannel, GuildChannel.prototype);
+
+            // Assign the channel to the interaction
+            mockInteraction.channel = mockChannel;
+
+            // Set require permissions and ensure cooldown doesn't interfere
+            mockCommand.requireClientPerms = ['ViewChannel', 'SendMessages'];
             mockCommand.cooldown.take.mockReturnValue(false);
 
             // Run test
