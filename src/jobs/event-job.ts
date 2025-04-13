@@ -166,11 +166,12 @@ export class EventJob extends Job {
                 event.timeProperties.hasAnnounced = true;
                 hasChangedEventsForGuild = true;
 
-                Logger.info(Logs.info.xpEventAnnounced, {
-                    guildId: guild.id,
-                    eventId: event.id,
-                    multiplier: event.xpProperties.multiplier,
-                });
+                Logger.info(
+                    Logs.info.xpEventAnnounced
+                        .replaceAll('{GUILD_ID}', guild.id)
+                        .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
+                );
 
                 await this.sendXpEventMessage(guild, event, channel, EventStage.Announced);
             }
@@ -197,11 +198,12 @@ export class EventJob extends Job {
                 event.timeProperties.isActive = false;
                 hasChangedEventsForGuild = true;
 
-                Logger.info(Logs.info.xpEventEnded, {
-                    guildId: guild.id,
-                    eventId: event.id,
-                    multiplier: event.xpProperties.multiplier,
-                });
+                Logger.info(
+                    Logs.info.xpEventEnded
+                        .replaceAll('{GUILD_ID}', guild.id)
+                        .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
+                );
 
                 await this.sendXpEventMessage(guild, event, channel, EventStage.Ended);
             }
