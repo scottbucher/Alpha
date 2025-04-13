@@ -301,7 +301,13 @@ export class EventJob extends Job {
                 MULTIPLIER_NAME: multiplierName.toLocaleLowerCase(),
                 MULTIPLIER_AMOUNT: multiplier.toString(),
                 START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
-                END_TIME: eventEndDateTime.toLocaleString(DateTime.DATETIME_FULL),
+                END_TIME: eventEndDateTime.toLocaleString({
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    hour12: true,
+                }),
                 END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(eventEndTime),
                 SERVER_ICON: guild.iconURL() ?? '',
                 XP_EVENT_ICON:
