@@ -278,13 +278,17 @@ export class EventJob extends Job {
         const multiplierName = Lang.getRef('info', `terms.${multiplierKey}`, Language.Default);
 
         // Parse dates with the guild's time zone
-        const eventStartTime = DateTime.fromISO(event.timeProperties.startTime, {
+        const eventStartDateTime = DateTime.fromISO(event.timeProperties.startTime, {
             zone: timeZone,
-        }).toJSDate();
+        });
 
-        const eventEndTime = DateTime.fromISO(event.timeProperties.endTime, {
+        const eventEndDateTime = DateTime.fromISO(event.timeProperties.endTime, {
             zone: timeZone,
-        }).toJSDate();
+        });
+
+        // Convert to JavaScript Date objects for Discord timestamp formatting
+        const eventStartTime = eventStartDateTime.toJSDate();
+        const eventEndTime = eventEndDateTime.toJSDate();
 
         const embed = Lang.getEmbed(
             'info',
@@ -297,7 +301,7 @@ export class EventJob extends Job {
                 MULTIPLIER_NAME: multiplierName.toLocaleLowerCase(),
                 MULTIPLIER_AMOUNT: multiplier.toString(),
                 START_TIME: FormatUtils.discordTimestampRelative(eventStartTime),
-                END_TIME: eventEndTime.toLocaleString(),
+                END_TIME: eventEndDateTime.toLocaleString(DateTime.DATETIME_FULL),
                 END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(eventEndTime),
                 SERVER_ICON: guild.iconURL() ?? '',
                 XP_EVENT_ICON:
