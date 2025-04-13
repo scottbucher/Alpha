@@ -6,6 +6,8 @@ import { EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { FormatUtils, MessageUtils } from '../utils/index.js';
 
+const IMAGE = 'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/someonecookedhere.jpg';
+
 export class OldPrefixTrigger implements Trigger {
     public requireGuild = false;
     public requireEventData: EventDataType[] = [];
@@ -20,6 +22,7 @@ export class OldPrefixTrigger implements Trigger {
                 msg.channel,
                 Lang.getEmbed('validation', 'embeds.oldPrefixUsed', data.lang, {
                     HELP_COMMAND: await FormatUtils.commandMention(msg.client, 'help'),
+                    IMAGE: IMAGE,
                 })
             );
         } catch (_error) {

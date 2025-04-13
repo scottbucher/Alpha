@@ -19,7 +19,8 @@
                     "1. Check that you have the **Use Application Commands** permission in this channel.",
                     "2. Try kicking and [re-inviting {{COM:bot.name}}]({{COM:links.invite}})."
                 ],
-                "color": "{{COM:colors.warn}}"
+                "color": "{{COM:colors.warn}}",
+                "image": "{{IMAGE}}"
             },
             "cannotGiveRole": {
                 "title": "Cannot Give Role!",
