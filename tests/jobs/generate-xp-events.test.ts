@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/typedef */
 import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { Client, Collection, Guild } from 'discord.js';
 import { DateTime } from 'luxon';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -10,71 +9,38 @@ import { EventData, GuildData } from '../../src/database/entities/index.js';
 import { EventType } from '../../src/enums/index.js';
 import { GenerateXpEventsJob } from '../../src/jobs/generate-xp-events-job.js';
 import { Logger } from '../../src/services/index.js';
+import {
+    createMockClient,
+    createMockEntityManager,
+    createMockGuild,
+    createMockGuildData,
+    createMockOrm,
+} from '../helpers/test-mocks.js';
+import { mockRandomValues } from '../helpers/test-utils.js';
 
 describe('GenerateXpEventsJob', () => {
     let generateXpEventsJob: GenerateXpEventsJob;
-    let mockClient: Client;
+    let mockClient: any;
     let mockOrm: MikroORM<MongoDriver>;
     let mockEntityManager: EntityManager<MongoDriver>;
-    let mockGuild: Guild;
-    let mockGuildData: GuildData;
+    let _mockGuild: any;
+    let mockGuildData: any;
     let mockEventDatas: EventData[];
 
     beforeEach(() => {
-        // === Setup Discord Client Mock ===
-        const mockGuilds = new Collection<string, Guild>();
-        mockGuild = {
-            id: 'guild123',
-            name: 'Test Guild',
-        } as unknown as Guild;
-        mockGuilds.set('guild123', mockGuild);
-
-        mockClient = {
-            guilds: {
-                cache: mockGuilds,
-            },
-        } as unknown as Client;
-
-        // === Setup Database Mocks ===
-        // Guild data mock
-        mockGuildData = {
-            id: 'guilddata123',
-            discordId: 'guild123',
-            generalSettings: {
-                timeZone: 'UTC',
-            },
-            eventDatas: {
-                getItems: vi.fn().mockReturnValue(mockEventDatas || []),
-                add: vi.fn(),
-                init: vi.fn(),
-            },
-        } as unknown as GuildData;
-
-        // Event data mock
+        // Setup common mocks using the shared helpers
+        mockClient = createMockClient();
+        _mockGuild = createMockGuild('guild123', 'Test Guild');
+        mockGuildData = createMockGuildData('guilddata123', 'guild123');
         mockEventDatas = [];
+        mockEntityManager = createMockEntityManager();
+        mockOrm = createMockOrm(mockEntityManager);
 
-        // === Setup Entity Manager Mock ===
-        mockEntityManager = {
-            find: vi.fn().mockResolvedValue([mockGuildData]),
-            findOne: vi.fn(),
-            persist: vi.fn(),
-            flush: vi.fn().mockResolvedValue(undefined),
-            getReference: vi.fn().mockImplementation((entity, id) => {
-                if (entity === GuildData && id === 'guilddata123') {
-                    return { id: 'guilddata123' };
-                }
-                return null;
-            }),
-        } as unknown as EntityManager<MongoDriver>;
+        // Setup specific mock behaviors for this test file
+        mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue(mockEventDatas);
+        mockEntityManager.find = vi.fn().mockResolvedValue([mockGuildData]);
 
-        // === Setup ORM Mock ===
-        mockOrm = {
-            em: {
-                fork: vi.fn().mockReturnValue(mockEntityManager),
-            },
-        } as unknown as MikroORM<MongoDriver>;
-
-        // === Create Job Instance ===
+        // Create Job Instance
         generateXpEventsJob = new GenerateXpEventsJob(mockClient, mockOrm);
 
         // Reset all mocks before each test
@@ -90,8 +56,7 @@ describe('GenerateXpEventsJob', () => {
         mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
 
         // Mock Math.random to always return a value less than 0.15 (to trigger event creation)
-        const originalRandom = Math.random;
-        Math.random = vi.fn().mockReturnValue(0.1);
+        const cleanup = mockRandomValues(0.1);
 
         await generateXpEventsJob.run();
 
@@ -108,14 +73,16 @@ describe('GenerateXpEventsJob', () => {
         // Verify database was flushed
         expect(mockEntityManager.flush).toHaveBeenCalled();
 
-        // Restore Math.random
-        Math.random = originalRandom;
+        // Cleanup
+        cleanup();
     });
 
     it('should not generate events for weekends that already have events', async () => {
+        // Setup current date/time
+        const mockedDate = DateTime.now();
+
         // Setup existing events for all weekends
-        const now = DateTime.now().setZone('UTC');
-        const weekends = generateXpEventsJob['getNextWeekends'](now, 4);
+        const weekends = generateXpEventsJob['getNextWeekends'](mockedDate, 4);
 
         mockEventDatas = weekends.map(weekend => {
             const event = new EventData(
@@ -131,8 +98,7 @@ describe('GenerateXpEventsJob', () => {
         mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue(mockEventDatas);
 
         // Mock Math.random to always return a value less than 0.15 (to trigger event creation)
-        const originalRandom = Math.random;
-        Math.random = vi.fn().mockReturnValue(0.1);
+        const cleanup = mockRandomValues(0.1);
 
         await generateXpEventsJob.run();
 
@@ -149,8 +115,8 @@ describe('GenerateXpEventsJob', () => {
         // Verify database was flushed
         expect(mockEntityManager.flush).toHaveBeenCalled();
 
-        // Restore Math.random
-        Math.random = originalRandom;
+        // Cleanup
+        cleanup();
     });
 
     it('should generate events with correct multipliers based on probability', async () => {
@@ -158,18 +124,13 @@ describe('GenerateXpEventsJob', () => {
         mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
 
         // Mock Math.random to return values that trigger different multipliers
-        const originalRandom = Math.random;
         // First value (0.1) is for the event creation check (Math.random() < 0.15)
         // Second value (0.5) is for the multiplier determination (0.5 < 0.85 for 2x)
         // Third value (0.1) is for the event creation check
         // Fourth value (0.9) is for the multiplier determination (0.9 < 0.95 for 3x)
         // Fifth value (0.1) is for the event creation check
         // Sixth value (0.98) is for the multiplier determination (0.98 >= 0.95 for 4x)
-        const randomValues = [0.1, 0.5, 0.1, 0.9, 0.1, 0.98];
-        let randomIndex = 0;
-        Math.random = vi.fn().mockImplementation(() => {
-            return randomValues[randomIndex++ % randomValues.length];
-        });
+        const cleanup = mockRandomValues(0.1, 0.5, 0.1, 0.9, 0.1, 0.98);
 
         await generateXpEventsJob.run();
 
@@ -186,8 +147,8 @@ describe('GenerateXpEventsJob', () => {
         expect(multipliers).toContain(3);
         expect(multipliers).toContain(4);
 
-        // Restore Math.random
-        Math.random = originalRandom;
+        // Cleanup
+        cleanup();
     });
 
     it('should handle errors gracefully', async () => {
@@ -208,8 +169,7 @@ describe('GenerateXpEventsJob', () => {
         mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
 
         // Mock Math.random to always return a value >= 0.15 (to not trigger XP event)
-        const originalRandom = Math.random;
-        Math.random = vi.fn().mockReturnValue(0.2);
+        const cleanup = mockRandomValues(0.2);
 
         await generateXpEventsJob.run();
 
@@ -226,7 +186,7 @@ describe('GenerateXpEventsJob', () => {
 
         expect(noEventCount).toBe(4);
 
-        // Restore Math.random
-        Math.random = originalRandom;
+        // Cleanup
+        cleanup();
     });
 });
