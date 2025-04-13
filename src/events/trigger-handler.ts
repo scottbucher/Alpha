@@ -45,6 +45,7 @@ export class TriggerHandler {
         }
 
         // Get data from database
+        // TODO: this means we are fetching the data for every trigger, we should cache this
         let data = await this.eventDataService.create({
             target: msg.author,
             guild: msg.guild,
