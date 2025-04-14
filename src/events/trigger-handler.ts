@@ -20,6 +20,10 @@ export class TriggerHandler {
     ) {}
 
     public async process(msg: Message): Promise<void> {
+        if (msg.author.bot) {
+            return;
+        }
+
         // Check if user is rate limited
         let limited = this.rateLimiter.take(msg.author.id);
         if (limited) {
