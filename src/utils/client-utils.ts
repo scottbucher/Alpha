@@ -281,4 +281,8 @@ export class ClientUtils {
             .filter(member => !filterOutBots || !member.user.bot)
             .map(member => member.id);
     }
+
+    public static getAllBotIds(guild: Guild): string[] {
+        return guild.members.cache.filter(member => member.user.bot).map(member => member.id);
+    }
 }

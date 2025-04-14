@@ -64,6 +64,33 @@ export class DatabaseUtils {
             }
         }
 
+        // TODO: temp, should eventually be removed
+        // I add this just to make sure that the bot doesn't have any guild user datas since there was a bug where the bot was earning xp for messages they sent
+        if (!memberIdListOverride) {
+            let botIds = ClientUtils.getAllBotIds(guild);
+            let allBotsWithGuildUserDatas = guildUserDatas.filter(data =>
+                botIds.includes(data.userDiscordId)
+            );
+            if (allBotsWithGuildUserDatas.length > 0) {
+                botIds = allBotsWithGuildUserDatas.map(data => data.userDiscordId);
+                // Purge all bot guild user datas from the database
+                await em.nativeDelete(GuildUserData, {
+                    guildDiscordId: guild.id,
+                    userDiscordId: { $in: botIds },
+                });
+
+                // Purge all user datas that are bots
+                await em.nativeDelete(UserData, {
+                    discordId: { $in: botIds },
+                });
+
+                // Purge all guild user datas that are bots
+                guildUserDatas = guildUserDatas.filter(
+                    data => !botIds.includes(data.userDiscordId)
+                );
+            }
+        }
+
         return { GuildData: guildData, GuildUserData: guildUserDatas };
     }
 
