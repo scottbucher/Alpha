@@ -41,6 +41,8 @@ describe('GiveVoiceXpJob', () => {
         return {
             member: member,
             channel: { id: channelId, name: channelName },
+            channelId: channelId,
+            selfDeaf: false,
         } as unknown as VoiceState;
     };
 
