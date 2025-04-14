@@ -44,9 +44,12 @@ export class GiveVoiceXpJob extends Job {
         let em = this.orm.em.fork();
 
         for (let guild of guildList.values()) {
-            guild = await guild.fetch();
             let guildVoiceStates = [...guild.voiceStates.cache.values()].filter(
-                voiceState => !voiceState.member.user.bot && voiceState.channel !== guild.afkChannel
+                voiceState =>
+                    voiceState.channelId &&
+                    !voiceState.member.user.bot &&
+                    voiceState.channel !== guild.afkChannel &&
+                    voiceState.selfDeaf === false
             ); // Filter out the bots and afk channels first
 
             // If there are no voice states, we can skip this guild
