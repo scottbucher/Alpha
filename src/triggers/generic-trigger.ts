@@ -6,7 +6,7 @@ import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
 import { LevelUpService } from '../services/index.js';
 import { FormatUtils } from '../utils/format-utils.js';
-import { ExperienceUtils } from '../utils/index.js';
+import { ExperienceUtils, TimeUtils } from '../utils/index.js';
 import { MessageUtils } from '../utils/message-utils.js';
 
 const require = createRequire(import.meta.url);
@@ -46,6 +46,7 @@ export class GenericTrigger implements Trigger {
                 await ExperienceUtils.getXpMultiplier(guildData)
             );
             let memberXpAfter = guildUserData.experience;
+            guildUserData.lastGivenMessageXp = TimeUtils.now().toISO();
             await data.em.persistAndFlush(guildUserData);
 
             let hasLeveledUp = ExperienceUtils.hasLeveledUp(memberXpBefore, memberXpAfter);
