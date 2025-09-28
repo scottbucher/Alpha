@@ -4,13 +4,14 @@ import { createRequire } from 'node:module';
 import { Trigger } from './index.js';
 import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
-import { LevelUpService } from '../services/index.js';
+import { LevelUpService, Logger } from '../services/index.js';
 import { FormatUtils } from '../utils/format-utils.js';
 import { ExperienceUtils, TimeUtils } from '../utils/index.js';
 import { MessageUtils } from '../utils/message-utils.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
+let Logs = require('../../lang/logs.json');
 
 export class GenericTrigger implements Trigger {
     public requireGuild = true;
@@ -42,9 +43,22 @@ export class GenericTrigger implements Trigger {
             let memberXpBefore = guildUserData.experience;
             let currentLevel = ExperienceUtils.getLevelFromXp(memberXpBefore); // Get current level
 
-            guildUserData.experience += ExperienceUtils.generateMessageXp(
+            let xpGranted = ExperienceUtils.generateMessageXp(
+                msg.member,
                 await ExperienceUtils.getXpMultiplier(guildData)
             );
+
+            guildUserData.experience += xpGranted;
+
+            Logger.info(
+                Logs.info.messageXpGranted
+                    .replaceAll('{GUILD_ID}', msg.guild.id)
+                    .replaceAll('{GUILD_NAME}', msg.guild.name)
+                    .replaceAll('{USER_ID}', msg.author.id)
+                    .replaceAll('{USER_NAME}', msg.author.username)
+                    .replaceAll('{XP_GRANTED}', xpGranted)
+            );
+
             let memberXpAfter = guildUserData.experience;
             guildUserData.lastGivenMessageXp = TimeUtils.now().toISO();
             await data.em.persistAndFlush(guildUserData);

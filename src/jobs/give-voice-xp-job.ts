@@ -136,9 +136,27 @@ export class GiveVoiceXpJob extends Job {
                     let memberXpBefore = guildUserData.experience;
                     let memberLevelBefore = ExperienceUtils.getLevelFromXp(memberXpBefore);
 
-                    guildUserData.experience += ExperienceUtils.generateVoiceXp(
+                    let currentVoiceChannelMembers = guild.voiceStates.cache
+                        .filter(voiceState => voiceState.channelId === voiceState.channelId)
+                        .filter(voiceState => !voiceState.member.user.bot).size;
+
+                    let xpGranted = ExperienceUtils.generateVoiceXp(
+                        voiceState.member,
+                        currentVoiceChannelMembers,
                         await ExperienceUtils.getXpMultiplier(guildData)
                     );
+
+                    guildUserData.experience += xpGranted;
+
+                    Logger.info(
+                        Logs.info.voiceXpGranted
+                            .replaceAll('{GUILD_ID}', guild.id)
+                            .replaceAll('{GUILD_NAME}', guild.name)
+                            .replaceAll('{USER_ID}', voiceState.member.id)
+                            .replaceAll('{USER_NAME}', voiceState.member.user.username)
+                            .replaceAll('{XP_GRANTED}', xpGranted)
+                    );
+
                     let memberXpAfter = guildUserData.experience;
                     updatedGuildUserDatas.push(guildUserData);
 

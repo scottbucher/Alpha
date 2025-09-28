@@ -30,7 +30,9 @@
         "xpEventEnded": "XP event with multiplier {MULTIPLIER} ended in guild '{GUILD_NAME}' ({GUILD_ID}).",
         "xpEventAnnounced": "XP event with multiplier {MULTIPLIER} announced in guild '{GUILD_NAME}' ({GUILD_ID}).",
         "xpEventGenerated": "Generated XP event (x{MULTIPLIER}) for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
-        "noXpEventGenerated": "No XP event generated for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}."
+        "noXpEventGenerated": "No XP event generated for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
+        "voiceXpGranted": "Granted {XP_GRANTED} XP to user {USER_NAME} ({USER_ID}) in guild {GUILD_NAME} ({GUILD_ID}).",
+        "messageXpGranted": "Granted {XP_GRANTED} XP to user {USER_NAME} ({USER_ID}) in guild {GUILD_NAME} ({GUILD_ID})."
     },
     "warn": {
         "managerNoShards": "No shards to spawn.",

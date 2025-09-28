@@ -1,7 +1,15 @@
+import { GuildMember } from 'discord.js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ExperienceUtils } from '../../src/utils/index.js';
 import { mockRandomValues } from '../helpers/test-utils.js';
+
+// Mock GuildMember factory
+function createMockGuildMember(options: { premiumSince?: Date | null } = {}): GuildMember {
+    return {
+        premiumSince: options.premiumSince || null,
+    } as GuildMember;
+}
 
 describe('ExperienceUtils', () => {
     describe('getXpForNextLevel', () => {
@@ -123,7 +131,7 @@ describe('ExperienceUtils', () => {
         });
     });
 
-    describe('generateMessageXp', () => {
+    describe('generateBaseMessageXp', () => {
         afterEach(() => {
             vi.restoreAllMocks();
         });
@@ -133,24 +141,88 @@ describe('ExperienceUtils', () => {
             const cleanup = mockRandomValues(0, 1, 0.5);
 
             // Test min value
-            expect(ExperienceUtils.generateMessageXp()).toBe(15);
+            expect(ExperienceUtils.generateBaseMessageXp()).toBe(15);
 
             // Test max value
-            expect(ExperienceUtils.generateMessageXp()).toBe(25);
+            expect(ExperienceUtils.generateBaseMessageXp()).toBe(25);
 
             // Test middle value
-            expect(ExperienceUtils.generateMessageXp()).toBe(20);
+            expect(ExperienceUtils.generateBaseMessageXp()).toBe(20);
 
             // Clean up the mock
             cleanup();
         });
     });
 
+    describe('generateMessageXp', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it('should apply guild member multipliers', () => {
+            const cleanup = mockRandomValues(0.5); // Middle value (20 base XP)
+
+            // Regular member (no premium)
+            const regularMember = createMockGuildMember();
+            expect(ExperienceUtils.generateMessageXp(regularMember)).toBe(20);
+
+            // Premium member (boosting)
+            const premiumMember = createMockGuildMember({
+                premiumSince: new Date('2023-01-01'),
+            });
+            expect(ExperienceUtils.generateMessageXp(premiumMember)).toBe(24); // 20 * 1.2
+
+            cleanup();
+        });
+
+        it('should apply base multiplier along with guild member multipliers', () => {
+            const cleanup = mockRandomValues(0.5); // 20 base XP
+
+            const premiumMember = createMockGuildMember({
+                premiumSince: new Date('2023-01-01'),
+            });
+
+            // With 2x base multiplier: 20 * 1.2 * 2 = 48
+            expect(ExperienceUtils.generateMessageXp(premiumMember, 2)).toBe(48);
+
+            cleanup();
+        });
+    });
+
+    describe('generateBaseVoiceXp', () => {
+        it('should calculate base XP with member bonuses', () => {
+            expect(ExperienceUtils.generateBaseVoiceXp(1)).toBe(5); // No bonus for single member
+            expect(ExperienceUtils.generateBaseVoiceXp(2)).toBe(7); // 5 + 2 bonus
+            expect(ExperienceUtils.generateBaseVoiceXp(3)).toBe(8); // 5 + 3 bonus
+            expect(ExperienceUtils.generateBaseVoiceXp(5)).toBe(10); // 5 + 5 bonus (max)
+            expect(ExperienceUtils.generateBaseVoiceXp(10)).toBe(10); // 5 + 5 bonus (capped at 5)
+        });
+    });
+
     describe('generateVoiceXp', () => {
-        it('should calculate XP based on minutes', () => {
-            expect(ExperienceUtils.generateVoiceXp(1)).toBe(5);
-            expect(ExperienceUtils.generateVoiceXp(2)).toBe(10);
-            expect(ExperienceUtils.generateVoiceXp(5)).toBe(25);
+        it('should calculate XP based on minutes and member count', () => {
+            const regularMember = createMockGuildMember();
+
+            // Single minute, various member counts
+            expect(ExperienceUtils.generateVoiceXp(regularMember, 1, 1)).toBe(5); // No bonus
+            expect(ExperienceUtils.generateVoiceXp(regularMember, 2, 1)).toBe(7); // +2 bonus
+            expect(ExperienceUtils.generateVoiceXp(regularMember, 5, 1)).toBe(10); // +5 bonus (max)
+
+            // Multiple minutes
+            expect(ExperienceUtils.generateVoiceXp(regularMember, 2, 2)).toBe(14); // 7 * 2 minutes
+            expect(ExperienceUtils.generateVoiceXp(regularMember, 2, 5)).toBe(35); // 7 * 5 minutes
+        });
+
+        it('should apply guild member multipliers', () => {
+            const premiumMember = createMockGuildMember({
+                premiumSince: new Date('2023-01-01'),
+            });
+
+            // Premium member gets 1.2x multiplier: 7 * 1.2 = 8 (rounded)
+            expect(ExperienceUtils.generateVoiceXp(premiumMember, 2, 1)).toBe(8);
+
+            // With base multiplier: 7 * 1.2 * 2 = 16.8 rounded to 17
+            expect(ExperienceUtils.generateVoiceXp(premiumMember, 2, 1, 2)).toBe(17);
         });
     });
 
@@ -252,6 +324,64 @@ describe('ExperienceUtils', () => {
         it('should return correct for real world example', () => {
             // 254 is just under level 2, should be close to 100%
             expect(ExperienceUtils.getLevelProgressPercentage(1035374)).toBe(88);
+        });
+    });
+
+    describe('getGuildMemberNitroMultiplier', () => {
+        it('should return 1.2 for premium members', () => {
+            const premiumMember = createMockGuildMember({
+                premiumSince: new Date('2023-01-01'),
+            });
+            expect(ExperienceUtils.getGuildMemberNitroMultiplier(premiumMember)).toBe(1.2);
+        });
+
+        it('should return 1.0 for non-premium members', () => {
+            const regularMember = createMockGuildMember();
+            expect(ExperienceUtils.getGuildMemberNitroMultiplier(regularMember)).toBe(1.0);
+
+            const nullPremiumMember = createMockGuildMember({ premiumSince: null });
+            expect(ExperienceUtils.getGuildMemberNitroMultiplier(nullPremiumMember)).toBe(1.0);
+        });
+    });
+
+    describe('getVoiceXpForMultipleUsersInVoiceChannel', () => {
+        it('should return 0 for less than 2 members', () => {
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(0)).toBe(0);
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(1)).toBe(0);
+        });
+
+        it('should return member count for 2-5 members', () => {
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(2)).toBe(2);
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(3)).toBe(3);
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(4)).toBe(4);
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(5)).toBe(5);
+        });
+
+        it('should cap at 5 XP for more than 5 members', () => {
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(6)).toBe(5);
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(10)).toBe(5);
+            expect(ExperienceUtils.getVoiceXpForMultipleUsersInVoiceChannel(100)).toBe(5);
+        });
+    });
+
+    describe('getXpMultiplierForGuildMember', () => {
+        it('should combine nitro multiplier with base multiplier', () => {
+            const regularMember = createMockGuildMember();
+            const premiumMember = createMockGuildMember({
+                premiumSince: new Date('2023-01-01'),
+            });
+
+            // Regular member with default multiplier
+            expect(ExperienceUtils.getXpMultiplierForGuildMember(regularMember)).toBe(1.0);
+
+            // Premium member with default multiplier
+            expect(ExperienceUtils.getXpMultiplierForGuildMember(premiumMember)).toBe(1.2);
+
+            // Regular member with 2x base multiplier
+            expect(ExperienceUtils.getXpMultiplierForGuildMember(regularMember, 2)).toBe(2.0);
+
+            // Premium member with 2x base multiplier: 1.2 * 2 = 2.4
+            expect(ExperienceUtils.getXpMultiplierForGuildMember(premiumMember, 2)).toBe(2.4);
         });
     });
 });

@@ -1,3 +1,4 @@
+import { GuildMember } from 'discord.js';
 import { DateTime } from 'luxon';
 import { createRequire } from 'node:module';
 
@@ -141,22 +142,91 @@ export abstract class ExperienceUtils {
     }
 
     /**
-     * Generate a random XP amount for message rewards
-     * @param multiplier The multiplier for the message XP
-     * @returns Random XP amount within configured range
+     * Generate a random XP amount for message rewards with guild member multipliers
+     * @param guildMember The guild member to calculate XP for
+     * @param multiplier The base multiplier for the message XP (defaults to 1)
+     * @returns Random XP amount within configured range with multipliers applied
      */
-    public static generateMessageXp(multiplier: number = 1): number {
-        return Math.round(Math.random() * (textXpMax - textXpMin) + textXpMin) * multiplier;
+    public static generateMessageXp(guildMember: GuildMember, multiplier: number = 1): number {
+        return Math.round(
+            this.generateBaseMessageXp() *
+                this.getXpMultiplierForGuildMember(guildMember, multiplier)
+        );
     }
 
     /**
-     * Generate a random XP amount for voice activity
-     * @param minutesInVoice Minutes spent in voice channel
-     * @param multiplier The multiplier for the voice XP
-     * @returns XP amount for voice activity
+     * Generate base random XP amount for messages without any multipliers
+     * @returns Random XP amount within configured text XP range
      */
-    public static generateVoiceXp(minutesInVoice: number = 1, multiplier: number = 1): number {
-        return Math.round(voiceXpAmount * minutesInVoice) * multiplier;
+    public static generateBaseMessageXp(): number {
+        return Math.random() * (textXpMax - textXpMin) + textXpMin;
+    }
+
+    /**
+     * Calculate the total XP multiplier for a guild member
+     * @param guildMember The guild member to calculate multiplier for
+     * @param multiplier The base multiplier to apply (defaults to 1)
+     * @returns Combined multiplier including nitro bonus and base multiplier
+     */
+    public static getXpMultiplierForGuildMember(
+        guildMember: GuildMember,
+        multiplier: number = 1
+    ): number {
+        return this.getGuildMemberNitroMultiplier(guildMember) * multiplier;
+    }
+
+    /**
+     * Get the nitro multiplier for a guild member
+     * @param guildMember The guild member to check for nitro status
+     * @returns 1.2 if member has nitro, 1.0 otherwise
+     */
+    public static getGuildMemberNitroMultiplier(guildMember: GuildMember): number {
+        return guildMember.premiumSince ? 1.2 : 1;
+    }
+
+    /**
+     * If a voice channel has at least 2 members, give them an additional 1 XP per member in the voice channel, up to a maxium of 5 XP
+     * @param guildMembers The guild members to calculate XP for
+     * @returns Total XP amount for multiple users in a voice channel
+     */
+    public static getVoiceXpForMultipleUsersInVoiceChannel(numberOfMembers: number): number {
+        // If less than 2 members, no bonus XP
+        if (numberOfMembers < 2) {
+            return 0;
+        }
+
+        // 1 XP per member in the voice channel, up to a maximum of 5 XP
+        return Math.min(numberOfMembers, 5);
+    }
+
+    /**
+     * Generate XP amount for voice activity with guild member multipliers
+     * @param guildMember The guild member to calculate XP for
+     * @param minutesInVoice Minutes spent in voice channel (defaults to 1)
+     * @param multiplier The base multiplier for the voice XP (defaults to 1)
+     * @returns XP amount for voice activity with multipliers applied
+     */
+    public static generateVoiceXp(
+        guildMember: GuildMember,
+        numberOfMembers: number,
+        minutesInVoice: number = 1,
+        multiplier: number = 1
+    ): number {
+        return (
+            Math.round(
+                this.generateBaseVoiceXp(numberOfMembers) *
+                    this.getXpMultiplierForGuildMember(guildMember, multiplier)
+            ) * minutesInVoice
+        );
+    }
+
+    /**
+     * Generate base XP amount for voice activity without any multipliers
+     * @param numberOfMembers The number of members in the voice channel
+     * @returns Base XP amount for voice activity
+     */
+    public static generateBaseVoiceXp(numberOfMembers: number): number {
+        return voiceXpAmount + this.getVoiceXpForMultipleUsersInVoiceChannel(numberOfMembers);
     }
 
     /**
