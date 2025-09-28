@@ -223,7 +223,7 @@
                 "fields": [
                     {
                         "name": "Messages",
-                        "value": " - On every message, you will earn a random amount of XP between 15 and 25.\n - Each user can get message XP once per minute."
+                        "value": " - On every message, you will earn a random amount of XP between 15 and 25.\n - Each member can get message XP once per minute."
                     },
                     {
                         "name": "Voice Calls",
