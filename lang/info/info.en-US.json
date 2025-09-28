@@ -223,11 +223,11 @@
                 "fields": [
                     {
                         "name": "Messages",
-                        "value": " - On every message, you will earn a random amount of XP between 15 and 25.\n - Each member can get message XP once per minute."
+                        "value": " - On every message, you will earn a random amount of XP between 15 and 25.\n - Each member can get message XP once per minute.\n - Slash commands are not eligible for message XP."
                     },
                     {
                         "name": "Voice Calls",
-                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel.\n - Voice XP is given at the start of each minute."
+                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, excluding bots, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel.\n - Voice XP is given at the start of each minute."
                     },
                     {
                         "name": "Nitro Boosts",
