@@ -19,6 +19,14 @@ export class XpCommand implements Command {
             intr.options.getUser(Lang.getRef('commands', 'arguments.user', Language.Default)) ??
             intr.user;
 
+        if (target.bot) {
+            await InteractionUtils.send(
+                intr,
+                Lang.getErrorEmbed('validation', 'errorEmbeds.cannotViewBotXp', data.lang)
+            );
+            return;
+        }
+
         let guildUserData = data.guildUserData;
 
         let currentXp = guildUserData.experience;
