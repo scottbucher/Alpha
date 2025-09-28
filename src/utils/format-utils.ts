@@ -75,7 +75,11 @@ export class FormatUtils {
             Lang.getRef('commands', `chatCommands.${langLocation}`, Language.Default)
         );
 
-        let name = [command.name, ...subParts].join(' ');
+        let convertedSubParts = subParts.map(subPart =>
+            Lang.getRef('commands', `chatCommands.${subPart}`, Language.Default)
+        );
+
+        let name = [command.name, ...convertedSubParts].join(' ');
         return `</${name}:${command.id}>`;
     }
 
