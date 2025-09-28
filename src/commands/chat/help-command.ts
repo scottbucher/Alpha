@@ -30,6 +30,10 @@ export class HelpCommand implements Command {
                 embed = Lang.getEmbed('info', 'help.permissions', data.lang);
                 break;
             }
+            case HelpOption.XP: {
+                embed = Lang.getEmbed('info', 'help.xp', data.lang);
+                break;
+            }
         }
 
         await InteractionUtils.send(intr, embed);

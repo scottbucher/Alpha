@@ -28,5 +28,13 @@ export class HelpOptionHelper {
                 return Lang.getRefLocalizationMap('commands', 'helpOptionDescs.permissions');
             },
         },
+        XP: {
+            displayName(langCode: Locale): string {
+                return Lang.getRef('commands', 'helpOptionDescs.xp', langCode);
+            },
+            localizationMap(): LocalizationMap {
+                return Lang.getRefLocalizationMap('commands', 'helpOptionDescs.xp');
+            },
+        },
     };
 }

@@ -103,11 +103,13 @@
         },
         "helpOptions": {
             "commands": "Commands",
-            "permissions": "Permissions"
+            "permissions": "Permissions",
+            "xp": "XP"
         },
         "helpOptionDescs": {
             "commands": "{{REF:helpOptions.commands}} -- What commands are there? How do I restrict who is allowed to use commands?",
-            "permissions": "{{REF:helpOptions.permissions}} -- How do I restrict who is allowed to use commands?"
+            "permissions": "{{REF:helpOptions.permissions}} -- How do I restrict who is allowed to use commands?",
+            "xp": "{{REF:helpOptions.xp}} -- How does the XP system work?"
         },
         "infoOptions": {
             "about": "About"

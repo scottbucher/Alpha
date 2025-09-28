@@ -217,6 +217,27 @@
                         ]
                     }
                 ]
+            },
+            "xp": {
+                "title": "Help - {{REF:helpOptions.xp}}",
+                "fields": [
+                    {
+                        "name": "Messages",
+                        "value": " - On every message, you will earn a random amount of XP between 15 and 25.\n - Each user can get message XP once per minute."
+                    },
+                    {
+                        "name": "Voice Calls",
+                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel."
+                    },
+                    {
+                        "name": "Nitro Boosts",
+                        "value": " - Nitro boosters get a 20% increase in XP in the server they are boosting.\n - The number of boosts a member used in the server does not affect the multiplier, they only need to have at least one boost in the server. (Discord doesn't expose the number of boosts a member has in a server via the API.)"
+                    },
+                    {
+                        "name": "Increased XP Weekends",
+                        "value": " - Each weekend, there is a 15% chance for an increased XP weekend. When this happens, there is an 85% chance it will be a 2x multiplier, a 10% chance it will be a 3x multiplier, and a 5% chance it will be a 4x multiplier.\n - Increased XP weekedends are announced 2 weeks before they start and announced when they start and end."
+                    }
+                ]
             }
         },
         "xpEvents": {
@@ -362,15 +383,8 @@
         },
         "helpOptions": {
             "contactSupport": "Contact Support",
-            "commands": "Commands"
-        },
-        "helpOptionDescs": {
-            "contactSupport": "❓ {{REF:helpOptions.contactSupport}} ❓",
-            "commands": "{{REF:helpOptions.commands}} -- What commands are there? How do I restrict who is allowed to use commands?"
-        },
-        "infoOptions": {
-            "about": "About",
-            "translate": "Translate"
+            "commands": "Commands",
+            "xp": "XP"
         },
         "yesNo": {
             "yes": "Yes",
