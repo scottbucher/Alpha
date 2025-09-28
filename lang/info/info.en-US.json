@@ -227,7 +227,7 @@
                     },
                     {
                         "name": "Voice Calls",
-                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, excluding bots, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel.\n - Voice XP is given at the start of each minute."
+                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, excluding bots, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP per minute.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel.\n - Voice XP is given at the start of each minute."
                     },
                     {
                         "name": "Nitro Boosts",
@@ -235,7 +235,11 @@
                     },
                     {
                         "name": "Increased XP Weekends",
-                        "value": " - Each weekend, there is a 15% chance for an increased XP weekend. When this happens, there is an 85% chance it will be a 2x multiplier, a 10% chance it will be a 3x multiplier, and a 5% chance it will be a 4x multiplier.\n - Increased XP weekedends are announced 2 weeks before they start and announced when they start and end."
+                        "value": " - Each weekend, there is a 15% chance for an increased XP weekend. When this happens, there is an 85% chance it will be a 2x multiplier, a 10% chance it will be a 3x multiplier, and a 5% chance it will be a 4x multiplier.\n - Increased XP weekedends are announced 2 weeks before they start and announced when they start and end.\n - Increased XP weekends are processed in the server's configured time zone, starting Friday at 6PM and ending Sunday at 11:59PM."
+                    },
+                    {
+                        "name": "Leveling Up & Usage",
+                        "value": " - View your current (or another member's) XP and level using {{CMD_XP}}, and view the leaderboard using {{CMD_LEADERBOARD}}.\n - When you get enough XP to level up, you will be notified in the server's leveling channel, if it is set.\n- A server can configure leveling rewards for each level using {{CMD_REWARD_ADD_ROLE}}, {{CMD_REWARD_REMOVE_ROLE}}, {{CMD_REWARD_REMOVE_ID}}, {{CMD_REWARD_CLEAR_ROLES}}, and {{CMD_VIEW_REWARDS}}.\n - There can be multiple rewards for each level.\n - Members can claim possible missed rewards using {{CMD_CLAIM_REWARDS}}.\n - Each subsequent level requires more XP than the previous level, following the following formula: 5x² + 50x + 100, where x is the level."
                     }
                 ]
             }

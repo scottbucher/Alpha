@@ -4,7 +4,7 @@ import { EventDataType, HelpOption } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/index.js';
-import { InteractionUtils } from '../../utils/index.js';
+import { FormatUtils, InteractionUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
 
 export class HelpCommand implements Command {
@@ -31,7 +31,32 @@ export class HelpCommand implements Command {
                 break;
             }
             case HelpOption.XP: {
-                embed = Lang.getEmbed('info', 'help.xp', data.lang);
+                embed = Lang.getEmbed('info', 'help.xp', data.lang, {
+                    CMD_XP: await FormatUtils.commandMention(intr.client, 'xp'),
+                    CMD_LEADERBOARD: await FormatUtils.commandMention(intr.client, 'leaderboard'),
+                    CMD_REWARD_ADD_ROLE: await FormatUtils.commandMention(intr.client, 'reward', [
+                        'addRole',
+                    ]),
+                    CMD_REWARD_REMOVE_ROLE: await FormatUtils.commandMention(
+                        intr.client,
+                        'reward',
+                        ['remove', 'role']
+                    ),
+                    CMD_REWARD_REMOVE_ID: await FormatUtils.commandMention(intr.client, 'reward', [
+                        'remove',
+                        'id',
+                    ]),
+                    CMD_REWARD_CLEAR_ROLES: await FormatUtils.commandMention(
+                        intr.client,
+                        'reward',
+                        ['clearRoles']
+                    ),
+                    CMD_VIEW_REWARDS: await FormatUtils.commandMention(intr.client, 'viewRewards'),
+                    CMD_CLAIM_REWARDS: await FormatUtils.commandMention(
+                        intr.client,
+                        'claimRewards'
+                    ),
+                });
                 break;
             }
         }
