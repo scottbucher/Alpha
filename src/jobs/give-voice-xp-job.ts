@@ -130,15 +130,15 @@ export class GiveVoiceXpJob extends Job {
 
             for (let voiceState of guildVoiceStates) {
                 let guildUserData = guildUserDatas.find(
-                    userData => userData.userDiscordId === voiceState.member.id
+                    userData => userData.userDiscordId === voiceState.member.id && voiceState
                 );
                 if (guildUserData) {
                     let memberXpBefore = guildUserData.experience;
                     let memberLevelBefore = ExperienceUtils.getLevelFromXp(memberXpBefore);
 
                     let currentVoiceChannelMembers = guild.voiceStates.cache
-                        .filter(voiceState => voiceState.channelId === voiceState.channelId)
-                        .filter(voiceState => !voiceState.member.user.bot).size;
+                        .filter(vs => vs.channelId === voiceState.channelId)
+                        .filter(vs => !vs.member.user.bot).size;
 
                     let xpGranted = ExperienceUtils.generateVoiceXp(
                         voiceState.member,
