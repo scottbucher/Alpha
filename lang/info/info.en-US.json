@@ -227,11 +227,11 @@
                     },
                     {
                         "name": "Voice Calls",
-                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel."
+                        "value": " - When you are in a voice channel, you will earn 5 XP every minute you are in the channel.\n - If there are multiple members in the same voice channel, you will earn 1 XP per member in the channel, up to a maximum of an additional 5 XP.\n - Voice XP is not given to any member who is deafened or in the server's AFK channel.\n - Voice XP is given at the start of each minute."
                     },
                     {
                         "name": "Nitro Boosts",
-                        "value": " - Nitro boosters get a 20% increase in XP in the server they are boosting.\n - The number of boosts a member used in the server does not affect the multiplier, they only need to have at least one boost in the server. (Discord doesn't expose the number of boosts a member has in a server via the API.)"
+                        "value": " - There is a 20% XP boost for any member who is boosting the server.\n - The number of boosts a member has in the server does not affect the multiplier, they only need to have at least one boost in the server. (Discord doesn't expose the number of boosts a member has in a server via the API.)"
                     },
                     {
                         "name": "Increased XP Weekends",
