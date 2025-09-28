@@ -56,7 +56,8 @@
             "joinRoleIdDoesNotExist": "The role ID {{ROLE_ID}} is not set as a join role!",
             "noJoinRoles": "There are no join roles set for this server!",
             "unsupportedChannelType": "Unsupported channel type! Please try again.",
-            "noRewardsToClaim": "You have no rewards to claim!"
+            "noRewardsToClaim": "You have no rewards to claim!",
+            "cannotViewBotXp": "Bots are not eligible for XP!"
         }
     },
     "refs": {
