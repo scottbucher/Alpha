@@ -190,6 +190,7 @@ export class EventJob extends Job {
                     Logs.info.xpEventAnnounced
                         .replaceAll('{GUILD_ID}', guild.id)
                         .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{GUILD_NAME}', guild.name)
                         .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
                 );
 
@@ -212,6 +213,7 @@ export class EventJob extends Job {
                     Logs.info.xpEventStarted
                         .replaceAll('{GUILD_ID}', guild.id)
                         .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{GUILD_NAME}', guild.name)
                         .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
                 );
 
@@ -228,6 +230,7 @@ export class EventJob extends Job {
                     Logs.info.xpEventEnded
                         .replaceAll('{GUILD_ID}', guild.id)
                         .replaceAll('{EVENT_ID}', event.id)
+                        .replaceAll('{GUILD_NAME}', guild.name)
                         .replaceAll('{MULTIPLIER}', event.xpProperties.multiplier.toString())
                 );
 
