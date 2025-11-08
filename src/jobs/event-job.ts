@@ -27,8 +27,8 @@ const XP_EVENT_END_ICON =
     'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
 const XP_EVENT_ANNOUNCED_ICON =
     'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
-    const ANNIVERSARY_EVENT_ICON =
-        'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
+const ANNIVERSARY_EVENT_ICON =
+    'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
 
 const MULTIPLIER_NAMES = {
     2: 'double',
@@ -335,12 +335,13 @@ export class EventJob extends Job {
                 SERVER_ICON: guild.iconURL() ?? '',
                 SERVER_NAME: guild.name,
                 YEARS_OLD: yearsOld,
-                XP_EVENT_ICON: isAnniversary ? ANNIVERSARY_EVENT_ICON :
-                    type === EventStage.Announced
-                        ? XP_EVENT_ANNOUNCED_ICON
-                        : type === EventStage.Ended
-                          ? XP_EVENT_END_ICON
-                          : XP_EVENT_START_ICON,
+                XP_EVENT_ICON: isAnniversary
+                    ? ANNIVERSARY_EVENT_ICON
+                    : type === EventStage.Announced
+                      ? XP_EVENT_ANNOUNCED_ICON
+                      : type === EventStage.Ended
+                        ? XP_EVENT_END_ICON
+                        : XP_EVENT_START_ICON,
             }
         );
 
