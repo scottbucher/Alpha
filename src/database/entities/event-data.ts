@@ -16,7 +16,8 @@ import { EventType } from '../../enums/index.js';
 import { TimeUtils } from '../../utils/index.js';
 
 // Used to ensure we have language keys for all multipliers
-export type XpMultiplier = 2 | 3 | 4;
+// Now supports decimal values for anniversary events (1.25, 1.5, etc.)
+export type XpMultiplier = number;
 
 // The idea of this is we could add things like, message xp min/max, voice xp amount, etc.
 @Embeddable()
