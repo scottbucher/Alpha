@@ -287,7 +287,7 @@
                     "text": "🎂 Celebrating {{YEARS_OLD}} together!",
                     "icon": "{{SERVER_ICON}}"
                 },
-                "thumbnail": "{{ANNIVERSARY_ICON}}",
+                "thumbnail": "{{XP_EVENT_ICON}}",
                 "timestamp": true,
                 "color": "{{COM:colors.success}}"
             },
@@ -298,7 +298,7 @@
                     "text": "🎂 Thanks for celebrating!",
                     "icon": "{{SERVER_ICON}}"
                 },
-                "thumbnail": "{{ANNIVERSARY_ICON}}",
+                "thumbnail": "{{XP_EVENT_ICON}}",
                 "timestamp": true,
                 "color": "{{COM:colors.error}}"
             },
@@ -309,7 +309,7 @@
                     "text": "🎂 Mark your calendars for our anniversary!",
                     "icon": "{{SERVER_ICON}}"
                 },
-                "thumbnail": "{{ANNIVERSARY_ICON}}",
+                "thumbnail": "{{XP_EVENT_ICON}}",
                 "timestamp": true,
                 "color": "{{COM:colors.default}}"
             }
