@@ -272,19 +272,13 @@ export class EventJob extends Job {
         const multiplier = event.xpProperties.multiplier;
         const multiplierKey = MULTIPLIER_NAMES[multiplier];
 
-        if (!multiplierKey) {
-            Logger.error(
-                Logs.error.invalidMultiplier
-                    .replaceAll('{GUILD_ID}', guild.id)
-                    .replaceAll('{EVENT_ID}', event.id)
-                    .replaceAll('{MULTIPLIER}', multiplier.toString())
-            );
-            return;
-        }
-
         const timeZone = guildData?.generalSettings.timeZone;
 
-        const multiplierName = Lang.getRef('info', `terms.${multiplierKey}`, Language.Default);
+        // For standard multipliers (2, 3, 4), use language keys
+        // For anniversary/custom multipliers, use the numeric value directly
+        const multiplierName = multiplierKey
+            ? Lang.getRef('info', `terms.${multiplierKey}`, Language.Default)
+            : `${multiplier}x`;
 
         // Parse dates with the guild's time zone
         const eventStartDateTime = DateTime.fromISO(event.timeProperties.startTime, {
