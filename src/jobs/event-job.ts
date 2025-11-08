@@ -27,6 +27,8 @@ const XP_EVENT_END_ICON =
     'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
 const XP_EVENT_ANNOUNCED_ICON =
     'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
+    const ANNIVERSARY_EVENT_ICON =
+        'https://birthday-bot-docs-images.s3.us-east-1.amazonaws.com/xp-multiplier.png';
 
 const MULTIPLIER_NAMES = {
     2: 'double',
@@ -98,7 +100,11 @@ export class EventJob extends Job {
                 let hasChangedEventsForGuild = await this.processGuildIncreasedXpWeekendEvents(
                     guild,
                     guildData,
-                    eventDatas.filter(event => event.eventType === EventType.INCREASED_XP_WEEKEND),
+                    eventDatas.filter(
+                        event =>
+                            event.eventType === EventType.INCREASED_XP_WEEKEND ||
+                            event.eventType === EventType.ANNIVERSARY_XP_WEEKEND
+                    ),
                     channel,
                     TimeUtils.getNowForGuild(guildData)
                 );
@@ -293,11 +299,25 @@ export class EventJob extends Job {
         const eventStartTime = eventStartDateTime.toJSDate();
         const eventEndTime = eventEndDateTime.toJSDate();
 
+        // Check if this is an anniversary event
+        const isAnniversary = event.eventType === EventType.ANNIVERSARY_XP_WEEKEND;
+
+        // Calculate server age for anniversary events
+        let yearsOld = '';
+        if (isAnniversary) {
+            const guildCreatedAt = DateTime.fromJSDate(guild.createdAt, {
+                zone: timeZone || 'UTC',
+            });
+            const yearsDiff = eventStartDateTime.year - guildCreatedAt.year;
+            yearsOld = yearsDiff === 1 ? '1 Year' : `${yearsDiff} Years`;
+        }
+
+        const embedPath = isAnniversary ? 'anniversaryXpEvents' : 'xpEvents';
         const embed = Lang.getEmbed(
             'info',
             type === EventStage.Announced
-                ? 'xpEvents.announced'
-                : `xpEvents.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
+                ? `${embedPath}.announced`
+                : `${embedPath}.has${type === EventStage.Started ? 'Started' : 'Ended'}`,
             Language.Default,
             {
                 MULTIPLIER_NAME_CAPS: multiplierName.toLocaleUpperCase(),
@@ -313,7 +333,9 @@ export class EventJob extends Job {
                 }),
                 END_TIME_RELATIVE: FormatUtils.discordTimestampRelative(eventEndTime),
                 SERVER_ICON: guild.iconURL() ?? '',
-                XP_EVENT_ICON:
+                SERVER_NAME: guild.name,
+                YEARS_OLD: yearsOld,
+                XP_EVENT_ICON: isAnniversary ? ANNIVERSARY_EVENT_ICON :
                     type === EventStage.Announced
                         ? XP_EVENT_ANNOUNCED_ICON
                         : type === EventStage.Ended

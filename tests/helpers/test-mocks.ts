@@ -60,6 +60,7 @@ export function createMockGuild(id = 'guild123', name = 'Test Guild'): any {
     return {
         id,
         name,
+        createdAt: new Date('2020-01-01T00:00:00Z'),
         iconURL: vi.fn().mockReturnValue('https://example.com/icon.png'),
         channels: {
             cache: new Collection(),

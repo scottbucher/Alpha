@@ -78,8 +78,11 @@ describe('GenerateXpEventsJob', () => {
     });
 
     it('should not generate events for weekends that already have events', async () => {
-        // Setup current date/time
-        const mockedDate = DateTime.now();
+        // Mock client to return undefined (guild not in cache) to avoid anniversary events
+        mockClient.guilds.cache.get = vi.fn().mockReturnValue(undefined);
+
+        // Setup current date/time in UTC (matching the mock guild's timezone)
+        const mockedDate = DateTime.now().setZone('UTC');
 
         // Setup existing events for all weekends
         const weekends = generateXpEventsJob['getNextWeekends'](mockedDate, 4);
@@ -188,5 +191,320 @@ describe('GenerateXpEventsJob', () => {
 
         // Cleanup
         cleanup();
+    });
+
+    describe('Anniversary Events', () => {
+        it('should calculate correct anniversary multipliers', () => {
+            // Test the private method via reflection
+            const calculateMultiplier =
+                generateXpEventsJob['calculateAnniversaryMultiplier'].bind(generateXpEventsJob);
+
+            // Test base multipliers (0.25x per year)
+            expect(calculateMultiplier(1)).toBe(1.25); // 0.25 * 1 + 0
+            expect(calculateMultiplier(2)).toBe(1.5); // 0.25 * 2 + 0
+            expect(calculateMultiplier(3)).toBe(1.75); // 0.25 * 3 + 0
+            expect(calculateMultiplier(4)).toBe(2); // 0.25 * 4 + 0
+
+            // Test 5th year bonus (+0.75x extra)
+            expect(calculateMultiplier(5)).toBe(3); // 1 + 0.25 * 5 + 0.75 = 3
+            expect(calculateMultiplier(6)).toBe(3.25); // 1 + 0.25 * 6 + 0.75 = 3.25
+            expect(calculateMultiplier(7)).toBe(3.5); // 1 + 0.25 * 7 + 0.75 = 3.5
+            expect(calculateMultiplier(8)).toBe(3.75); // 1 + 0.25 * 8 + 0.75 = 3.75
+            expect(calculateMultiplier(9)).toBe(4); // 1 + 0.25 * 9 + 0.75 = 4
+
+            // Test 10th year bonus (+1.5x total bonus)
+            expect(calculateMultiplier(10)).toBe(5); // 1 + 0.25 * 10 + 1.5 = 5
+            expect(calculateMultiplier(15)).toBe(7); // 1 + 0.25 * 15 + 2.25 = 7
+            expect(calculateMultiplier(20)).toBe(9); // 1 + 0.25 * 20 + 3 = 9
+        });
+
+        it('should generate guaranteed anniversary event on the anniversary weekend', async () => {
+            // Create a mock guild with a creation date that falls within one of the next 4 weekends
+            const now = DateTime.now().setZone('America/New_York');
+
+            // Calculate the first Friday in the next 4 weekends
+            let nextFriday = now;
+            while (nextFriday.weekday !== 5) {
+                nextFriday = nextFriday.plus({ days: 1 });
+            }
+            const firstWeekendStart = nextFriday.set({
+                hour: 18,
+                minute: 0,
+                second: 0,
+                millisecond: 0,
+            });
+
+            // Set the guild creation date to the Saturday of that weekend (1 year ago)
+            const anniversaryDate = firstWeekendStart.plus({ days: 1 }).minus({ years: 1 });
+
+            // Create a Discord guild mock with the creation date
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = anniversaryDate.toJSDate();
+
+            // Update the mock client to return our mock guild
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+
+            // Setup empty event datas
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            // Mock Math.random to return values that wouldn't normally trigger events
+            const cleanup = mockRandomValues(0.9, 0.9, 0.9, 0.9);
+
+            await generateXpEventsJob.run();
+
+            // Verify at least one event was created
+            expect(mockEntityManager.persist).toHaveBeenCalled();
+
+            // Find the anniversary event
+            const persistCalls = vi.mocked(mockEntityManager.persist).mock.calls;
+            const createdEvents = persistCalls.map(call => call[0] as EventData);
+            const anniversaryEvents = createdEvents.filter(
+                event =>
+                    event.eventType === EventType.ANNIVERSARY_XP_WEEKEND &&
+                    event.xpProperties.multiplier === 1.25
+            );
+
+            // Verify anniversary event was created with correct multiplier (1 year = 1.25x)
+            expect(anniversaryEvents.length).toBeGreaterThan(0);
+
+            // Cleanup
+            cleanup();
+        });
+
+        it('should generate anniversary event on next weekend if anniversary is mid-week', async () => {
+            const now = DateTime.now().setZone('UTC');
+
+            // Find the next Friday
+            let nextFriday = now;
+            while (nextFriday.weekday !== 5) {
+                nextFriday = nextFriday.plus({ days: 1 });
+            }
+
+            // Set anniversary to the Wednesday before that Friday (2 years ago)
+            const anniversaryDate = nextFriday.minus({ days: 2, years: 2 });
+
+            // Create a Discord guild mock with the creation date
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = anniversaryDate.toJSDate();
+
+            // Update the mock client to return our mock guild
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+
+            // Setup empty event datas
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            // Mock Math.random to return values that wouldn't normally trigger events
+            const cleanup = mockRandomValues(0.9, 0.9, 0.9, 0.9);
+
+            await generateXpEventsJob.run();
+
+            // Verify at least one event was created
+            expect(mockEntityManager.persist).toHaveBeenCalled();
+
+            // Find the anniversary event
+            const persistCalls = vi.mocked(mockEntityManager.persist).mock.calls;
+            const createdEvents = persistCalls.map(call => call[0] as EventData);
+            const anniversaryEvents = createdEvents.filter(
+                event =>
+                    event.eventType === EventType.ANNIVERSARY_XP_WEEKEND &&
+                    event.xpProperties.multiplier === 1.5
+            );
+
+            // Verify anniversary event was created with correct multiplier (2 years = 1.5x)
+            expect(anniversaryEvents.length).toBeGreaterThan(0);
+
+            // Cleanup
+            cleanup();
+        });
+
+        it('should use guild timezone for anniversary calculations', async () => {
+            const now = DateTime.now().setZone('Asia/Tokyo');
+
+            // Find the next Friday in Tokyo timezone
+            let nextFriday = now;
+            while (nextFriday.weekday !== 5) {
+                nextFriday = nextFriday.plus({ days: 1 });
+            }
+            const firstWeekendStart = nextFriday.set({
+                hour: 18,
+                minute: 0,
+                second: 0,
+                millisecond: 0,
+            });
+
+            // Set the guild creation date to the Saturday of that weekend (3 years ago)
+            const anniversaryDate = firstWeekendStart.plus({ days: 1 }).minus({ years: 3 });
+
+            // Create a Discord guild mock with the creation date
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = anniversaryDate.toJSDate();
+
+            // Update the mock client to return our mock guild
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+
+            // Set guild timezone to Tokyo
+            mockGuildData.generalSettings.timeZone = 'Asia/Tokyo';
+
+            // Setup empty event datas
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            // Mock Math.random to return values that wouldn't normally trigger events
+            const cleanup = mockRandomValues(0.9, 0.9, 0.9, 0.9);
+
+            await generateXpEventsJob.run();
+
+            // Verify at least one event was created
+            expect(mockEntityManager.persist).toHaveBeenCalled();
+
+            // Find the anniversary event
+            const persistCalls = vi.mocked(mockEntityManager.persist).mock.calls;
+            const createdEvents = persistCalls.map(call => call[0] as EventData);
+            const anniversaryEvents = createdEvents.filter(
+                event =>
+                    event.eventType === EventType.ANNIVERSARY_XP_WEEKEND &&
+                    event.xpProperties.multiplier === 1.75
+            );
+
+            // Verify anniversary event was created with correct multiplier (3 years = 1.75x)
+            expect(anniversaryEvents.length).toBeGreaterThan(0);
+
+            // Cleanup
+            cleanup();
+        });
+
+        it('should generate anniversary event with 5th year bonus', async () => {
+            const now = DateTime.now().setZone('America/New_York');
+
+            // Find the next Friday
+            let nextFriday = now;
+            while (nextFriday.weekday !== 5) {
+                nextFriday = nextFriday.plus({ days: 1 });
+            }
+            const firstWeekendStart = nextFriday.set({
+                hour: 18,
+                minute: 0,
+                second: 0,
+                millisecond: 0,
+            });
+
+            // Set the guild creation date to the Saturday of that weekend (5 years ago)
+            const anniversaryDate = firstWeekendStart.plus({ days: 1 }).minus({ years: 5 });
+
+            // Create a Discord guild mock with the creation date
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = anniversaryDate.toJSDate();
+
+            // Update the mock client to return our mock guild
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+
+            // Setup empty event datas
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            // Mock Math.random to return values that wouldn't normally trigger events
+            const cleanup = mockRandomValues(0.9, 0.9, 0.9, 0.9);
+
+            await generateXpEventsJob.run();
+
+            // Verify at least one event was created
+            expect(mockEntityManager.persist).toHaveBeenCalled();
+
+            // Find the anniversary event
+            const persistCalls = vi.mocked(mockEntityManager.persist).mock.calls;
+            const createdEvents = persistCalls.map(call => call[0] as EventData);
+            const anniversaryEvents = createdEvents.filter(
+                event =>
+                    event.eventType === EventType.ANNIVERSARY_XP_WEEKEND &&
+                    event.xpProperties.multiplier === 3
+            );
+
+            // Verify anniversary event was created with correct multiplier (5 years = 3x)
+            expect(anniversaryEvents.length).toBeGreaterThan(0);
+
+            // Cleanup
+            cleanup();
+        });
+
+        it('should not generate anniversary event if guild not found in Discord cache', async () => {
+            // Mock client to return undefined (guild not in cache)
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(undefined);
+
+            // Setup empty event datas
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            // Mock Math.random to return values that would trigger events
+            const cleanup = mockRandomValues(0.1, 0.5, 0.1, 0.5, 0.1, 0.5, 0.1, 0.5);
+
+            await generateXpEventsJob.run();
+
+            // Verify events were still created (but no anniversary events)
+            expect(mockEntityManager.persist).toHaveBeenCalled();
+
+            // Find events
+            const persistCalls = vi.mocked(mockEntityManager.persist).mock.calls;
+            const createdEvents = persistCalls.map(call => call[0] as EventData);
+
+            // All events should be regular events (2x, 3x, or 4x) or NO_INCREASED_XP_WEEKEND
+            const regularEvents = createdEvents.filter(
+                event =>
+                    event.eventType === EventType.INCREASED_XP_WEEKEND &&
+                    (event.xpProperties.multiplier === 2 ||
+                        event.xpProperties.multiplier === 3 ||
+                        event.xpProperties.multiplier === 4)
+            );
+
+            // Should have regular XP events (not anniversary events)
+            expect(regularEvents.length).toBeGreaterThan(0);
+
+            // Cleanup
+            cleanup();
+        });
+
+        it('should not generate anniversary event for servers less than 1 year old', async () => {
+            const now = DateTime.now().setZone('UTC');
+
+            // Find the next Friday
+            let nextFriday = now;
+            while (nextFriday.weekday !== 5) {
+                nextFriday = nextFriday.plus({ days: 1 });
+            }
+            const firstWeekendStart = nextFriday.set({
+                hour: 18,
+                minute: 0,
+                second: 0,
+                millisecond: 0,
+            });
+
+            // Set guild creation date to 6 months ago (less than 1 year)
+            const creationDate = firstWeekendStart.minus({ months: 6 });
+
+            // Create a Discord guild mock with the creation date
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = creationDate.toJSDate();
+
+            // Update the mock client to return our mock guild
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+
+            // Setup empty event datas
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            // Mock Math.random to return values that wouldn't normally trigger events
+            const cleanup = mockRandomValues(0.9, 0.9, 0.9, 0.9);
+
+            await generateXpEventsJob.run();
+
+            // Find events
+            const persistCalls = vi.mocked(mockEntityManager.persist).mock.calls;
+            const createdEvents = persistCalls.map(call => call[0] as EventData);
+
+            // No anniversary events should be created
+            const anniversaryEvents = createdEvents.filter(
+                event => event.eventType === EventType.ANNIVERSARY_XP_WEEKEND
+            );
+
+            expect(anniversaryEvents.length).toBe(0);
+
+            // Cleanup
+            cleanup();
+        });
     });
 });

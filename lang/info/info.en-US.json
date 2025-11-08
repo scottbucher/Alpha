@@ -279,6 +279,41 @@
                 "color": "{{COM:colors.default}}"
             }
         },
+        "anniversaryXpEvents": {
+            "hasStarted": {
+                "title": "🎉 SERVER ANNIVERSARY {{MULTIPLIER_NAME_CAPS}} XP WEEKEND! 🎉",
+                "description": "**Happy {{YEARS_OLD}} Anniversary, {{SERVER_NAME}}!**\n\nCelebrate with us during this special {{MULTIPLIER_NAME}} XP Weekend! Talk in text and voice channels to gain {{MULTIPLIER_AMOUNT}}x XP!\n\n**Event ends at {{END_TIME}}** (**{{END_TIME_RELATIVE}}**)\n\n*Thank you for {{YEARS_OLD}} of amazing memories!*",
+                "footer": {
+                    "text": "🎂 Celebrating {{YEARS_OLD}} together!",
+                    "icon": "{{SERVER_ICON}}"
+                },
+                "thumbnail": "{{ANNIVERSARY_ICON}}",
+                "timestamp": true,
+                "color": "{{COM:colors.success}}"
+            },
+            "hasEnded": {
+                "title": "🎉 ANNIVERSARY {{MULTIPLIER_NAME_CAPS}} XP WEEKEND HAS ENDED! 🎉",
+                "description": "The Anniversary {{MULTIPLIER_NAME}} XP Weekend has ended!\n\nThank you for celebrating {{SERVER_NAME}}'s {{YEARS_OLD}} anniversary with us!",
+                "footer": {
+                    "text": "🎂 Thanks for celebrating!",
+                    "icon": "{{SERVER_ICON}}"
+                },
+                "thumbnail": "{{ANNIVERSARY_ICON}}",
+                "timestamp": true,
+                "color": "{{COM:colors.error}}"
+            },
+            "announced": {
+                "title": "🎉 UPCOMING SERVER ANNIVERSARY CELEBRATION! 🎉",
+                "description": "**{{SERVER_NAME}} is turning {{YEARS_OLD}}!**\n\nJoin us for a special Anniversary {{MULTIPLIER_NAME}} XP Weekend!\n\n**Starts**: {{START_TIME}}\n**Ends**: {{END_TIME}}\n\nDuring this celebration, you'll earn {{MULTIPLIER_AMOUNT}}x XP from text and voice channels!\n\n*Let's celebrate {{YEARS_OLD}} of being an awesome community!*",
+                "footer": {
+                    "text": "🎂 Mark your calendars for our anniversary!",
+                    "icon": "{{SERVER_ICON}}"
+                },
+                "thumbnail": "{{ANNIVERSARY_ICON}}",
+                "timestamp": true,
+                "color": "{{COM:colors.default}}"
+            }
+        },
         "lists": {
             "leaderboard": {
                 "title": "{{REF:lists.xpLeaderBoardTitle}}",
