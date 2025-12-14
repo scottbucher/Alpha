@@ -35,6 +35,14 @@
         "password": "<DATABASE_PASSWORD>",
         "database": "<DATABASE_NAME>"
     },
+    "usernameChecker": {
+        "usernameList": ["<USERNAME_1>"],
+        "usersToNotify": ["<USER_ID_1>"],
+        "hytaleEmail": "<HYTALE_EMAIL>",
+        "hytalePassword": "<HYTALE_PASSWORD>",
+        "logAvailable": true,
+        "logUnavailable": false
+    },
     "experience": {
         "textMin": 15,
         "textMax": 25,
@@ -54,14 +62,6 @@
         "guildIds": ["<GUILD_ID>"],
         "id": "<CHASE_USER_ID>",
         "emote": "<CHASE_EMOTE_ID>"
-    },
-    "usernameChecker": {
-        "usernameList": ["<USERNAME_1>"],
-        "usersToNotify": ["<USER_ID_1>"],
-        "hytaleEmail": "<HYTALE_EMAIL>",
-        "hytalePassword": "<HYTALE_PASSWORD>",
-        "logAvailable": true,
-        "logUnavailable": false
     },
     "api": {
         "port": 3001,
