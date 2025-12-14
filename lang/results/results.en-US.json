@@ -25,7 +25,7 @@
         },
         "usernameChecker": {
             "available": {
-                "title": "{{COM:emojis.alarm}} Username{{PLURAL}} Available!!! {{COM:emojis.alarm}}",
+                "title": "{{COM:emojis.alarm}} Username{{PLURAL}} Available {{COM:emojis.alarm}}",
                 "description": "The following username{{PLURAL}} {{IS_OR_ARE}} available!",
                 "fields": [
                     {
@@ -36,7 +36,7 @@
                 "color": "{{COM:colors.success}}"
             },
             "unavailable": {
-                "title": "{{COM:emojis.alarm}} Username{{PLURAL}} Unavailable!!! {{COM:emojis.alarm}}",
+                "title": "{{COM:emojis.alarm}} Username{{PLURAL}} Unavailable {{COM:emojis.alarm}}",
                 "description": "The following username{{PLURAL}} {{IS_OR_ARE}} unavailable!",
                 "fields": [
                     {
