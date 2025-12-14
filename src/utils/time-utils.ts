@@ -1,4 +1,4 @@
-import parser, { CronDate } from 'cron-parser';
+import CronExpressionParser, { CronDate } from 'cron-parser';
 import { DateTime } from 'luxon';
 import { promisify } from 'node:util';
 
@@ -69,7 +69,7 @@ export class TimeUtils {
         interval: number,
         currentTime: DateTime = DateTime.utc()
     ): DateTime {
-        let cron = parser.parseExpression(cronString, {
+        let cron = CronExpressionParser.parse(cronString, {
             currentDate: currentTime.toISO(),
             tz: timeZone,
         });
