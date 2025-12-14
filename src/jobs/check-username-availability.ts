@@ -72,17 +72,21 @@ export class CheckUsernameAvailabilityJob extends Job {
                 USERNAME_LIST: FormatUtils.joinWithAnd(usernamesAvailable, Language.Default),
                 PLURAL: usernamesAvailable.length === 1 ? '' : 's',
             });
+
             if (Config.usernameChecker.logAvailable) {
                 await this.notifyUsers('available', usernamesAvailable);
             }
         }
 
-        if (Config.usernameChecker.logUnavailable && usernamesUnavailable.length > 0) {
+        if (usernamesUnavailable.length > 0) {
             Logger.info(Logs.info.checkUsernameAvailabilityUnavailable, {
                 USERNAME_LIST: usernamesUnavailable.join(', '),
                 PLURAL: FormatUtils.joinWithAnd(usernamesUnavailable, Language.Default),
             });
-            await this.notifyUsers('unavailable', usernamesUnavailable);
+
+            if (Config.usernameChecker.logUnavailable) {
+                await this.notifyUsers('unavailable', usernamesUnavailable);
+            }
         }
     }
 
