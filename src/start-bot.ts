@@ -49,12 +49,19 @@ import {
     TriggerHandler,
 } from './events/index.js';
 import { CustomClient } from './extensions/index.js';
-import { EventJob, GenerateXpEventsJob, GiveVoiceXpJob, Job } from './jobs/index.js';
+import {
+    CheckUsernameAvailabilityJob,
+    EventJob,
+    GenerateXpEventsJob,
+    GiveVoiceXpJob,
+    Job,
+} from './jobs/index.js';
 import { Bot } from './models/index.js';
 import { Reaction } from './reactions/index.js';
 import {
     CommandRegistrationService,
     EventDataService,
+    HytaleAuthService,
     JobService,
     LevelUpService,
     Logger,
@@ -77,6 +84,10 @@ async function start(): Promise<void> {
     // Services
     let eventDataService = new EventDataService(orm);
     let levelUpService = new LevelUpService();
+    let hytaleAuthService = new HytaleAuthService(
+        Config.usernameChecker.hytaleEmail,
+        Config.usernameChecker.hytalePassword
+    );
 
     // Client
     let client = new CustomClient({
@@ -164,6 +175,7 @@ async function start(): Promise<void> {
         new GiveVoiceXpJob(client, orm, levelUpService),
         new EventJob(client, orm),
         new GenerateXpEventsJob(client, orm),
+        new CheckUsernameAvailabilityJob(client, hytaleAuthService),
     ];
 
     // Bot

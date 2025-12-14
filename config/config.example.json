@@ -55,6 +55,14 @@
         "id": "<CHASE_USER_ID>",
         "emote": "<CHASE_EMOTE_ID>"
     },
+    "usernameChecker": {
+        "usernameList": ["<USERNAME_1>"],
+        "usersToNotify": ["<USER_ID_1>"],
+        "hytaleEmail": "<HYTALE_EMAIL>",
+        "hytalePassword": "<HYTALE_PASSWORD>",
+        "logAvailable": true,
+        "logUnavailable": false
+    },
     "api": {
         "port": 3001,
         "secret": "00000000-0000-0000-0000-000000000000"
@@ -94,6 +102,12 @@
         },
         "generateXpEvents": {
             "schedule": "0 0 1 * * 1",
+            "log": false,
+            "runOnce": false,
+            "initialDelaySecs": 0
+        },
+        "checkUsernameAvailability": {
+            "schedule": "0 0 * * * *",
             "log": false,
             "runOnce": false,
             "initialDelaySecs": 0

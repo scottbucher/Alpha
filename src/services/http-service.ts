@@ -2,13 +2,18 @@ import fetch, { Response } from 'node-fetch';
 import { URL } from 'node:url';
 
 export class HttpService {
-    public async get(url: string | URL, authorization: string): Promise<Response> {
+    public async get(url: string | URL, authorization?: string): Promise<Response> {
+        const headers: Record<string, string> = {
+            Accept: 'application/json',
+        };
+
+        if (authorization) {
+            headers.Authorization = authorization;
+        }
+
         return await fetch(url.toString(), {
             method: 'get',
-            headers: {
-                Authorization: authorization,
-                Accept: 'application/json',
-            },
+            headers,
         });
     }
 

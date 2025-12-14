@@ -23,6 +23,30 @@
                 "description": "{{EMOJI}} **Good night {{USER_MENTION}}!** {{EMOJI}}"
             }
         },
+        "usernameChecker": {
+            "available": {
+                "title": "{{COM:emojis.alarm}} Username{{PLURAL}} Available!!! {{COM:emojis.alarm}}",
+                "description": "The following username{{PLURAL}} {{IS_OR_ARE}} available!",
+                "fields": [
+                    {
+                        "name": "Username{{PLURAL}}",
+                        "value": "{{USERNAME_LIST_SPLIT}}"
+                    }
+                ],
+                "color": "{{COM:colors.success}}"
+            },
+            "unavailable": {
+                "title": "{{COM:emojis.alarm}} Username{{PLURAL}} Unavailable!!! {{COM:emojis.alarm}}",
+                "description": "The following username{{PLURAL}} {{IS_OR_ARE}} unavailable!",
+                "fields": [
+                    {
+                        "name": "Username{{PLURAL}}",
+                        "value": "{{USERNAME_LIST_SPLIT}}"
+                    }
+                ],
+                "color": "{{COM:colors.error}}"
+            }
+        },
         "info": {
             "channelPermissions": {
                 "title": "Bot Permissions: `#{{CHANNEL_NAME}}`",

@@ -21,7 +21,8 @@
         "forward": "➡️",
         "back": "⬅️",
         "fastForward": "⏩",
-        "fastBack": "⏪"
+        "fastBack": "⏪",
+        "alarm": "🚨"
     },
     "colors": {
         "default": "#4eefff",

@@ -72,6 +72,9 @@
         "guildNotFoundDuringEventUpdate": "Guild '{GUILD_ID}' not found during event update.",
         "invalidEventTimes": "Invalid event times for event '{EVENT_ID}' in guild '{GUILD_NAME}' ({GUILD_ID}).",
         "invalidMultiplier": "Invalid multiplier: {MULTIPLIER} for event '{EVENT_ID}' in guild '{GUILD_NAME}' ({GUILD_ID}).",
-        "eventJobError": "An error occurred while processing events for guild '{GUILD_ID}'."
+        "eventJobError": "An error occurred while processing events for guild '{GUILD_ID}'.",
+        "checkUsernameAvailabilityRateLimited": "A rate limit was hit while checking username availability.",
+        "checkUsernameAvailabilityUnexpectedStatus": "An unexpected status was returned while checking username availability: {STATUS}.",
+        "checkUsernameAvailabilityError": "An error occurred while checking username availability: {ERROR}."
     }
 }
