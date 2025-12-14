@@ -33,8 +33,8 @@
         "noXpEventGenerated": "No XP event generated for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
         "voiceXpGranted": "Granted {XP_GRANTED} XP to user {USER_NAME} ({USER_ID}) in guild {GUILD_NAME} ({GUILD_ID}).",
         "messageXpGranted": "Granted {XP_GRANTED} XP to user {USER_NAME} ({USER_ID}) in guild {GUILD_NAME} ({GUILD_ID}).",
-        "checkUsernameAvailabilityAvailable": "Username{{PLURAL}} available: {USERNAME_LIST}.",
-        "checkUsernameAvailabilityUnavailable": "Username{{PLURAL}} unavailable: {USERNAME_LIST}."
+        "checkUsernameAvailabilityAvailable": "Username{PLURAL} available: {USERNAME_LIST}.",
+        "checkUsernameAvailabilityUnavailable": "Username{PLURAL} unavailable: {USERNAME_LIST}."
     },
     "warn": {
         "managerNoShards": "No shards to spawn.",
