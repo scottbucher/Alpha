@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { Job } from './index.js';
 import { Language } from '../models/enum-helpers/index.js';
 import { HytaleAuthService, Lang, Logger } from '../services/index.js';
-import { ClientUtils, MessageUtils, TimeUtils } from '../utils/index.js';
+import { ClientUtils, FormatUtils, MessageUtils, TimeUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -67,11 +67,21 @@ export class CheckUsernameAvailabilityJob extends Job {
             }
         }
 
-        if (Config.usernameChecker.logAvailable && usernamesAvailable.length > 0) {
-            await this.notifyUsers('available', usernamesAvailable);
+        if (usernamesAvailable.length > 0) {
+            Logger.info(Logs.info.checkUsernameAvailabilityAvailable, {
+                USERNAME_LIST: FormatUtils.joinWithAnd(usernamesAvailable, Language.Default),
+                PLURAL: usernamesAvailable.length === 1 ? '' : 's',
+            });
+            if (Config.usernameChecker.logAvailable) {
+                await this.notifyUsers('available', usernamesAvailable);
+            }
         }
 
         if (Config.usernameChecker.logUnavailable && usernamesUnavailable.length > 0) {
+            Logger.info(Logs.info.checkUsernameAvailabilityUnavailable, {
+                USERNAME_LIST: usernamesUnavailable.join(', '),
+                PLURAL: FormatUtils.joinWithAnd(usernamesUnavailable, Language.Default),
+            });
             await this.notifyUsers('unavailable', usernamesUnavailable);
         }
     }
@@ -84,7 +94,7 @@ export class CheckUsernameAvailabilityJob extends Job {
         for (const userId of usersToNotify) {
             const user = await ClientUtils.getUser(this.client, userId);
             const embed = Lang.getEmbed('results', `usernameChecker.${type}`, Language.Default, {
-                USERNAME_LIST: usernames.join(', '),
+                USERNAME_LIST: FormatUtils.joinWithAnd(usernames, Language.Default),
                 USERNAME_LIST_SPLIT: usernames.join('\n'),
                 IS_OR_ARE: usernames.length === 1 ? 'is' : 'are',
                 PLURAL: usernames.length === 1 ? '' : 's',
