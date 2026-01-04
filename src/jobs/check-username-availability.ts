@@ -50,19 +50,25 @@ export class CheckUsernameAvailabilityJob extends Job {
                     i--; // Retry the current username after rate limit wait
                     continue;
                 } else {
-                    Logger.error(Logs.error.checkUsernameAvailabilityUnexpectedStatus, {
-                        username,
-                        status: res.status,
-                    });
+                    Logger.error(
+                        Logs.error.checkUsernameAvailabilityUnexpectedStatus
+                            .replace('{STATUS}', res.status.toString())
+                            .replace('{USERNAME}', username)
+                    );
                     usernamesUnavailable.push(username);
                 }
 
                 await TimeUtils.sleep(5000);
             } catch (error) {
-                Logger.error(Logs.error.checkUsernameAvailabilityError, {
-                    username,
-                    error,
-                });
+                // extra initial log just to ensure we have the error dump
+                Logger.error(
+                    `Error dump when fetching username availability for username '${username}': ${JSON.stringify(error)}`
+                );
+                Logger.error(
+                    Logs.error.checkUsernameAvailabilityError
+                        .replace('{USERNAME}', username)
+                        .replace('{ERROR}', error instanceof Error ? error.message : String(error))
+                );
                 usernamesUnavailable.push(username);
             }
         }
@@ -72,9 +78,9 @@ export class CheckUsernameAvailabilityJob extends Job {
                 Logs.info.checkUsernameAvailabilityAvailable
                     .replaceAll(
                         '{USERNAME_LIST}',
-                        FormatUtils.joinWithAnd(usernamesUnavailable, Language.Default)
+                        FormatUtils.joinWithAnd(usernamesAvailable, Language.Default)
                     )
-                    .replaceAll('{PLURAL}', usernamesUnavailable.length === 1 ? '' : 's'),
+                    .replaceAll('{PLURAL}', usernamesAvailable.length === 1 ? '' : 's'),
                 {}
             );
 

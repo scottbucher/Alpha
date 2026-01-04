@@ -167,18 +167,6 @@ export class EventJob extends Job {
                 continue;
             }
 
-            // For debugging time zones
-            Logger.info(`Guild: ${guild.name}, Time Zone: ${timeZone}`);
-            Logger.info(
-                `Event start time: ${eventStartTime.toISO()} (${eventStartTime.toLocaleString(DateTime.DATETIME_FULL)})`
-            );
-            Logger.info(
-                `Event end time: ${eventEndTime.toISO()} (${eventEndTime.toLocaleString(DateTime.DATETIME_FULL)})`
-            );
-            Logger.info(
-                `Current time in guild's time zone: ${now.toISO()} (${now.toLocaleString(DateTime.DATETIME_FULL)})`
-            );
-
             // Check if we should announce the upcoming event (2 weeks before)
             const timeBeforeStart = eventStartTime.minus({
                 days: Config.events.announce.daysBefore,
