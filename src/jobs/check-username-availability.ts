@@ -60,14 +60,41 @@ export class CheckUsernameAvailabilityJob extends Job {
 
                 await TimeUtils.sleep(5000);
             } catch (error) {
-                // extra initial log just to ensure we have the error dump
+                const errorMessage = error instanceof Error ? error.message : String(error);
+
+                // Check if this is a login error - if so, stop the entire job iteration
+                // Login errors include: "Login failed", flow ID extraction failures, CSRF token issues, and rate limiting
+                const isLoginError =
+                    errorMessage.includes('Login failed') ||
+                    errorMessage.includes('Could not extract flow ID') ||
+                    errorMessage.includes('Could not find CSRF token') ||
+                    errorMessage.includes('rate limit') ||
+                    errorMessage.toLowerCase().includes('rate limit') ||
+                    errorMessage.includes('Rate exceeded') ||
+                    errorMessage.toLowerCase().includes('rate exceeded') ||
+                    (errorMessage.includes('429') && errorMessage.includes('Login'));
+
+                if (isLoginError) {
+                    Logger.error(
+                        Logs.error?.checkUsernameAvailabilityLoginError?.replace(
+                            '{ERROR}',
+                            errorMessage
+                        ) ||
+                            `Login error occurred during username availability check. Stopping job iteration: ${errorMessage}`,
+                        error
+                    );
+                    // Stop the entire job iteration
+                    return;
+                }
+
+                // For other errors, log and continue with the next username
                 Logger.error(
                     `Error dump when fetching username availability for username '${username}': ${JSON.stringify(error)}`
                 );
                 Logger.error(
                     Logs.error.checkUsernameAvailabilityError
                         .replace('{USERNAME}', username)
-                        .replace('{ERROR}', error instanceof Error ? error.message : String(error))
+                        .replace('{ERROR}', errorMessage)
                 );
                 usernamesUnavailable.push(username);
             }
