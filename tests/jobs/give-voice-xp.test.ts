@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/typedef */
 import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
 import { Collection, GuildMember, VoiceState } from 'discord.js';
@@ -20,7 +18,7 @@ import {
 import { assertNonNull } from '../helpers/test-utils.js';
 
 // Access the static method to clear cache for testing
-const clearGuildUserDataCache = () => GuildUserDataCache.clear();
+const clearGuildUserDataCache = (): void => GuildUserDataCache.clear();
 
 describe('GiveVoiceXpJob', () => {
     let giveVoiceXpJob: GiveVoiceXpJob;
