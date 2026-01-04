@@ -6,19 +6,11 @@ import { createRequire } from 'node:module';
 import { Job } from './index.js';
 import { GuildData, GuildUserData } from '../database/entities/index.js';
 import { LevelUpService, Logger } from '../services/index.js';
-import { DatabaseUtils } from '../utils/index.js';
-import { ExperienceUtils } from '../utils/index.js';
+import { DatabaseUtils, ExperienceUtils, GuildUserDataCache } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
 let Logs = require('../../lang/logs.json');
-
-// Interface for cached guild user data
-interface CachedGuildUserData {
-    guildData: GuildData;
-    guildUserDatas: GuildUserData[];
-    expiresAt: number;
-}
 
 export class GiveVoiceXpJob extends Job {
     public name = 'Give Voice XP';
@@ -26,10 +18,6 @@ export class GiveVoiceXpJob extends Job {
     public log: boolean = Config.jobs.giveVoiceXp.log;
     public runOnce: boolean = Config.jobs.giveVoiceXp.runOnce;
     public initialDelaySecs: number = Config.jobs.giveVoiceXp.initialDelaySecs;
-
-    // Cache for guild user data to reduce database calls
-    private static guildUserDataCache = new Map<string, CachedGuildUserData>();
-    private static CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
     constructor(
         private client: Client,
@@ -66,10 +54,9 @@ export class GiveVoiceXpJob extends Job {
             let shouldUpdateCache = true;
 
             // Check cache first
-            const now = Date.now();
-            const cachedData = GiveVoiceXpJob.guildUserDataCache.get(guild.id);
+            const cachedData = GuildUserDataCache.get(guild.id);
 
-            if (cachedData && cachedData.expiresAt > now) {
+            if (cachedData) {
                 // We have valid cache, let's use it
                 guildData = cachedData.guildData;
 
@@ -118,11 +105,7 @@ export class GiveVoiceXpJob extends Job {
 
             // Update cache if needed
             if (shouldUpdateCache) {
-                GiveVoiceXpJob.guildUserDataCache.set(guild.id, {
-                    guildData,
-                    guildUserDatas,
-                    expiresAt: now + GiveVoiceXpJob.CACHE_TTL_MS,
-                });
+                GuildUserDataCache.set(guild.id, guildData, guildUserDatas);
             }
 
             let leveledUpUsers: { userId: string; oldLevel: number; newLevel: number }[] = [];
@@ -181,18 +164,13 @@ export class GiveVoiceXpJob extends Job {
             if (updatedGuildUserDatas.length > 0) {
                 await em.persistAndFlush(updatedGuildUserDatas);
 
-                // Update the cache with the new values
-                if (cachedData) {
-                    // Update the cached data with new experience values
-                    const cachedUserDatas = cachedData.guildUserDatas;
-                    for (const updatedData of updatedGuildUserDatas) {
-                        const cachedIndex = cachedUserDatas.findIndex(
-                            c => c.userDiscordId === updatedData.userDiscordId
-                        );
-                        if (cachedIndex >= 0) {
-                            cachedUserDatas[cachedIndex] = updatedData;
-                        }
-                    }
+                // Update the shared cache with the new values
+                for (const updatedData of updatedGuildUserDatas) {
+                    GuildUserDataCache.updateUserData(
+                        guild.id,
+                        updatedData.userDiscordId,
+                        updatedData
+                    );
                 }
             }
 
@@ -201,18 +179,6 @@ export class GiveVoiceXpJob extends Job {
             }
 
             await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
-        }
-    }
-
-    /**
-     * Clear the cache for a specific guild or all guilds
-     * @param guildId The guild ID to clear the cache for, or undefined to clear all caches
-     */
-    public static clearGuildUserDataCache(guildId?: string): void {
-        if (guildId) {
-            GiveVoiceXpJob.guildUserDataCache.delete(guildId);
-        } else {
-            GiveVoiceXpJob.guildUserDataCache.clear();
         }
     }
 }

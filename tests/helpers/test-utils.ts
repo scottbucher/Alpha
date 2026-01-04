@@ -73,3 +73,9 @@ export function mockRandomValues(...values: number[]): () => void {
         Math.random = originalRandom;
     };
 }
+
+export function assertNonNull<T>(value: T | null | undefined): asserts value is T {
+    if (!value) {
+        throw new Error('Value should be defined');
+    }
+}

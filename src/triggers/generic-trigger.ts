@@ -6,7 +6,7 @@ import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
 import { LevelUpService, Logger } from '../services/index.js';
 import { FormatUtils } from '../utils/format-utils.js';
-import { ExperienceUtils, TimeUtils } from '../utils/index.js';
+import { ExperienceUtils, GuildUserDataCache, TimeUtils } from '../utils/index.js';
 import { MessageUtils } from '../utils/message-utils.js';
 
 const require = createRequire(import.meta.url);
@@ -24,7 +24,6 @@ export class GenericTrigger implements Trigger {
 
     constructor(private levelUpService: LevelUpService) {}
 
-    // TODO: we are currently querying the database for every message, we should add a cache layer
     public async execute(msg: Message, data: EventData): Promise<void> {
         // This trigger is used for all messages, we use it to reward xp
         let guildUserData = data.guildUserData;
@@ -62,6 +61,10 @@ export class GenericTrigger implements Trigger {
             let memberXpAfter = guildUserData.experience;
             guildUserData.lastGivenMessageXp = TimeUtils.now().toISO();
             await data.em.persistAndFlush(guildUserData);
+
+            // Update the shared cache with the new experience value to keep it in sync
+            // This ensures the voice XP job will use the updated value instead of stale cached data
+            GuildUserDataCache.updateUserData(msg.guild.id, msg.author.id, guildUserData);
 
             let hasLeveledUp = ExperienceUtils.hasLeveledUp(memberXpBefore, memberXpAfter);
             if (hasLeveledUp) {

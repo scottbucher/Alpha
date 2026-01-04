@@ -3,7 +3,6 @@ import { Collection } from 'discord.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GuildData, GuildUserData, UserData } from '../../src/database/entities/index.js';
-import { LangCode } from '../../src/enums/index.js';
 import { DatabaseUtils } from '../../src/utils/index.js';
 import {
     createMockEntityManager,
@@ -13,44 +12,59 @@ import {
 
 // Mock MikroORM entities
 vi.mock('../../src/database/entities/index.js', () => {
-    // Create mock classes
-    const mockUserData = vi.fn().mockImplementation(userId => {
-        return {
-            id: `user_${userId}`,
-            discordId: userId,
-            guildDatas: {
-                add: vi.fn(),
-            },
-        };
-    });
+    // Create mock classes that can be used with 'new'
+    class MockUserData {
+        id: string;
+        discordId: string;
+        guildDatas: { add: ReturnType<typeof vi.fn> };
 
-    const mockGuildData = vi.fn().mockImplementation(guildId => {
-        return {
-            id: 'guilddata123', // Fixed ID to match the expected test value
-            discordId: guildId,
-            userDatas: {
+        constructor(userId: string) {
+            this.id = `user_${userId}`;
+            this.discordId = userId;
+            this.guildDatas = {
                 add: vi.fn(),
-            },
-            settings: {
-                language: LangCode.EN_US,
-            },
-        };
-    });
+            };
+        }
+    }
 
-    const mockGuildUserData = vi.fn().mockImplementation((guildRef, userRef, xp = 0) => {
-        return {
-            guild: guildRef,
-            user: userRef,
-            experience: xp,
-            guildDiscordId: null,
-            userDiscordId: null,
-        };
-    });
+    class MockGuildData {
+        id: string;
+        discordId: string;
+        userDatas: { add: ReturnType<typeof vi.fn> };
+        settings: { language: string };
+
+        constructor(guildId: string) {
+            this.id = 'guilddata123'; // Fixed ID to match the expected test value
+            this.discordId = guildId;
+            this.userDatas = {
+                add: vi.fn(),
+            };
+            this.settings = {
+                language: 'en-US', // LangCode.EN_US
+            };
+        }
+    }
+
+    class MockGuildUserData {
+        guild: any;
+        user: any;
+        experience: number;
+        guildDiscordId: string | null;
+        userDiscordId: string | null;
+
+        constructor(guildRef: any, userRef: any, xp: number = 0) {
+            this.guild = guildRef;
+            this.user = userRef;
+            this.experience = xp;
+            this.guildDiscordId = null;
+            this.userDiscordId = null;
+        }
+    }
 
     return {
-        GuildData: mockGuildData,
-        UserData: mockUserData,
-        GuildUserData: mockGuildUserData,
+        GuildData: MockGuildData,
+        UserData: MockUserData,
+        GuildUserData: MockGuildUserData,
     };
 });
 

@@ -9,7 +9,7 @@ import { GuildData, GuildUserData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { GiveVoiceXpJob } from '../../src/jobs/give-voice-xp-job.js';
 import { LevelUpService } from '../../src/services/index.js';
-import { DatabaseUtils, ExperienceUtils } from '../../src/utils/index.js';
+import { DatabaseUtils, ExperienceUtils, GuildUserDataCache } from '../../src/utils/index.js';
 import {
     createMockClient,
     createMockEntityManager,
@@ -17,9 +17,10 @@ import {
     createMockGuildMember,
     createMockOrm,
 } from '../helpers/test-mocks.js';
+import { assertNonNull } from '../helpers/test-utils.js';
 
 // Access the static method to clear cache for testing
-const clearGuildUserDataCache = () => GiveVoiceXpJob.clearGuildUserDataCache();
+const clearGuildUserDataCache = () => GuildUserDataCache.clear();
 
 describe('GiveVoiceXpJob', () => {
     let giveVoiceXpJob: GiveVoiceXpJob;
@@ -330,5 +331,148 @@ describe('GiveVoiceXpJob', () => {
             const userIds = calls[0][2];
             expect(userIds).not.toContain('nochannel123');
         }
+    });
+
+    describe('XP Cache Integration', () => {
+        it('should preserve message XP when voice XP job runs after message XP is granted', async () => {
+            // Setup: Create initial cache entry (simulating voice XP job having cached data)
+            const initialExperience = 100;
+            const initialGuildUserData = {
+                userDiscordId: 'user123',
+                guildDiscordId: 'guild123',
+                experience: initialExperience,
+                lastGivenMessageXp: new Date(Date.now() - 2 * 60 * 1000).toISOString(), // 2 minutes ago
+            } as unknown as GuildUserData;
+
+            const mockGuildDataForCache = createMockGuildData('guilddata123', 'guild123');
+            GuildUserDataCache.set('guild123', mockGuildDataForCache, [initialGuildUserData]);
+
+            // Step 1: Simulate message XP being granted (this should update the cache)
+            const messageXpGranted = 20;
+            const guildUserDataAfterMessage = {
+                ...initialGuildUserData,
+                experience: initialExperience + messageXpGranted,
+                lastGivenMessageXp: new Date().toISOString(),
+            } as unknown as GuildUserData;
+
+            // Simulate the generic trigger updating the cache
+            GuildUserDataCache.updateUserData('guild123', 'user123', guildUserDataAfterMessage);
+
+            // Verify cache was updated
+            const cachedDataAfterMessage = GuildUserDataCache.get('guild123');
+            expect(cachedDataAfterMessage).not.toBeNull();
+            assertNonNull(cachedDataAfterMessage);
+            expect(cachedDataAfterMessage.guildUserDatas[0].experience).toBe(
+                initialExperience + messageXpGranted
+            );
+
+            // Step 2: Simulate voice XP job running (should use updated cache, not stale data)
+            // Mock database utils to return the updated data (simulating fresh fetch if cache wasn't used)
+            vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation(() =>
+                Promise.resolve({
+                    GuildUserData: [guildUserDataAfterMessage],
+                    GuildData: mockGuildDataForCache,
+                })
+            );
+
+            // Run voice XP job
+            await giveVoiceXpJob.run();
+
+            // Step 3: Verify that voice XP was added to the updated experience, not the stale cached value
+            // The voice XP job should have:
+            // 1. Retrieved cached data (which has message XP)
+            // 2. Added voice XP to that cached data
+            // 3. Saved the result
+
+            // Get the final experience from the persisted data
+            const persistCalls = (mockEntityManager.persistAndFlush as any).mock.calls;
+            expect(persistCalls.length).toBeGreaterThan(0);
+
+            const persistedGuildUserDatas = persistCalls[persistCalls.length - 1][0];
+            expect(persistedGuildUserDatas.length).toBeGreaterThan(0);
+
+            const finalGuildUserData = persistedGuildUserDatas.find(
+                (gud: any) => gud.userDiscordId === 'user123'
+            );
+            expect(finalGuildUserData).toBeDefined();
+            assertNonNull(finalGuildUserData);
+
+            // Verify the final experience includes both message XP and voice XP
+            // Should be: initialExperience + messageXpGranted + voiceXpGranted
+            const voiceXpGranted = 5; // Base voice XP
+            const expectedFinalExperience = initialExperience + messageXpGranted + voiceXpGranted;
+            expect(finalGuildUserData.experience).toBe(expectedFinalExperience);
+
+            // Verify cache was also updated with the final value
+            const finalCachedData = GuildUserDataCache.get('guild123');
+            expect(finalCachedData).not.toBeNull();
+            assertNonNull(finalCachedData);
+            const cachedUserData = finalCachedData.guildUserDatas.find(
+                (gud: any) => gud.userDiscordId === 'user123'
+            );
+            expect(cachedUserData).toBeDefined();
+            assertNonNull(cachedUserData);
+            expect(cachedUserData.experience).toBe(expectedFinalExperience);
+        });
+
+        it('should handle voice XP job running when cache has expired after message XP', async () => {
+            // Setup: Create cache entry that will be expired
+            const initialExperience = 100;
+            const initialGuildUserData = {
+                userDiscordId: 'user123',
+                guildDiscordId: 'guild123',
+                experience: initialExperience,
+            } as unknown as GuildUserData;
+
+            const mockGuildDataForCache = createMockGuildData('guilddata123', 'guild123');
+            GuildUserDataCache.set('guild123', mockGuildDataForCache, [initialGuildUserData]);
+
+            // Simulate message XP being granted
+            const messageXpGranted = 20;
+            const guildUserDataAfterMessage = {
+                ...initialGuildUserData,
+                experience: initialExperience + messageXpGranted,
+            } as unknown as GuildUserData;
+
+            GuildUserDataCache.updateUserData('guild123', 'user123', guildUserDataAfterMessage);
+
+            // Manually expire the cache by manipulating the expiresAt time
+            // (In real scenario, this would happen naturally after 5 minutes)
+            const cachedData = GuildUserDataCache.get('guild123');
+            if (cachedData) {
+                // Force expiration by setting expiresAt to past
+                (cachedData as any).expiresAt = Date.now() - 1000;
+            }
+
+            // Verify cache is expired
+            expect(GuildUserDataCache.get('guild123')).toBeNull();
+
+            // Mock database to return the updated data (with message XP)
+            vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation(() =>
+                Promise.resolve({
+                    GuildUserData: [guildUserDataAfterMessage],
+                    GuildData: mockGuildDataForCache,
+                })
+            );
+
+            // Run voice XP job (should fetch fresh data from DB, not use expired cache)
+            await giveVoiceXpJob.run();
+
+            // Verify voice XP was added to the fresh data (which includes message XP)
+            const persistCalls = (mockEntityManager.persistAndFlush as any).mock.calls;
+            expect(persistCalls.length).toBeGreaterThan(0);
+
+            const persistedGuildUserDatas = persistCalls[persistCalls.length - 1][0];
+            const finalGuildUserData = persistedGuildUserDatas.find(
+                (gud: any) => gud.userDiscordId === 'user123'
+            );
+
+            expect(finalGuildUserData).toBeDefined();
+            assertNonNull(finalGuildUserData);
+
+            const voiceXpGranted = 5;
+            const expectedFinalExperience = initialExperience + messageXpGranted + voiceXpGranted;
+            expect(finalGuildUserData.experience).toBe(expectedFinalExperience);
+        });
     });
 });
