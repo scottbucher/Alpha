@@ -30,7 +30,7 @@
         "xpEventEnded": "XP event with multiplier {MULTIPLIER} ended in guild '{GUILD_NAME}' ({GUILD_ID}).",
         "xpEventAnnounced": "XP event with multiplier {MULTIPLIER} announced in guild '{GUILD_NAME}' ({GUILD_ID}).",
         "xpEventGenerated": "Generated XP event (x{MULTIPLIER}) for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
-        "noXpEventGenerated": "No XP event generated for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
+        "anniversaryXpEventGenerated": "Generated anniversary XP event (x{MULTIPLIER}) for guild '{GUILD_ID}' from {START_TIME} to {END_TIME}.",
         "voiceXpGranted": "Granted {XP_GRANTED} XP to user {USER_NAME} ({USER_ID}) in guild {GUILD_NAME} ({GUILD_ID}).",
         "messageXpGranted": "Granted {XP_GRANTED} XP to user {USER_NAME} ({USER_ID}) in guild {GUILD_NAME} ({GUILD_ID}).",
         "checkUsernameAvailabilityAvailable": "Username{PLURAL} available: {USERNAME_LIST}.",
@@ -77,6 +77,8 @@
         "eventJobError": "An error occurred while processing events for guild '{GUILD_ID}'.",
         "checkUsernameAvailabilityRateLimited": "A rate limit was hit while checking username availability.",
         "checkUsernameAvailabilityUnexpectedStatus": "An unexpected status was returned while checking username availability: {STATUS}.",
-        "checkUsernameAvailabilityError": "An error occurred while checking username availability: {ERROR}."
+        "checkUsernameAvailabilityError": "An error occurred while checking username availability: {ERROR}.",
+        "generateXpEventsError": "An error occurred while generating XP events for guild '{GUILD_ID}'.",
+        "generateXpEventsJobError": "An error occurred while generating XP events."
     }
 }
