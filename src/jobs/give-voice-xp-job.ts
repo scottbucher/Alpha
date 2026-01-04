@@ -72,17 +72,7 @@ export class GiveVoiceXpJob extends Job {
                         voiceUserIds.includes(gud.userDiscordId)
                     );
                     shouldUpdateCache = false;
-
-                    Logger.info(
-                        Logs.info?.cacheHitVoiceXp?.replaceAll('{GUILD_ID}', guild.id) ||
-                            `Voice XP cache hit for guild ${guild.id}`
-                    );
                 } else {
-                    // Some users are missing, fetch all data
-                    Logger.info(
-                        Logs.info?.cachePartialVoiceXp?.replaceAll('{GUILD_ID}', guild.id) ||
-                            `Voice XP partial cache hit for guild ${guild.id}`
-                    );
                     const result = await DatabaseUtils.getOrCreateDataForGuild(
                         em,
                         guild,
@@ -93,11 +83,6 @@ export class GiveVoiceXpJob extends Job {
                     guildUserDatas = result.GuildUserData;
                 }
             } else {
-                // No cache or expired, fetch from database
-                Logger.info(
-                    Logs.info?.cacheMissVoiceXp?.replaceAll('{GUILD_ID}', guild.id) ||
-                        `Voice XP cache miss for guild ${guild.id}`
-                );
                 const result = await DatabaseUtils.getOrCreateDataForGuild(em, guild, voiceUserIds);
                 guildData = result.GuildData;
                 guildUserDatas = result.GuildUserData;
@@ -153,10 +138,11 @@ export class GiveVoiceXpJob extends Job {
                     }
                 } else {
                     // This should never happen, we use the DatabaseUtils to create a GuildUserData object for every user in the voiceState array that is missing originally
-                    Logger.error(Logs.error.noGuildUserDataDuringVoiceXp, {
-                        guildId: guild.id,
-                        userId: voiceState.member.id,
-                    });
+                    Logger.error(
+                        Logs.error.noGuildUserDataDuringVoiceXp
+                            .replace('{GUILD_ID}', guild.id)
+                            .replace('{USER_ID}', voiceState.member.id)
+                    );
                 }
             }
 
