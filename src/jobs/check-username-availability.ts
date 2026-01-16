@@ -39,13 +39,26 @@ export class CheckUsernameAvailabilityJob extends Job {
                     )
                 );
 
+                const responseText = await res.text();
+
+                // Check if response is a 2FA challenge (shouldn't happen if auth worked properly)
+                // 2FA challenges have "requested_aal":"aal2" or "state":"choose_method"
+                if (
+                    responseText.includes('"requested_aal":"aal2"') ||
+                    responseText.includes('"state":"choose_method"')
+                ) {
+                    throw new Error(
+                        '2FA challenge still present after authentication. Session may not have AAL2.'
+                    );
+                }
+
                 // Status 200 = username is available, Status 400 = username is taken
                 if (res.status === 200) {
                     usernamesAvailable.push(username);
                 } else if (res.status === 400) {
                     usernamesUnavailable.push(username);
                 } else if (res.status === 429) {
-                    Logger.error(Logs.error.checkUsernameAvailabilityRateLimited, await res.text());
+                    Logger.error(Logs.error.checkUsernameAvailabilityRateLimited, responseText);
                     await TimeUtils.sleep(60000);
                     i--; // Retry the current username after rate limit wait
                     continue;
@@ -62,35 +75,40 @@ export class CheckUsernameAvailabilityJob extends Job {
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : String(error);
 
-                // Check if this is a login error - if so, stop the entire job iteration
-                // Login errors include: "Login failed", flow ID extraction failures, CSRF token issues, and rate limiting
-                const isLoginError =
+                // Check if this is a login/auth error - if so, stop the entire job iteration
+                // These are unrecoverable errors that will affect all subsequent usernames
+                const isAuthError =
+                    // Login errors
                     errorMessage.includes('Login failed') ||
                     errorMessage.includes('Could not extract flow ID') ||
                     errorMessage.includes('Could not find CSRF token') ||
-                    errorMessage.includes('rate limit') ||
+                    // 2FA errors
+                    errorMessage.includes('Two-factor authentication') ||
+                    errorMessage.includes('2FA') ||
+                    errorMessage.includes('AAL2') ||
+                    errorMessage.includes('Gmail') ||
+                    errorMessage.includes('verification email') ||
+                    errorMessage.includes('verification code') ||
+                    errorMessage.includes('Session may not have') ||
+                    // Rate limiting
                     errorMessage.toLowerCase().includes('rate limit') ||
                     errorMessage.includes('Rate exceeded') ||
-                    errorMessage.toLowerCase().includes('rate exceeded') ||
                     (errorMessage.includes('429') && errorMessage.includes('Login'));
 
-                if (isLoginError) {
+                if (isAuthError) {
                     Logger.error(
                         Logs.error?.checkUsernameAvailabilityLoginError?.replace(
                             '{ERROR}',
                             errorMessage
                         ) ||
-                            `Login error occurred during username availability check. Stopping job iteration: ${errorMessage}`,
+                            `Authentication error occurred during username availability check. Stopping job iteration: ${errorMessage}`,
                         error
                     );
-                    // Stop the entire job iteration
+                    // Stop the entire job iteration - these errors will affect all subsequent usernames
                     return;
                 }
 
                 // For other errors, log and continue with the next username
-                Logger.error(
-                    `Error dump when fetching username availability for username '${username}': ${JSON.stringify(error)}`
-                );
                 Logger.error(
                     Logs.error.checkUsernameAvailabilityError
                         .replace('{USERNAME}', username)
