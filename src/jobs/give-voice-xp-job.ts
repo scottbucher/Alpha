@@ -1,6 +1,6 @@
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { Client } from 'discord.js';
+import { Client, Guild, VoiceState } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
@@ -32,12 +32,9 @@ export class GiveVoiceXpJob extends Job {
         let em = this.orm.em.fork();
 
         for (let guild of guildList.values()) {
-            let guildVoiceStates = [...guild.voiceStates.cache.values()].filter(
-                voiceState =>
-                    voiceState.channelId &&
-                    !voiceState.member.user.bot &&
-                    voiceState.channel !== guild.afkChannel &&
-                    voiceState.selfDeaf === false
+            let guildVoiceStates = this.filterValidVoiceStates(
+                [...guild.voiceStates.cache.values()],
+                guild
             ); // Filter out the bots and afk channels first
 
             // If there are no voice states, we can skip this guild
@@ -104,13 +101,18 @@ export class GiveVoiceXpJob extends Job {
                     let memberXpBefore = guildUserData.experience;
                     let memberLevelBefore = ExperienceUtils.getLevelFromXp(memberXpBefore);
 
-                    let currentVoiceChannelMembers = guild.voiceStates.cache
-                        .filter(vs => vs.channelId === voiceState.channelId)
-                        .filter(vs => !vs.member.user.bot).size;
+                    let currentVoiceChannelMembers = guild.voiceStates.cache.filter(
+                        vs => vs.channelId === voiceState.channelId
+                    );
+
+                    let numberOfValidVoiceChannelMembers = this.filterValidVoiceStates(
+                        [...currentVoiceChannelMembers.values()],
+                        guild
+                    ).length;
 
                     let xpGranted = ExperienceUtils.generateVoiceXp(
                         voiceState.member,
-                        currentVoiceChannelMembers,
+                        numberOfValidVoiceChannelMembers,
                         await ExperienceUtils.getXpMultiplier(guildData)
                     );
 
@@ -166,5 +168,15 @@ export class GiveVoiceXpJob extends Job {
 
             await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
         }
+    }
+
+    private filterValidVoiceStates(voiceStates: VoiceState[], guild: Guild): VoiceState[] {
+        return voiceStates.filter(
+            voiceState =>
+                voiceState.channelId &&
+                !voiceState.member.user.bot &&
+                voiceState.channel !== guild.afkChannel &&
+                voiceState.selfDeaf === false
+        );
     }
 }
