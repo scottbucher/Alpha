@@ -86,7 +86,9 @@ async function start(): Promise<void> {
     let levelUpService = new LevelUpService();
     let hytaleAuthService = new HytaleAuthService(
         Config.usernameChecker.hytaleEmail,
-        Config.usernameChecker.hytalePassword
+        Config.usernameChecker.hytalePassword,
+        Config.usernameChecker.gmailAppPassword,
+        '.cache/hytale-session.json'
     );
 
     // Client
