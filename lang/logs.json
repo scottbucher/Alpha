@@ -79,6 +79,7 @@
         "checkUsernameAvailabilityUnexpectedStatus": "An unexpected status was returned while checking username availability: {STATUS}.",
         "checkUsernameAvailabilityError": "An error occurred while checking username availability: {ERROR}.",
         "generateXpEventsError": "An error occurred while generating XP events for guild '{GUILD_ID}'.",
-        "generateXpEventsJobError": "An error occurred while generating XP events."
+        "generateXpEventsJobError": "An error occurred while generating XP events.",
+        "guildDataRequiredForGuildUserDailyStatisticsDataForToday": "Guild data is required when includeGuildUserDailyStatisticsDataForToday is true!"
     }
 }

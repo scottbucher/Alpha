@@ -9,7 +9,7 @@ import { GuildUserData, LevelingRewardData } from '../database/entities/index.js
 import { EventDataType } from '../enums/index.js';
 import { Language } from '../models/enum-helpers/language.js';
 import { EventData } from '../models/internal-models.js';
-import { ClientUtils, DatabaseUtils } from '../utils/index.js';
+import { ClientUtils, DatabaseUtils, GuildUserDataCache } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Logs = require('../../lang/logs.json');
@@ -78,8 +78,8 @@ export class EventDataService {
             allGuildUserData = guildMemberDatas;
         }
 
-        let guildUserData: Loaded<GuildUserData>;
-        if (options.requireEventData?.includes(EventDataType.GUILD_USER_DATA)) {
+        let guildUserData: GuildUserData;
+        if (options.guild && options.requireEventData?.includes(EventDataType.GUILD_USER_DATA) && !options.requireEventData?.includes(EventDataType.ALL_GUILD_USER_DATA)) {
             let target = options.target;
 
             if (!target) {
@@ -87,10 +87,16 @@ export class EventDataService {
                 throw new Error('No target user provided');
             }
 
-            guildUserData = await em.findOne(GuildUserData, {
-                guildDiscordId: options.guild.id,
-                userDiscordId: target.id,
-            });
+            const cachedData = await GuildUserDataCache.get(options.guild, [target.id]);
+            guildUserData = cachedData.guildUserDatas.find(
+                userData => userData.userDiscordId === target.id
+            );
+
+            if (!guildData) {
+                // Even though GuildUserDataCache doesn't request levelingRewards, the only way this if block is hit is if the guildData doesn't exist in the database,
+                // thus, when we try and get it from the cache it will be created, and a new GuildData will never have levelingRewardDatas
+                guildData = cachedData.guildData as Loaded<GuildData, 'levelingRewardDatas'>;
+            }
 
             if (!guildUserData) {
                 let { GuildUserData: newGuildUserDatas, GuildData: _ } =

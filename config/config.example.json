@@ -93,7 +93,8 @@
             "schedule": "0 * * * * *",
             "log": false,
             "runOnce": false,
-            "initialDelaySecs": 0
+            "initialDelaySecs": 0,
+            "minutesPerRun": 1
         },
         "eventJob": {
             "schedule": "0 0 * * * *",

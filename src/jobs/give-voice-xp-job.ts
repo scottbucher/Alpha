@@ -1,12 +1,12 @@
 import { MikroORM } from '@mikro-orm/core';
-import { MongoDriver } from '@mikro-orm/mongodb';
+import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
 import { Client, Guild, VoiceState } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
 import { GuildData, GuildUserData } from '../database/entities/index.js';
 import { LevelUpService, Logger } from '../services/index.js';
-import { DatabaseUtils, ExperienceUtils, GuildUserDataCache } from '../utils/index.js';
+import { ExperienceUtils, GuildUserDataCache, StatisticsUtils, TimeUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../../config/config.json');
@@ -29,7 +29,7 @@ export class GiveVoiceXpJob extends Job {
 
     public async run(): Promise<void> {
         let guildList = this.client.guilds.cache;
-        let em = this.orm.em.fork();
+        let em = this.orm.em.fork() as MongoEntityManager<MongoDriver>;
 
         for (let guild of guildList.values()) {
             let guildVoiceStates = this.filterValidVoiceStates(
@@ -48,47 +48,15 @@ export class GiveVoiceXpJob extends Job {
             // Try to get data from cache first
             let guildData: GuildData | null = null;
             let guildUserDatas: GuildUserData[] = [];
-            let shouldUpdateCache = true;
 
-            // Check cache first
-            const cachedData = GuildUserDataCache.get(guild.id);
+            // Get data from cache
+            const cachedData = await GuildUserDataCache.get(guild, voiceUserIds);
 
-            if (cachedData) {
-                // We have valid cache, let's use it
-                guildData = cachedData.guildData;
+            guildData = cachedData.guildData;
+            guildUserDatas = cachedData.guildUserDatas;
 
-                // Check if all needed users are in the cache
-                const cachedUserIds = new Set(
-                    cachedData.guildUserDatas.map(gud => gud.userDiscordId)
-                );
-                const missingUserIds = voiceUserIds.filter(id => !cachedUserIds.has(id));
-
-                if (missingUserIds.length === 0) {
-                    // All users are in the cache, filter to only the ones we need
-                    guildUserDatas = cachedData.guildUserDatas.filter(gud =>
-                        voiceUserIds.includes(gud.userDiscordId)
-                    );
-                    shouldUpdateCache = false;
-                } else {
-                    const result = await DatabaseUtils.getOrCreateDataForGuild(
-                        em,
-                        guild,
-                        voiceUserIds,
-                        guildData
-                    );
-                    guildData = result.GuildData;
-                    guildUserDatas = result.GuildUserData;
-                }
-            } else {
-                const result = await DatabaseUtils.getOrCreateDataForGuild(em, guild, voiceUserIds);
-                guildData = result.GuildData;
-                guildUserDatas = result.GuildUserData;
-            }
-
-            // Update cache if needed
-            if (shouldUpdateCache) {
-                GuildUserDataCache.set(guild.id, guildData, guildUserDatas);
-            }
+            const dayString = TimeUtils.getNowForGuild(guildData).toISODate();
+            const minutesIncrement = Config.jobs.giveVoiceXp.minutesPerRun;
 
             let leveledUpUsers: { userId: string; oldLevel: number; newLevel: number }[] = [];
             let updatedGuildUserDatas: GuildUserData[] = [];
@@ -115,6 +83,15 @@ export class GiveVoiceXpJob extends Job {
                         numberOfValidVoiceChannelMembers,
                         await ExperienceUtils.getXpMultiplier(guildData)
                     );
+
+                    // Phase 2: persist daily stats via atomic upsert (Mongo update pipeline)
+                    StatisticsUtils.queueVoiceMinutesForGuild(guild.id, {
+                        guildUserObjectId: guildUserData._id,
+                        dayString,
+                        minutesIncrement,
+                        startingXp: memberXpBefore,
+                        createdIso: TimeUtils.now().toISO(),
+                    });
 
                     guildUserData.experience += xpGranted;
 
@@ -147,6 +124,9 @@ export class GiveVoiceXpJob extends Job {
                     );
                 }
             }
+
+            // Flush stats once per guild per run (bulk write)
+            await StatisticsUtils.flushVoiceMinutesForGuild(em, guild.id, true);
 
             // Persist all updated guild user data in a single batch
             if (updatedGuildUserDatas.length > 0) {

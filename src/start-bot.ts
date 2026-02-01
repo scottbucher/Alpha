@@ -73,6 +73,7 @@ import {
     OldPrefixTrigger,
     Trigger,
 } from './triggers/index.js';
+import { GuildUserDataCache } from './utils/index.js';
 
 const require = createRequire(import.meta.url);
 let Config = require('../config/config.json');
@@ -102,6 +103,8 @@ async function start(): Promise<void> {
             ...Config.client.caches,
         }),
     });
+
+    GuildUserDataCache.init(orm);
 
     let leaderboardCommand = new LeaderboardCommand();
     let viewRewardsCommand = new ViewRewardsCommand();

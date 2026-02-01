@@ -1,13 +1,20 @@
 import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
 import { Collection, GuildMember, VoiceState } from 'discord.js';
+import { createRequire } from 'node:module';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { GuildData, GuildUserData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { GiveVoiceXpJob } from '../../src/jobs/give-voice-xp-job.js';
 import { LevelUpService } from '../../src/services/index.js';
-import { DatabaseUtils, ExperienceUtils, GuildUserDataCache } from '../../src/utils/index.js';
+import {
+    DatabaseUtils,
+    ExperienceUtils,
+    GuildUserDataCache,
+    StatisticsUtils,
+    TimeUtils,
+} from '../../src/utils/index.js';
 import {
     createMockClient,
     createMockEntityManager,
@@ -16,6 +23,9 @@ import {
     createMockOrm,
 } from '../helpers/test-mocks.js';
 import { assertNonNull } from '../helpers/test-utils.js';
+
+const require = createRequire(import.meta.url);
+const Config = require('../../config/config.json');
 
 // Access the static method to clear cache for testing
 const clearGuildUserDataCache = (): void => GuildUserDataCache.clear();
@@ -52,6 +62,13 @@ describe('GiveVoiceXpJob', () => {
             getOrCreateDataForGuild: vi.fn(),
         },
     }));
+
+vi.mock('../../src/utils/statistics-utils.js', () => ({
+    StatisticsUtils: {
+        queueVoiceMinutesForGuild: vi.fn(),
+        flushVoiceMinutesForGuild: vi.fn().mockResolvedValue(undefined),
+    },
+}));
 
     beforeEach(() => {
         // Setup common mocks using the shared helpers
@@ -123,6 +140,9 @@ describe('GiveVoiceXpJob', () => {
         // Reset mocks
         vi.clearAllMocks();
 
+        // Init cache with mocked ORM for cache-backed reads
+        GuildUserDataCache.init(mockOrm);
+
         // Setup database utils
         vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation(() =>
             Promise.resolve({
@@ -148,7 +168,9 @@ describe('GiveVoiceXpJob', () => {
         expect(DatabaseUtils.getOrCreateDataForGuild).toHaveBeenCalledWith(
             mockEntityManager,
             mockGuild,
-            ['user123']
+            ['user123'],
+            undefined,
+            true
         );
 
         // Verify XP was added and data persisted
@@ -241,7 +263,9 @@ describe('GiveVoiceXpJob', () => {
         expect(DatabaseUtils.getOrCreateDataForGuild).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
-            expect.arrayContaining(['user123'])
+            expect.arrayContaining(['user123']),
+            undefined,
+            true
         );
 
         // Verify that bot and AFK users were filtered out
@@ -308,7 +332,9 @@ describe('GiveVoiceXpJob', () => {
         expect(DatabaseUtils.getOrCreateDataForGuild).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
-            expect.arrayContaining(['user123', 'disconnected123'])
+            expect.arrayContaining(['user123', 'disconnected123']),
+            undefined,
+            true
         );
     });
 
@@ -329,6 +355,33 @@ describe('GiveVoiceXpJob', () => {
             const userIds = calls[0][2];
             expect(userIds).not.toContain('nochannel123');
         }
+    });
+
+    it('should queue and flush daily voice stats', async () => {
+        await giveVoiceXpJob.run();
+
+        expect(StatisticsUtils.queueVoiceMinutesForGuild).toHaveBeenCalled();
+        expect(StatisticsUtils.flushVoiceMinutesForGuild).toHaveBeenCalledWith(
+            mockEntityManager,
+            'guild123',
+            true
+        );
+    });
+
+    it('should queue stats with expected payload', async () => {
+        await giveVoiceXpJob.run();
+
+        const dayString = TimeUtils.getNowForGuild(mockGuildData).toISODate();
+
+        expect(StatisticsUtils.queueVoiceMinutesForGuild).toHaveBeenCalledWith(
+            'guild123',
+            expect.objectContaining({
+                dayString,
+                minutesIncrement: Config.jobs.giveVoiceXp.minutesPerRun,
+                startingXp: 95,
+                createdIso: expect.any(String),
+            })
+        );
     });
 
     describe('XP Cache Integration', () => {
@@ -357,7 +410,7 @@ describe('GiveVoiceXpJob', () => {
             GuildUserDataCache.updateUserData('guild123', 'user123', guildUserDataAfterMessage);
 
             // Verify cache was updated
-            const cachedDataAfterMessage = GuildUserDataCache.get('guild123');
+            const cachedDataAfterMessage = await GuildUserDataCache.get(mockGuild, ['user123']);
             expect(cachedDataAfterMessage).not.toBeNull();
             assertNonNull(cachedDataAfterMessage);
             expect(cachedDataAfterMessage.guildUserDatas[0].experience).toBe(
@@ -402,7 +455,7 @@ describe('GiveVoiceXpJob', () => {
             expect(finalGuildUserData.experience).toBe(expectedFinalExperience);
 
             // Verify cache was also updated with the final value
-            const finalCachedData = GuildUserDataCache.get('guild123');
+            const finalCachedData = await GuildUserDataCache.get(mockGuild, ['user123']);
             expect(finalCachedData).not.toBeNull();
             assertNonNull(finalCachedData);
             const cachedUserData = finalCachedData.guildUserDatas.find(
@@ -436,14 +489,15 @@ describe('GiveVoiceXpJob', () => {
 
             // Manually expire the cache by manipulating the expiresAt time
             // (In real scenario, this would happen naturally after 5 minutes)
-            const cachedData = GuildUserDataCache.get('guild123');
+            const cachedData = await GuildUserDataCache.get(mockGuild, ['user123']);
             if (cachedData) {
                 // Force expiration by setting expiresAt to past
                 (cachedData as any).expiresAt = Date.now() - 1000;
             }
 
-            // Verify cache is expired
-            expect(GuildUserDataCache.get('guild123')).toBeNull();
+            // Verify cache is expired (get should repopulate it)
+            const refreshedCache = await GuildUserDataCache.get(mockGuild, ['user123']);
+            expect(refreshedCache).not.toBeNull();
 
             // Mock database to return the updated data (with message XP)
             vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation(() =>

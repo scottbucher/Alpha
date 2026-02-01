@@ -1,9 +1,15 @@
 import { ref } from '@mikro-orm/core';
 import { MongoDriver, MongoEntityManager } from '@mikro-orm/mongodb';
 import { Guild } from 'discord.js';
+import { createRequire } from 'node:module';
 
 import { ClientUtils, TimeUtils } from './index.js';
 import { GuildData, GuildUserData, UserData } from '../database/entities/index.js';
+import { Logger } from '../services/index.js';
+
+const require = createRequire(import.meta.url);
+let Logs = require('../../lang/logs.json');
+
 export class DatabaseUtils {
     /**
      * This is a robust function that serves multiple purposes:
@@ -18,7 +24,8 @@ export class DatabaseUtils {
         em: MongoEntityManager<MongoDriver>,
         guild: Guild,
         memberIdListOverride?: string[],
-        guildData?: GuildData
+        guildData?: GuildData,
+        includeGuildUserDailyStatisticsDataForToday: boolean = false
     ): Promise<{ GuildData: GuildData; GuildUserData: GuildUserData[] }> {
         if (!guildData) {
             guildData = await em.findOne(GuildData, { discordId: guild.id });
@@ -37,16 +44,19 @@ export class DatabaseUtils {
             ...(memberIdListOverride ?? ClientUtils.getAllMemberIds(guild, true)),
         ];
 
-        // If it never had a guild data, it could have never had any guild user datas, it would violate the unique constraint
+        // If it never had a guild data, it could have never had any guild user datas, as it would have violated the unique constraint
         if (!hadGuildData) {
             let { GuildUserData: newGuildUserDatas, GuildData: _ } =
                 await DatabaseUtils.createGuildUserDatas(em, guild.id, guildMemberIds);
             guildUserDatas = newGuildUserDatas;
         } else {
-            guildUserDatas = await em.find(GuildUserData, {
-                guildDiscordId: guild.id,
-                userDiscordId: { $in: guildMemberIds },
-            });
+            guildUserDatas = await DatabaseUtils.getGuildUserDatas(
+                em,
+                guild.id,
+                guildMemberIds,
+                guildData,
+                includeGuildUserDailyStatisticsDataForToday
+            );
 
             let newGuildUserIds = guildMemberIds.filter(
                 id => !guildUserDatas.some(data => data.userDiscordId === id)
@@ -61,33 +71,6 @@ export class DatabaseUtils {
                         guildData
                     );
                 guildUserDatas.push(...newGuildUserDatas);
-            }
-        }
-
-        // TODO: temp, should eventually be removed
-        // I add this just to make sure that the bot doesn't have any guild user datas since there was a bug where the bot was earning xp for messages they sent
-        if (!memberIdListOverride) {
-            let botIds = ClientUtils.getAllBotIds(guild);
-            let allBotsWithGuildUserDatas = guildUserDatas.filter(data =>
-                botIds.includes(data.userDiscordId)
-            );
-            if (allBotsWithGuildUserDatas.length > 0) {
-                botIds = allBotsWithGuildUserDatas.map(data => data.userDiscordId);
-                // Purge all bot guild user datas from the database
-                await em.nativeDelete(GuildUserData, {
-                    guildDiscordId: guild.id,
-                    userDiscordId: { $in: botIds },
-                });
-
-                // Purge all user datas that are bots
-                await em.nativeDelete(UserData, {
-                    discordId: { $in: botIds },
-                });
-
-                // Purge all guild user datas that are bots
-                guildUserDatas = guildUserDatas.filter(
-                    data => !botIds.includes(data.userDiscordId)
-                );
             }
         }
 
@@ -156,5 +139,37 @@ export class DatabaseUtils {
         await em.persistAndFlush(guildUserDatas);
 
         return { GuildUserData: guildUserDatas, GuildData: guildData };
+    }
+
+    public static async getGuildUserDatas(
+        em: MongoEntityManager<MongoDriver>,
+        guildId: string,
+        guildMemberIds: string[],
+        guildData?: GuildData,
+        includeGuildUserDailyStatisticsDataForToday?: boolean
+    ): Promise<GuildUserData[]> {
+        let populateWhere: any = {};
+        if (includeGuildUserDailyStatisticsDataForToday) {
+            if (!guildData) {
+                Logger.error(Logs.error.guildDataRequiredForGuildUserDailyStatisticsDataForToday);
+                return [];
+            }
+
+            // Get today's date string in the guild's timezone (YYYY-MM-DD format)
+            const todayDateTime = TimeUtils.getNowForGuild(guildData);
+            const todayDateString = todayDateTime.toISODate();
+
+            populateWhere.guildUserDailyStatisticsDatas = { dayString: todayDateString };
+        }
+
+        let guildUserDatas = await em.find(GuildUserData, {
+            guildDiscordId: guildId,
+            userDiscordId: { $in: guildMemberIds },
+        }, {
+            populate: includeGuildUserDailyStatisticsDataForToday ? ['guildUserDailyStatisticsDatas'] : undefined,
+            populateWhere: includeGuildUserDailyStatisticsDataForToday ? populateWhere : undefined
+        });
+
+        return guildUserDatas;
     }
 }
