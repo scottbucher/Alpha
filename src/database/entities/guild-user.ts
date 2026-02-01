@@ -1,7 +1,10 @@
 import {
+    Cascade,
+    Collection,
     Entity,
     Index,
     ManyToOne,
+    OneToMany,
     PrimaryKey,
     Property,
     Ref,
@@ -11,7 +14,7 @@ import {
 import { ObjectId } from '@mikro-orm/mongodb';
 
 import { GuildData } from './guild.js';
-import { UserData } from './index.js';
+import { GuildUserDailyStatisticsData, UserData } from './index.js';
 import { TimeUtils } from '../../utils/index.js';
 
 @Entity({ collection: 'guildUser' })
@@ -45,6 +48,9 @@ export class GuildUserData {
 
     @ManyToOne()
     user!: Ref<UserData>;
+
+    @OneToMany(() => GuildUserDailyStatisticsData, statistics => statistics.guildUser, { cascade: [Cascade.ALL] })
+    guildUserDailyStatisticsDatas = new Collection<GuildUserDailyStatisticsData>(this);
 
     constructor(
         guildData: Ref<GuildData>,

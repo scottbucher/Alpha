@@ -6,7 +6,7 @@ import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
 import { LevelUpService, Logger } from '../services/index.js';
 import { FormatUtils } from '../utils/format-utils.js';
-import { ExperienceUtils, GuildUserDataCache, TimeUtils } from '../utils/index.js';
+import { ExperienceUtils, GuildUserDataCache, StatisticsUtils, TimeUtils } from '../utils/index.js';
 import { MessageUtils } from '../utils/message-utils.js';
 
 const require = createRequire(import.meta.url);
@@ -15,7 +15,7 @@ let Logs = require('../../lang/logs.json');
 
 export class GenericTrigger implements Trigger {
     public requireGuild = true;
-    public requireEventData: EventDataType[] = [EventDataType.GUILD_USER_DATA];
+    public requireEventData: EventDataType[] = [EventDataType.GUILD_DATA, EventDataType.GUILD_USER_DATA, EventDataType.GUILD_USER_DATA_STATS_DATA_FOR_TODAY];
 
     // TODO: don't earn xp for messages that contain certain words (slurs, etc)
     public triggered(_: Message): boolean {
@@ -45,6 +45,22 @@ export class GenericTrigger implements Trigger {
             let xpGranted = ExperienceUtils.generateMessageXp(
                 msg.member,
                 await ExperienceUtils.getXpMultiplier(guildData)
+            );
+
+            const dayString = TimeUtils.getNowForGuild(guildData).toISODate();
+
+            // Phase 2: persist daily stats via atomic upsert (Mongo update pipeline)
+            StatisticsUtils.queueMessageStatsForGuild(msg.guild.id, {
+                guildUserObjectId: guildUserData._id,
+                dayString,
+                messagesIncrement: 1,
+                startingXp: memberXpBefore,
+                createdIso: TimeUtils.now().toISO(),
+            });
+            await StatisticsUtils.flushMessageStatsForGuild(
+                data.em,
+                msg.guild.id,
+                true
             );
 
             guildUserData.experience += xpGranted;

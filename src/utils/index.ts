@@ -20,3 +20,4 @@ export { QuoteUtils } from './quote-utils.js';
 export { TimeZoneUtils } from './time-zone-utils.js';
 export { ExperienceUtils } from './experience-utils.js';
 export { GuildUserDataCache } from './guild-user-data-cache.js';
+export { StatisticsUtils } from './statistics-utils.js';

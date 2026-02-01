@@ -26,12 +26,12 @@ export class TimeUtils {
 
     /**
      * Get the current time in a guild's configured time zone
-     * @param guild The guild data containing timezone settings
+     * @param guildData The guild data containing timezone settings
      * @returns DateTime object in the guild's time zone, or UTC if none configured
      */
-    public static getNowForGuild(guild: GuildData): DateTime {
-        return guild.generalSettings.timeZone
-            ? this.now(guild.generalSettings.timeZone)
+    public static getNowForGuild(guildData: GuildData): DateTime {
+        return guildData.generalSettings.timeZone
+            ? this.now(guildData.generalSettings.timeZone)
             : this.now();
     }
 
