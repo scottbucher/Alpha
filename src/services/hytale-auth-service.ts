@@ -80,6 +80,29 @@ export class HytaleAuthService {
         return Date.now() < expiresAt - 5 * 60 * 1000;
     }
 
+    private extractVerificationCodeFromEmail(emailContent: string): string | null {
+        // Normalize content to make regex extraction resilient to quoted-printable wraps.
+        const normalizedContent = emailContent.replace(/\r\n/g, '\n').replace(/=\n/g, '');
+        const markerRegex = /your login code\s*:/gi;
+        const tokenRegex = /\b((?=[A-Z0-9]*\d)[A-Z0-9]{6,12})\b/g;
+
+        let markerMatch: RegExpExecArray | null = markerRegex.exec(normalizedContent);
+        while (markerMatch) {
+            const sectionStart = markerMatch.index + markerMatch[0].length;
+            const section = normalizedContent.slice(sectionStart, sectionStart + 300);
+            const tokenMatch = tokenRegex.exec(section);
+            tokenRegex.lastIndex = 0;
+
+            if (tokenMatch) {
+                return tokenMatch[1];
+            }
+
+            markerMatch = markerRegex.exec(normalizedContent);
+        }
+
+        return null;
+    }
+
     private async fetchVerificationCodeFromGmail(triggeredAt: Date): Promise<string> {
         if (!this.gmailAppPassword) {
             throw new Error('Gmail app password not configured for 2FA email retrieval');
@@ -133,17 +156,10 @@ export class HytaleAuthService {
 
                     const emailContent = fetchResult.source.toString();
 
-                    // Look for the code in Hytale's email format
-                    let codeMatch = emailContent.match(/Your login code[:\s]*\n*\s*(\d{6})/i);
-                    if (!codeMatch) {
-                        codeMatch = emailContent.match(/code[:\s]+(\d{6})/i);
-                    }
-                    if (!codeMatch) {
-                        codeMatch = emailContent.match(/\b(\d{6})\b/);
-                    }
-
-                    if (codeMatch) {
-                        return codeMatch[1];
+                    // Supports both legacy numeric codes and current alphanumeric codes.
+                    const code = this.extractVerificationCodeFromEmail(emailContent);
+                    if (code) {
+                        return code;
                     }
                 }
 
