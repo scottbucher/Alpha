@@ -14,6 +14,9 @@ const voiceXpAmount = Config.experience.voiceAmount;
  * Utility class for managing experience points and leveling system
  */
 export abstract class ExperienceUtils {
+    public static readonly DEFAULT_XP_MULTIPLIER = 1;
+    public static readonly NITRO_XP_MULTIPLIER = 1.2;
+
     /**
      * Cache for XP multipliers. Since we check xp multipliers for every message and voice event, we should cache the results so we don't have to query the database every time.
      */
@@ -170,9 +173,33 @@ export abstract class ExperienceUtils {
      */
     public static getXpMultiplierForGuildMember(
         guildMember: GuildMember,
-        multiplier: number = 1
+        multiplier: number = this.DEFAULT_XP_MULTIPLIER
     ): number {
         return this.getGuildMemberNitroMultiplier(guildMember) * multiplier;
+    }
+
+    /**
+     * Get a guild member XP multiplier breakdown
+     * @param guildMember The guild member to calculate multiplier for
+     * @param multiplier The base multiplier to apply (defaults to 1)
+     * @returns Multiplier breakdown and effective total multiplier
+     */
+    public static async getXpMultiplierBreakdownForGuildMember(
+        guildMember: GuildMember,
+        guildData: GuildData
+    ): Promise<{
+        eventMultiplier?: number;
+        nitroMultiplier?: number;
+        totalMultiplier: number;
+    }> {
+        const nitroMultiplier = this.getGuildMemberNitroMultiplier(guildMember);
+        const guildMultiplier = await ExperienceUtils.getXpMultiplier(guildData);
+
+        return {
+            eventMultiplier: guildMultiplier > 1 ? guildMultiplier : undefined,
+            nitroMultiplier: nitroMultiplier > 1 ? nitroMultiplier : undefined,
+            totalMultiplier: this.getXpMultiplierForGuildMember(guildMember, guildMultiplier),
+        };
     }
 
     /**
@@ -181,7 +208,7 @@ export abstract class ExperienceUtils {
      * @returns 1.2 if member has nitro, 1.0 otherwise
      */
     public static getGuildMemberNitroMultiplier(guildMember: GuildMember): number {
-        return guildMember.premiumSince ? 1.2 : 1;
+        return guildMember.premiumSince ? this.NITRO_XP_MULTIPLIER : this.DEFAULT_XP_MULTIPLIER;
     }
 
     /**

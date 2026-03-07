@@ -136,4 +136,13 @@ export class FormatUtils {
     public static discordTimestampRelative(date: Date): string {
         return `<t:${Math.floor(date.getTime() / 1000)}:R>`;
     }
+
+    public static formatMultiplier(value?: number): string {
+        if (value === undefined) return;
+        return value % 1 === 0 ? value.toString() : value.toFixed(2).replace(/\.?0+$/, '');
+    }
+
+    public static formatMultiplierPercent(multiplier: number): string {
+        return `${this.formatMultiplier(multiplier)}%`;
+    }
 }

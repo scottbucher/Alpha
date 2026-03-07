@@ -93,6 +93,10 @@ export class ClientUtils {
         }
     }
 
+    public static async getGuildMember(guild: Guild, discordId: string): Promise<GuildMember> {
+        return await guild.members.fetch(discordId);
+    }
+
     public static async findAppCommand(client: Client, name: string): Promise<ApplicationCommand> {
         let commands = await client.application.commands.fetch();
         return commands.find(command => command.name === name);

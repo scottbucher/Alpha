@@ -101,6 +101,36 @@
                         "value": "{{CURRENT_XP}}"
                     },
                     {
+                        "name": "{{REF:terms.xpMultiplier}}",
+                        "value": "{{XP_MULTIPLIER}}"
+                    },
+                    {
+                        "name": "Level Progress",
+                        "value": "{{LEVEL_PROGRESS}}"
+                    }
+                ],
+                "thumbnail": "{{USER_AVATAR}}"
+            },
+            "userXpBreakdownWithVoice": {
+                "title": "{{USER_NAME}}'s Leveling Progress",
+                "fields": [
+                    {
+                        "name": "Member Level",
+                        "value": "{{CURRENT_LEVEL}}"
+                    },
+                    {
+                        "name": "Member Experience",
+                        "value": "{{CURRENT_XP}}"
+                    },
+                    {
+                        "name": "{{REF:terms.xpMultiplier}}",
+                        "value": "{{XP_MULTIPLIER}}"
+                    },
+                    {
+                        "name": "{{REF:terms.voiceXpPerMinute}}",
+                        "value": "{{VOICE_XP_PER_MINUTE}}"
+                    },
+                    {
                         "name": "Level Progress",
                         "value": "{{LEVEL_PROGRESS}}"
                     }
@@ -442,6 +472,18 @@
             "xMoreMembers": "{{AMOUNT}} more members",
             "xMoreMember": "{{AMOUNT}} more member",
             "and": "and",
+            "xpMultiplier": "Current XP Multiplier",
+            "totalMultiplier": "- Total: **{{TOTAL_MULTIPLIER}}x**",
+            "eventMultiplier": "\n - Event Multiplier: {{EVENT_MULTIPLIER}}x",
+            "nitroXPBoost": "\n - Nitro XP Boost: {{NITRO_XP_BOOST_PERCENT}}",
+            "xpMultiplierBreakdown": "{{TOTAL_MULTIPLIER_LINE}}{{EVENT_MULTIPLIER_LINE}}{{NITRO_XP_BOOST_LINE}}",
+            "totalXpAfterMultiplier": " (**{{TOTAL_XP_AFTER_MULTIPLIER}}** after multiplier)",
+            "voiceXpPerMinute": "Voice XP Per Minute",
+            "totalVoiceXpPerMinute": "- Total XP per minute: **{{TOTAL_XP}}**{{TOTAL_XP_AFTER_MULTIPLIER_LINE}}",
+            "totalVoiceXpPerMinuteValueOnly": "{{TOTAL_XP}}{{TOTAL_XP_AFTER_MULTIPLIER_LINE}}",
+            "baseXpPerMinute": "\n - Base XP per minute: **{{BASE_XP}}**",
+            "xpFromAdditionalUsers": "\n - XP per minute from additional users: **{{EXTRA_XP}}**",
+            "voiceXpPerMinuteBreakdown": "{{TOTAL_XP_LINE}}{{BASE_XP_LINE}}{{EXTRA_XP_LINE}}",
             "xpLeaderboard": "XP Leaderboard",
             "rewardList": "Reward List",
             "role": "Role",

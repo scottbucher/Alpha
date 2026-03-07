@@ -1,6 +1,7 @@
 import { GuildMember } from 'discord.js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { GuildData } from '../../src/database/entities/index.js';
 import { ExperienceUtils } from '../../src/utils/index.js';
 import { mockRandomValues } from '../helpers/test-utils.js';
 
@@ -9,6 +10,12 @@ function createMockGuildMember(options: { premiumSince?: Date | null } = {}): Gu
     return {
         premiumSince: options.premiumSince || null,
     } as GuildMember;
+}
+
+function createMockGuildData(discordId: string): GuildData {
+    return {
+        discordId,
+    } as GuildData;
 }
 
 describe('ExperienceUtils', () => {
@@ -382,6 +389,52 @@ describe('ExperienceUtils', () => {
 
             // Premium member with 2x base multiplier: 1.2 * 2 = 2.4
             expect(ExperienceUtils.getXpMultiplierForGuildMember(premiumMember, 2)).toBe(2.4);
+        });
+    });
+
+    describe('getXpMultiplierBreakdownForGuildMember', () => {
+        it('should return expected breakdown for non-premium member', async () => {
+            const regularMember = createMockGuildMember();
+            const guildData = createMockGuildData('guild-1');
+            ExperienceUtils.setMultiplierCache(guildData.discordId, 2);
+
+            await expect(
+                ExperienceUtils.getXpMultiplierBreakdownForGuildMember(regularMember, guildData)
+            ).resolves.toEqual({
+                eventMultiplier: 2,
+                nitroMultiplier: undefined,
+                totalMultiplier: 2,
+            });
+        });
+
+        it('should return expected breakdown for premium member', async () => {
+            const premiumMember = createMockGuildMember({
+                premiumSince: new Date('2023-01-01'),
+            });
+            const guildData = createMockGuildData('guild-2');
+            ExperienceUtils.setMultiplierCache(guildData.discordId, 2);
+
+            await expect(
+                ExperienceUtils.getXpMultiplierBreakdownForGuildMember(premiumMember, guildData)
+            ).resolves.toEqual({
+                eventMultiplier: 2,
+                nitroMultiplier: 1.2,
+                totalMultiplier: 2.4,
+            });
+        });
+
+        it('should hide event and nitro multipliers when both are default', async () => {
+            const regularMember = createMockGuildMember();
+            const guildData = createMockGuildData('guild-3');
+            ExperienceUtils.setMultiplierCache(guildData.discordId, 1);
+
+            await expect(
+                ExperienceUtils.getXpMultiplierBreakdownForGuildMember(regularMember, guildData)
+            ).resolves.toEqual({
+                eventMultiplier: undefined,
+                nitroMultiplier: undefined,
+                totalMultiplier: 1,
+            });
         });
     });
 });
