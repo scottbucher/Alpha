@@ -6,7 +6,7 @@ import { EventData } from '../models/internal-models.js';
 import { Lang } from '../services/index.js';
 import { MessageUtils } from '../utils/index.js';
 
-const GOOD_NIGHT_TRIGGER = /(?:g['`]?(?:oo+d+|d)?\s*n+[iy]+(?:g+h+)?t+[ez]*[!1.]*|^gn[!1.]*$)/i;
+const GOOD_NIGHT_TRIGGER = /(?:\bg['`]?(?:oo+d+|d)?\s*n+[iy]+(?:g+h+)?t+[ez]*[!1.]*|^gn[!1.]*$)/i;
 const GOOD_NIGHT_EMOJIS = [
     '😴',
     '😪',
