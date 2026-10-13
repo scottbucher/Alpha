@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/typedef */
-import { Collection, EmbedBuilder } from 'discord.js';
+import { Collection, DiscordAPIError, EmbedBuilder, RESTJSONErrorCodes } from 'discord.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Logger, MilestoneService } from '../../src/services/index.js';
@@ -252,7 +252,7 @@ describe('MilestoneService', () => {
         );
     });
 
-    it('should not give a role the member already has but still mention it', async () => {
+    it('should not give or announce a role the member already has', async () => {
         mockGuildData.milestoneSettings.xpMilestones = [{ xp: 100000, roleDiscordId: 'role1' }];
         mockMember.roles.cache.set('role1', mockRoles.get('role1'));
 
@@ -261,7 +261,67 @@ describe('MilestoneService', () => {
         ]);
 
         expect(ActionUtils.giveRole).not.toHaveBeenCalled();
-        expect(getSentMessage().embeds[0].data.description).toContain('@Role1 role');
+        expect(loggerErrorSpy).not.toHaveBeenCalled();
+        expect(getSentMessage().embeds[0].data.description).toBe(
+            "<@!user123> just passed **100,000 XP**! They're now level **34**."
+        );
+    });
+
+    it('should only announce the roles that were newly given', async () => {
+        mockGuildData.milestoneSettings.xpMilestones = [
+            { xp: 100000, roleDiscordId: 'role1' },
+            { xp: 100005, roleDiscordId: 'role2' },
+        ];
+        mockMember.roles.cache.set('role1', mockRoles.get('role1'));
+
+        await milestoneService.handleMilestonesForGuild(mockGuild, mockGuildData, [
+            { userId: 'user123', oldXp: 99990, newXp: 100010 },
+        ]);
+
+        expect(ActionUtils.giveRole).toHaveBeenCalledTimes(1);
+        expect(ActionUtils.giveRole).toHaveBeenCalledWith(mockMember, mockRoles.get('role2'));
+        const description = getSentMessage().embeds[0].data.description;
+        expect(description).toContain("They've earned the @Role2 role!");
+        expect(description).not.toContain('@Role1');
+    });
+
+    it('should skip roles without logging an error when the member left the guild', async () => {
+        mockGuildData.milestoneSettings.xpMilestones = [{ xp: 100000, roleDiscordId: 'role1' }];
+        mockGuild.members.fetch = vi
+            .fn()
+            .mockRejectedValue(
+                new DiscordAPIError(
+                    { code: RESTJSONErrorCodes.UnknownMember, message: 'Unknown Member' },
+                    RESTJSONErrorCodes.UnknownMember,
+                    404,
+                    'GET',
+                    '/guilds/guild123/members/user123',
+                    {}
+                )
+            );
+
+        await milestoneService.handleMilestonesForGuild(mockGuild, mockGuildData, [
+            { userId: 'user123', oldXp: 99990, newXp: 100010 },
+        ]);
+
+        expect(ActionUtils.giveRole).not.toHaveBeenCalled();
+        expect(loggerErrorSpy).not.toHaveBeenCalled();
+        expect(MessageUtils.send).toHaveBeenCalledTimes(1);
+        expect(getSentMessage().embeds[0].data.description).toBe(
+            "<@!user123> just passed **100,000 XP**! They're now level **34**."
+        );
+    });
+
+    it('should log an error when fetching the member fails for another reason', async () => {
+        mockGuildData.milestoneSettings.xpMilestones = [{ xp: 100000, roleDiscordId: 'role1' }];
+        mockGuild.members.fetch = vi.fn().mockRejectedValue(new Error('Discord down'));
+
+        await milestoneService.handleMilestonesForGuild(mockGuild, mockGuildData, [
+            { userId: 'user123', oldXp: 99990, newXp: 100010 },
+        ]);
+
+        expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
+        expect(MessageUtils.send).not.toHaveBeenCalled();
     });
 
     it('should log and not mention roles that could not be given', async () => {
@@ -325,5 +385,42 @@ describe('MilestoneService', () => {
 
         expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
         expect(MessageUtils.send).not.toHaveBeenCalled();
+    });
+
+    describe('getAnnouncementChannel', () => {
+        it('should return the milestone channel', async () => {
+            await expect(
+                MilestoneService.getAnnouncementChannel(mockGuild, mockGuildData)
+            ).resolves.toEqual({ channel: mockMilestoneChannel, isFallback: false });
+        });
+
+        it('should return the leveling channel as a fallback', async () => {
+            mockChannels({
+                milestoneChannel: new Error('Unknown Channel'),
+                levelingChannel: mockLevelingChannel,
+            });
+
+            await expect(
+                MilestoneService.getAnnouncementChannel(mockGuild, mockGuildData)
+            ).resolves.toEqual({ channel: mockLevelingChannel, isFallback: true });
+        });
+
+        it('should return null when neither channel is usable', async () => {
+            mockChannels({ levelingChannel: new Error('Unknown Channel') });
+
+            await expect(
+                MilestoneService.getAnnouncementChannel(mockGuild, mockGuildData)
+            ).resolves.toEqual({ channel: null, isFallback: false });
+        });
+
+        it('should only fetch once when both channels are the same', async () => {
+            mockGuildData.milestoneSettings.channelDiscordId = 'levelingChannel';
+            mockChannels({});
+
+            await expect(
+                MilestoneService.getAnnouncementChannel(mockGuild, mockGuildData)
+            ).resolves.toEqual({ channel: null, isFallback: false });
+            expect(ClientUtils.getConfiguredTextChannelIfExists).toHaveBeenCalledTimes(1);
+        });
     });
 });

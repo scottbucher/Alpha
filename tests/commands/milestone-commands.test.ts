@@ -10,7 +10,12 @@ import {
 } from '../../src/commands/chat/index.js';
 import { EventData } from '../../src/models/internal-models.js';
 import { Lang } from '../../src/services/index.js';
-import { FormatUtils, InteractionUtils, ValidationUtils } from '../../src/utils/index.js';
+import {
+    ClientUtils,
+    FormatUtils,
+    InteractionUtils,
+    ValidationUtils,
+} from '../../src/utils/index.js';
 import {
     createMockCommandInteraction,
     createMockEntityManager,
@@ -308,10 +313,11 @@ describe('Milestone commands', () => {
         beforeEach(() => {
             command = new MilestoneListCommand();
             vi.spyOn(Lang, 'getEmbed');
-            mockIntr.guild.channels.resolve = vi.fn(id =>
-                ['milestoneChannel', 'levelingChannel'].includes(id)
-                    ? { toString: () => `<#${id}>` }
-                    : null
+            vi.spyOn(ClientUtils, 'getConfiguredTextChannelIfExists').mockImplementation(
+                async (_guild, id) =>
+                    ['milestoneChannel', 'levelingChannel'].includes(id)
+                        ? ({ toString: () => `<#${id}>` } as any)
+                        : null
             );
             mockGuildData.levelingSettings = { channelDiscordId: 'levelingChannel' };
         });
@@ -333,7 +339,7 @@ describe('Milestone commands', () => {
         it('should list milestones, the interval, and the milestone channel', async () => {
             mockGuildData.milestoneSettings = {
                 channelDiscordId: 'milestoneChannel',
-                xpMilestones: [{ xp: 2_000_000 }, { xp: 100_000, roleDiscordId: 'role1' }],
+                xpMilestones: [{ xp: 100_000, roleDiscordId: 'role1' }, { xp: 2_000_000 }],
                 xpInterval: 1_000_000,
             };
 
@@ -346,6 +352,53 @@ describe('Milestone commands', () => {
             ]);
             expect(variables.INTERVAL).toContain((1_000_000).toLocaleString());
             expect(variables.CHANNEL).toBe('<#milestoneChannel>');
+
+            let embed = vi.mocked(Lang.getEmbed).mock.results.at(-1).value;
+            expect(embed.data.title).toBe('XP Milestones');
+            expect(embed.data.description).toBe(variables.MILESTONES);
+            expect(embed.data.fields.map(field => field.value)).toEqual([
+                variables.INTERVAL,
+                variables.CHANNEL,
+            ]);
+        });
+
+        it('should fit the maximum number of role milestones in the embed', async () => {
+            mockGuildData.milestoneSettings = {
+                channelDiscordId: 'milestoneChannel',
+                xpMilestones: Array.from({ length: 25 }, (_, index) => ({
+                    xp: 1_000_000_000 + index,
+                    roleDiscordId: `123456789012345678${String(index).padStart(2, '0')}`,
+                })),
+                xpInterval: 1_000_000_000,
+            };
+
+            await command.execute(mockIntr, data);
+
+            let embed = vi.mocked(Lang.getEmbed).mock.results.at(-1).value;
+            expect(embed.data.description.split('\n')).toHaveLength(25);
+            expect(embed.data.description.length).toBeLessThanOrEqual(4096);
+            for (let field of embed.data.fields) {
+                expect(field.value.length).toBeLessThanOrEqual(1024);
+            }
+        });
+
+        it('should not show a milestone channel the bot cannot send to', async () => {
+            mockGuildData.milestoneSettings = {
+                channelDiscordId: 'voiceChannel',
+                xpMilestones: [{ xp: 100_000 }],
+            };
+
+            await command.execute(mockIntr, data);
+
+            expect(ClientUtils.getConfiguredTextChannelIfExists).toHaveBeenCalledWith(
+                mockIntr.guild,
+                'voiceChannel'
+            );
+            expect(getListVariables().CHANNEL).toBe(
+                Lang.getRef('info', 'terms.levelingChannelFallback', Locale.EnglishUS, {
+                    CHANNEL: '<#levelingChannel>',
+                })
+            );
         });
 
         it('should show the leveling channel fallback and no interval', async () => {

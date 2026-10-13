@@ -246,11 +246,8 @@
             },
             "milestoneList": {
                 "title": "{{REF:terms.xpMilestones}}",
+                "description": "{{MILESTONES}}",
                 "fields": [
-                    {
-                        "name": "{{REF:terms.xpMilestones}}",
-                        "value": "{{MILESTONES}}"
-                    },
                     {
                         "name": "{{REF:terms.milestoneInterval}}",
                         "value": "{{INTERVAL}}",
@@ -311,7 +308,11 @@
                     },
                     {
                         "name": "Leveling Up & Usage",
-                        "value": " - View your current (or another member's) XP and level using {{CMD_XP}}, and view the leaderboard using {{CMD_LEADERBOARD}}.\n - When you get enough XP to level up, you will be notified in the server's leveling channel, if it is set.\n- A server can configure leveling rewards for each level using {{CMD_REWARD_ADD_ROLE}}, {{CMD_REWARD_REMOVE_ROLE}}, {{CMD_REWARD_REMOVE_ID}}, {{CMD_REWARD_CLEAR_ROLES}}, and {{CMD_VIEW_REWARDS}}.\n - There can be multiple rewards for each level.\n - Members can claim possible missed rewards using {{CMD_CLAIM_REWARDS}}.\n - A server can announce XP milestones (ex: 1,000,000 total XP), optionally with a role, using {{CMD_MILESTONE_ADD}}, {{CMD_MILESTONE_REMOVE}}, {{CMD_MILESTONE_INTERVAL}}, and {{CMD_MILESTONE_LIST}}.\n - Each subsequent level requires more XP than the previous level, following the following formula: 5x² + 50x + 100, where x is the level."
+                        "value": " - View your current (or another member's) XP and level using {{CMD_XP}}, and view the leaderboard using {{CMD_LEADERBOARD}}.\n - When you get enough XP to level up, you will be notified in the server's leveling channel, if it is set.\n- A server can configure leveling rewards for each level using {{CMD_REWARD_ADD_ROLE}}, {{CMD_REWARD_REMOVE_ROLE}}, {{CMD_REWARD_REMOVE_ID}}, {{CMD_REWARD_CLEAR_ROLES}}, and {{CMD_VIEW_REWARDS}}.\n - There can be multiple rewards for each level.\n - Members can claim possible missed rewards using {{CMD_CLAIM_REWARDS}}.\n - Each subsequent level requires more XP than the previous level, following the following formula: 5x² + 50x + 100, where x is the level."
+                    },
+                    {
+                        "name": "XP Milestones",
+                        "value": " - A server can announce when members pass XP milestones (ex: 1,000,000 total XP) in the server's milestone channel, or in the leveling channel if no milestone channel is set.\n - Milestones can be added and removed using {{CMD_MILESTONE_ADD}} and {{CMD_MILESTONE_REMOVE}}, optionally with a role that members are given when they reach the milestone.\n - A recurring milestone (ex: every 1,000,000 XP) can be set using {{CMD_MILESTONE_INTERVAL}}.\n - View the server's milestones using {{CMD_MILESTONE_LIST}}. Members can claim missed milestone roles using {{CMD_CLAIM_REWARDS}}."
                     }
                 ]
             }

@@ -29,7 +29,7 @@ describe('ClaimRewardsCommand', () => {
         vi.restoreAllMocks();
 
         vi.spyOn(InteractionUtils, 'send').mockResolvedValue(undefined);
-        vi.spyOn(ActionUtils, 'giveRole').mockResolvedValue(undefined);
+        vi.spyOn(ActionUtils, 'giveRole').mockImplementation(async member => member);
         vi.spyOn(Lang, 'getSuccessEmbed');
         vi.spyOn(Lang, 'getErrorEmbed');
 
@@ -131,5 +131,40 @@ describe('ClaimRewardsCommand', () => {
         await command.execute(mockIntr, data);
 
         expect(getGivenRoleIds()).toEqual(['role1']);
+    });
+
+    it('should only list the roles that were given', async () => {
+        mockGuildData.milestoneSettings.xpMilestones = [
+            { xp: 100_000, roleDiscordId: 'role1' },
+            { xp: 150_000, roleDiscordId: 'role2' },
+        ];
+        vi.mocked(ActionUtils.giveRole).mockImplementation(async (member, role) =>
+            role.id === 'role1' ? undefined : member
+        );
+
+        await command.execute(mockIntr, data);
+
+        expect(getGivenRoleIds()).toEqual(['role1', 'role2']);
+        expect(Lang.getSuccessEmbed).toHaveBeenCalledWith(
+            'results',
+            'successEmbeds.rewardsClaimed',
+            Locale.EnglishUS,
+            { ROLES_ADDED: '<@&role2>' }
+        );
+    });
+
+    it('should send no rewards to claim when no role could be given', async () => {
+        mockGuildData.milestoneSettings.xpMilestones = [{ xp: 100_000, roleDiscordId: 'role1' }];
+        vi.mocked(ActionUtils.giveRole).mockResolvedValue(undefined);
+
+        await command.execute(mockIntr, data);
+
+        expect(getGivenRoleIds()).toEqual(['role1']);
+        expect(Lang.getSuccessEmbed).not.toHaveBeenCalled();
+        expect(Lang.getErrorEmbed).toHaveBeenCalledWith(
+            'validation',
+            'errorEmbeds.noRewardsToClaim',
+            Locale.EnglishUS
+        );
     });
 });

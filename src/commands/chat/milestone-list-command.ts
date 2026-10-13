@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction, PermissionsString } from 'discord.js';
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
-import { Lang } from '../../services/index.js';
+import { Lang, MilestoneService } from '../../services/index.js';
 import { ExperienceUtils, FormatUtils, InteractionUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
 
@@ -18,7 +18,7 @@ export class MilestoneListCommand implements Command {
 
     public async execute(intr: ChatInputCommandInteraction, data: EventData): Promise<void> {
         let milestoneSettings = ExperienceUtils.getMilestoneSettings(data.guildData);
-        let milestones = [...milestoneSettings.xpMilestones].sort((a, b) => a.xp - b.xp);
+        let milestones = milestoneSettings.xpMilestones;
 
         if (milestones.length === 0 && !milestoneSettings.xpInterval) {
             await InteractionUtils.send(
@@ -67,33 +67,27 @@ export class MilestoneListCommand implements Command {
             Lang.getEmbed('info', 'embeds.milestoneList', data.lang, {
                 MILESTONES: milestoneList,
                 INTERVAL: interval,
-                CHANNEL: this.getChannelDisplay(intr, data, milestoneSettings.channelDiscordId),
+                CHANNEL: await this.getChannelDisplay(intr, data),
             })
         );
     }
 
-    private getChannelDisplay(
+    private async getChannelDisplay(
         intr: ChatInputCommandInteraction,
-        data: EventData,
-        milestoneChannelId?: string
-    ): string {
-        let milestoneChannel = milestoneChannelId
-            ? intr.guild.channels.resolve(milestoneChannelId)
-            : undefined;
-        if (milestoneChannel) {
-            return milestoneChannel.toString();
+        data: EventData
+    ): Promise<string> {
+        let { channel, isFallback } = await MilestoneService.getAnnouncementChannel(
+            intr.guild,
+            data.guildData
+        );
+        if (!channel) {
+            return Lang.getRef('info', 'terms.notSet', data.lang);
         }
 
-        let levelingChannelId = data.guildData.levelingSettings?.channelDiscordId;
-        let levelingChannel = levelingChannelId
-            ? intr.guild.channels.resolve(levelingChannelId)
-            : undefined;
-        if (levelingChannel) {
-            return Lang.getRef('info', 'terms.levelingChannelFallback', data.lang, {
-                CHANNEL: levelingChannel.toString(),
-            });
-        }
-
-        return Lang.getRef('info', 'terms.notSet', data.lang);
+        return isFallback
+            ? Lang.getRef('info', 'terms.levelingChannelFallback', data.lang, {
+                  CHANNEL: channel.toString(),
+              })
+            : channel.toString();
     }
 }

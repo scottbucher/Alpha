@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, PermissionsString } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsString, Role } from 'discord.js';
 
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
@@ -51,7 +51,14 @@ export class ClaimRewardsCommand implements Command {
             .map(roleId => intr.guild.roles.cache.get(roleId))
             .filter(role => role);
 
-        if (rolesToAdd.length === 0) {
+        let rolesAdded: Role[] = [];
+        for (let role of rolesToAdd) {
+            if (await ActionUtils.giveRole(member, role)) {
+                rolesAdded.push(role);
+            }
+        }
+
+        if (rolesAdded.length === 0) {
             await InteractionUtils.send(
                 intr,
                 Lang.getErrorEmbed('validation', 'errorEmbeds.noRewardsToClaim', data.lang)
@@ -59,15 +66,11 @@ export class ClaimRewardsCommand implements Command {
             return;
         }
 
-        for (let role of rolesToAdd) {
-            await ActionUtils.giveRole(member, role);
-        }
-
         await InteractionUtils.send(
             intr,
             Lang.getSuccessEmbed('results', 'successEmbeds.rewardsClaimed', data.lang, {
                 ROLES_ADDED: FormatUtils.joinWithAnd(
-                    rolesToAdd.map(role => FormatUtils.roleMention(intr.guild, role.id)),
+                    rolesAdded.map(role => FormatUtils.roleMention(intr.guild, role.id)),
                     data.lang
                 ),
             })

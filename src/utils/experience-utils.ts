@@ -317,15 +317,15 @@ export abstract class ExperienceUtils {
     public static getMilestonesCrossed(
         oldXp: number,
         newXp: number,
-        settings?: MilestoneSettings
+        settings: MilestoneSettings
     ): { highestXp: number; roleMilestones: XpMilestone[] } | undefined {
-        if (!settings || !(newXp > oldXp)) {
+        if (!(newXp > oldXp)) {
             return undefined;
         }
 
-        let crossedMilestones = (settings.xpMilestones ?? [])
-            .filter(milestone => oldXp < milestone.xp && milestone.xp <= newXp)
-            .sort((a, b) => a.xp - b.xp);
+        let crossedMilestones = settings.xpMilestones.filter(
+            milestone => oldXp < milestone.xp && milestone.xp <= newXp
+        );
         let crossedXps = crossedMilestones.map(milestone => milestone.xp);
 
         let interval = settings.xpInterval;

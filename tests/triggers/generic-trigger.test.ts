@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { EventData } from '../../src/models/internal-models.js';
-import { LevelUpService, MilestoneService } from '../../src/services/index.js';
+import { LevelUpService, Logger, MilestoneService } from '../../src/services/index.js';
 import { GenericTrigger } from '../../src/triggers/generic-trigger.js';
 import {
     ExperienceUtils,
@@ -236,6 +236,34 @@ describe('GenericTrigger', () => {
         await trigger.execute(mockMessage, data);
 
         expect(callOrder).toEqual(['levelUp', 'milestone']);
+    });
+
+    it('should log level up errors and still handle milestones', async () => {
+        vi.spyOn(ExperienceUtils, 'hasLeveledUp').mockReturnValue(true);
+        const levelUpError = new Error('Unknown Member');
+        vi.mocked(mockLevelUpService.handleLevelUpsForGuild).mockRejectedValue(levelUpError);
+        const loggerErrorSpy = vi.spyOn(Logger, 'error').mockResolvedValue(undefined);
+
+        const data = new EventData(
+            'en-US' as any,
+            'en-US' as any,
+            mockEm,
+            mockGuildData,
+            undefined,
+            mockGuildUserData
+        );
+
+        await expect(trigger.execute(mockMessage, data)).resolves.toBeUndefined();
+
+        expect(loggerErrorSpy).toHaveBeenCalledWith(
+            expect.stringContaining('guild123'),
+            levelUpError
+        );
+        expect(mockMilestoneService.handleMilestonesForGuild).toHaveBeenCalledWith(
+            mockMessage.guild,
+            mockGuildData,
+            [{ userId: 'user123', oldXp: 10, newXp: 15 }]
+        );
     });
 
     it('should use the XP at grant time when it changes during the awaits', async () => {

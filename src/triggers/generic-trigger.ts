@@ -89,13 +89,20 @@ export class GenericTrigger implements Trigger {
 
             let hasLeveledUp = ExperienceUtils.hasLeveledUp(memberXpBefore, memberXpAfter);
             if (hasLeveledUp) {
-                await this.levelUpService.handleLevelUpsForGuild(msg.guild, guildData, [
-                    {
-                        userId: msg.author.id,
-                        oldLevel: ExperienceUtils.getLevelFromXp(memberXpBefore),
-                        newLevel: ExperienceUtils.getLevelFromXp(memberXpAfter),
-                    },
-                ]);
+                try {
+                    await this.levelUpService.handleLevelUpsForGuild(msg.guild, guildData, [
+                        {
+                            userId: msg.author.id,
+                            oldLevel: ExperienceUtils.getLevelFromXp(memberXpBefore),
+                            newLevel: ExperienceUtils.getLevelFromXp(memberXpAfter),
+                        },
+                    ]);
+                } catch (error) {
+                    Logger.error(
+                        Logs.error.levelUpGuildError.replaceAll('{GUILD_ID}', msg.guild.id),
+                        error
+                    );
+                }
             }
 
             await this.milestoneService.handleMilestonesForGuild(msg.guild, guildData, [

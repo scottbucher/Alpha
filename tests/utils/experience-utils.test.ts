@@ -446,20 +446,8 @@ describe('ExperienceUtils', () => {
             return { xpMilestones, xpInterval } as MilestoneSettings;
         }
 
-        it('should return undefined when settings are undefined', () => {
-            expect(ExperienceUtils.getMilestonesCrossed(99, 101, undefined)).toBeUndefined();
-        });
-
         it('should return undefined when settings are empty', () => {
             expect(ExperienceUtils.getMilestonesCrossed(99, 101, createSettings())).toBeUndefined();
-        });
-
-        it('should handle undefined xpMilestones', () => {
-            const settings = { xpInterval: 100 } as MilestoneSettings;
-            expect(ExperienceUtils.getMilestonesCrossed(99, 101, settings)).toEqual({
-                highestXp: 100,
-                roleMilestones: [],
-            });
         });
 
         it('should return undefined when no milestone was crossed', () => {
@@ -493,9 +481,9 @@ describe('ExperienceUtils', () => {
 
         it('should return the highest milestone and all crossed role milestones', () => {
             const settings = createSettings([
-                { xp: 3000, roleDiscordId: 'role3' },
                 { xp: 1000, roleDiscordId: 'role1' },
                 { xp: 2000 },
+                { xp: 3000, roleDiscordId: 'role3' },
                 { xp: 5000, roleDiscordId: 'role5' },
             ]);
             expect(ExperienceUtils.getMilestonesCrossed(500, 3500, settings)).toEqual({

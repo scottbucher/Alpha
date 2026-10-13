@@ -1,8 +1,17 @@
-import { Collection, Guild, Role, Snowflake, TextChannel } from 'discord.js';
+import {
+    Collection,
+    DiscordAPIError,
+    RESTJSONErrorCodes as DiscordApiErrors,
+    Guild,
+    GuildMember,
+    Role,
+    Snowflake,
+    TextChannel,
+} from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Lang, Logger } from './index.js';
-import { GuildData, MilestoneSettings, XpMilestone } from '../database/entities/index.js';
+import { GuildData, XpMilestone } from '../database/entities/index.js';
 import { Language } from '../models/enum-helpers/index.js';
 import {
     ActionUtils,
@@ -47,10 +56,9 @@ export class MilestoneService {
                 return;
             }
 
-            let milestoneChannel = await this.getMilestoneChannel(
+            let { channel: milestoneChannel } = await MilestoneService.getAnnouncementChannel(
                 guild,
-                guildData,
-                milestoneSettings
+                guildData
             );
 
             let guildRoles = milestoneUsers.some(user => user.crossed.roleMilestones.length > 0)
@@ -118,35 +126,49 @@ export class MilestoneService {
     }
 
     /**
-     * Resolve the channel to announce milestones in: the milestone channel, falling back to the leveling channel.
+     * Resolve the channel milestones are announced in: the milestone channel, falling back to the leveling channel.
+     * @param guild The guild to resolve the channel in
+     * @param guildData The guild's data
+     * @returns The channel, or null if neither channel is usable, and whether the leveling channel fallback was used
      */
-    private async getMilestoneChannel(
+    public static async getAnnouncementChannel(
         guild: Guild,
-        guildData: GuildData,
-        milestoneSettings: MilestoneSettings
-    ): Promise<TextChannel | null> {
-        let channelIds = [
-            milestoneSettings.channelDiscordId,
-            guildData.levelingSettings?.channelDiscordId,
-        ];
-
-        for (let channelId of new Set(channelIds.filter(Boolean))) {
-            try {
-                let channel = await ClientUtils.getConfiguredTextChannelIfExists(guild, channelId);
-                if (channel) {
-                    return channel;
-                }
-            } catch {
-                // The channel was likely deleted, try the next one
-            }
+        guildData: GuildData
+    ): Promise<{ channel: TextChannel | null; isFallback: boolean }> {
+        let milestoneChannelId = guildData.milestoneSettings?.channelDiscordId;
+        let milestoneChannel = await MilestoneService.getTextChannel(guild, milestoneChannelId);
+        if (milestoneChannel) {
+            return { channel: milestoneChannel, isFallback: false };
         }
 
-        return null;
+        let levelingChannelId = guildData.levelingSettings?.channelDiscordId;
+        let levelingChannel =
+            levelingChannelId !== milestoneChannelId
+                ? await MilestoneService.getTextChannel(guild, levelingChannelId)
+                : null;
+        return { channel: levelingChannel, isFallback: levelingChannel !== null };
+    }
+
+    private static async getTextChannel(
+        guild: Guild,
+        channelId?: string
+    ): Promise<TextChannel | null> {
+        if (!channelId) {
+            return null;
+        }
+
+        try {
+            return await ClientUtils.getConfiguredTextChannelIfExists(guild, channelId);
+        } catch {
+            // The channel was likely deleted
+            return null;
+        }
     }
 
     /**
-     * Give a user the roles of the milestones they crossed, skipping roles that no longer exist.
-     * @returns The roles the user now has from the milestones
+     * Give a user the roles of the milestones they crossed, skipping roles that no longer exist,
+     * roles the user already has, and users that have left the guild.
+     * @returns The roles that were newly given to the user
      */
     private async giveMilestoneRoles(
         guild: Guild,
@@ -165,13 +187,21 @@ export class MilestoneService {
             return [];
         }
 
-        let member = await guild.members.fetch(userId);
+        let member = await this.getMember(guild, userId);
+        if (!member) {
+            return [];
+        }
+
         let earnedRoles: Role[] = [];
         let rolesNotGiven: Role[] = [];
 
         // Roles are given one at a time, see the comment in LevelUpService for why
         for (let role of roles) {
-            if (member.roles.cache.has(role.id) || (await ActionUtils.giveRole(member, role))) {
+            if (member.roles.cache.has(role.id)) {
+                continue;
+            }
+
+            if (await ActionUtils.giveRole(member, role)) {
                 earnedRoles.push(role);
             } else {
                 rolesNotGiven.push(role);
@@ -188,5 +218,19 @@ export class MilestoneService {
         }
 
         return earnedRoles;
+    }
+
+    /**
+     * Fetch a guild member, returning null if they are no longer in the guild.
+     */
+    private async getMember(guild: Guild, userId: string): Promise<GuildMember | null> {
+        try {
+            return await guild.members.fetch(userId);
+        } catch (error) {
+            if (error instanceof DiscordAPIError && error.code === DiscordApiErrors.UnknownMember) {
+                return null;
+            }
+            throw error;
+        }
     }
 }

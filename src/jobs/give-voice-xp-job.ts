@@ -68,8 +68,7 @@ export class GiveVoiceXpJob extends Job {
                     userData => userData.userDiscordId === voiceState.member.id && voiceState
                 );
                 if (guildUserData) {
-                    let memberXpBefore = guildUserData.experience;
-                    let memberLevelBefore = ExperienceUtils.getLevelFromXp(memberXpBefore);
+                    let startingXp = guildUserData.experience;
 
                     let currentVoiceChannelMembers = guild.voiceStates.cache.filter(
                         vs => vs.channelId === voiceState.channelId
@@ -91,10 +90,13 @@ export class GiveVoiceXpJob extends Job {
                         guildUserObjectId: guildUserData._id,
                         dayString,
                         minutesIncrement,
-                        startingXp: memberXpBefore,
+                        startingXp,
                         createdIso: TimeUtils.now().toISO(),
                     });
 
+                    // Read right before granting, message XP can update this shared cached entity
+                    // during the await above, which would otherwise announce a level up or milestone twice
+                    let memberXpBefore = guildUserData.experience;
                     guildUserData.experience += xpGranted;
 
                     Logger.info(
@@ -118,7 +120,7 @@ export class GiveVoiceXpJob extends Job {
                     if (hasLeveledUp) {
                         leveledUpUsers.push({
                             userId: voiceState.member.id,
-                            oldLevel: memberLevelBefore, // not sure I need this, only scenario I can think of where we would is if they leveled up multiple times, is that possible?
+                            oldLevel: ExperienceUtils.getLevelFromXp(memberXpBefore), // not sure I need this, only scenario I can think of where we would is if they leveled up multiple times, is that possible?
                             newLevel: ExperienceUtils.getLevelFromXp(memberXpAfter),
                         });
                     }
@@ -149,17 +151,35 @@ export class GiveVoiceXpJob extends Job {
                 }
             }
 
-            if (leveledUpUsers.length > 0) {
-                await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
+            if (xpChangedUsers.length === 0) {
+                continue;
             }
 
-            if (xpChangedUsers.length > 0) {
-                await this.milestoneService.handleMilestonesForGuild(
-                    guild,
-                    guildData,
-                    xpChangedUsers
-                );
+            // The cached guild data is not reloaded while the guild is active, so load fresh settings.
+            // A separate fork avoids identity map conflicts with the cached guild data.
+            let freshGuildData =
+                (await this.orm.em.fork().findOne(GuildData, { discordId: guild.id })) ?? guildData;
+
+            if (leveledUpUsers.length > 0) {
+                try {
+                    await this.levelUpService.handleLevelUpsForGuild(
+                        guild,
+                        freshGuildData,
+                        leveledUpUsers
+                    );
+                } catch (error) {
+                    Logger.error(
+                        Logs.error.levelUpGuildError.replaceAll('{GUILD_ID}', guild.id),
+                        error
+                    );
+                }
             }
+
+            await this.milestoneService.handleMilestonesForGuild(
+                guild,
+                freshGuildData,
+                xpChangedUsers
+            );
         }
     }
 
