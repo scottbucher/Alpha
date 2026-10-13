@@ -275,6 +275,8 @@ export function createMockCommandInteraction(overrides = {}): any {
             getUser: vi.fn(),
             getInteger: vi.fn(),
             getBoolean: vi.fn(),
+            getRole: vi.fn(),
+            getChannel: vi.fn(),
             getSubcommand: vi.fn(),
             getSubcommandGroup: vi.fn(),
         },

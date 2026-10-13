@@ -494,6 +494,110 @@ export const ChatCommandMetadata: {
         dm_permission: false,
         default_member_permissions: undefined,
     },
+    MILESTONE: {
+        name: Lang.getRef('commands', 'chatCommands.milestone', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.milestone'),
+        description: Lang.getRef('commands', 'commandDescs.milestone', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap('commands', 'commandDescs.milestone'),
+        dm_permission: false,
+        default_member_permissions: PermissionsBitField.resolve([
+            PermissionFlagsBits.ManageGuild,
+        ]).toString(),
+        options: [
+            {
+                name: Lang.getRef('commands', 'chatCommands.add', Language.Default),
+                name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.add'),
+                description: Lang.getRef('commands', 'commandDescs.addMilestone', Language.Default),
+                description_localizations: Lang.getRefLocalizationMap(
+                    'commands',
+                    'commandDescs.addMilestone'
+                ),
+                type: ApplicationCommandOptionType.Subcommand.valueOf(),
+                options: [
+                    {
+                        ...Args.XP_OPTION,
+                        required: true,
+                    },
+                    {
+                        ...Args.ROLE_OPTION,
+                        description: Lang.getRef(
+                            'commands',
+                            'argDescs.milestoneRole',
+                            Language.Default
+                        ),
+                        description_localizations: Lang.getRefLocalizationMap(
+                            'commands',
+                            'argDescs.milestoneRole'
+                        ),
+                        required: false,
+                    },
+                ],
+            },
+            {
+                name: Lang.getRef('commands', 'chatCommands.remove', Language.Default),
+                name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.remove'),
+                description: Lang.getRef(
+                    'commands',
+                    'commandDescs.removeMilestone',
+                    Language.Default
+                ),
+                description_localizations: Lang.getRefLocalizationMap(
+                    'commands',
+                    'commandDescs.removeMilestone'
+                ),
+                type: ApplicationCommandOptionType.Subcommand.valueOf(),
+                options: [
+                    {
+                        ...Args.XP_OPTION,
+                        required: true,
+                    },
+                ],
+            },
+            {
+                name: Lang.getRef('commands', 'chatCommands.interval', Language.Default),
+                name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.interval'),
+                description: Lang.getRef(
+                    'commands',
+                    'commandDescs.milestoneInterval',
+                    Language.Default
+                ),
+                description_localizations: Lang.getRefLocalizationMap(
+                    'commands',
+                    'commandDescs.milestoneInterval'
+                ),
+                type: ApplicationCommandOptionType.Subcommand.valueOf(),
+                options: [
+                    {
+                        ...Args.XP_OPTION,
+                        description: Lang.getRef(
+                            'commands',
+                            'argDescs.milestoneInterval',
+                            Language.Default
+                        ),
+                        description_localizations: Lang.getRefLocalizationMap(
+                            'commands',
+                            'argDescs.milestoneInterval'
+                        ),
+                        required: false,
+                    },
+                ],
+            },
+            {
+                name: Lang.getRef('commands', 'chatCommands.list', Language.Default),
+                name_localizations: Lang.getRefLocalizationMap('commands', 'chatCommands.list'),
+                description: Lang.getRef(
+                    'commands',
+                    'commandDescs.listMilestones',
+                    Language.Default
+                ),
+                description_localizations: Lang.getRefLocalizationMap(
+                    'commands',
+                    'commandDescs.listMilestones'
+                ),
+                type: ApplicationCommandOptionType.Subcommand.valueOf(),
+            },
+        ],
+    },
 };
 
 export const MessageCommandMetadata: {

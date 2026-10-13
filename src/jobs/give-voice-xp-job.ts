@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
 import { GuildData, GuildUserData } from '../database/entities/index.js';
-import { LevelUpService, Logger } from '../services/index.js';
+import { LevelUpService, Logger, MilestoneService } from '../services/index.js';
 import { ExperienceUtils, GuildUserDataCache, StatisticsUtils, TimeUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
@@ -22,7 +22,8 @@ export class GiveVoiceXpJob extends Job {
     constructor(
         private client: Client,
         private orm: MikroORM<MongoDriver>,
-        private levelUpService: LevelUpService
+        private levelUpService: LevelUpService,
+        private milestoneService: MilestoneService
     ) {
         super();
     }
@@ -59,6 +60,7 @@ export class GiveVoiceXpJob extends Job {
             const minutesIncrement = Config.jobs.giveVoiceXp.minutesPerRun;
 
             let leveledUpUsers: { userId: string; oldLevel: number; newLevel: number }[] = [];
+            let xpChangedUsers: { userId: string; oldXp: number; newXp: number }[] = [];
             let updatedGuildUserDatas: GuildUserData[] = [];
 
             for (let voiceState of guildVoiceStates) {
@@ -106,6 +108,11 @@ export class GiveVoiceXpJob extends Job {
 
                     let memberXpAfter = guildUserData.experience;
                     updatedGuildUserDatas.push(guildUserData);
+                    xpChangedUsers.push({
+                        userId: voiceState.member.id,
+                        oldXp: memberXpBefore,
+                        newXp: memberXpAfter,
+                    });
 
                     let hasLeveledUp = ExperienceUtils.hasLeveledUp(memberXpBefore, memberXpAfter);
                     if (hasLeveledUp) {
@@ -142,11 +149,17 @@ export class GiveVoiceXpJob extends Job {
                 }
             }
 
-            if (leveledUpUsers.length === 0) {
-                continue;
+            if (leveledUpUsers.length > 0) {
+                await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
             }
 
-            await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
+            if (xpChangedUsers.length > 0) {
+                await this.milestoneService.handleMilestonesForGuild(
+                    guild,
+                    guildData,
+                    xpChangedUsers
+                );
+            }
         }
     }
 

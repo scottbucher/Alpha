@@ -22,3 +22,7 @@ export { ChannelPermissionsCommand } from './channel-permissions-command.js';
 export { EditTimeZoneCommand } from './edit-time-zone-command.js';
 export { MapCommand } from './map-command.js';
 export { ClaimRewardsCommand } from './claim-rewards-command.js';
+export { MilestoneAddCommand } from './milestone-add-command.js';
+export { MilestoneRemoveCommand } from './milestone-remove-command.js';
+export { MilestoneIntervalCommand } from './milestone-interval-command.js';
+export { MilestoneListCommand } from './milestone-list-command.js';

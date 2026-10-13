@@ -19,6 +19,10 @@ import {
     JoinRoleRemoveIdCommand,
     LeaderboardCommand,
     MapCommand,
+    MilestoneAddCommand,
+    MilestoneIntervalCommand,
+    MilestoneListCommand,
+    MilestoneRemoveCommand,
     QuoteCommand,
     RewardAddRoleCommand,
     RewardRemoveRoleCommand,
@@ -65,6 +69,7 @@ import {
     JobService,
     LevelUpService,
     Logger,
+    MilestoneService,
 } from './services/index.js';
 import {
     GenericTrigger,
@@ -85,6 +90,7 @@ async function start(): Promise<void> {
     // Services
     let eventDataService = new EventDataService(orm);
     let levelUpService = new LevelUpService();
+    let milestoneService = new MilestoneService();
     let hytaleAuthService = new HytaleAuthService(
         Config.usernameChecker.hytaleEmail,
         Config.usernameChecker.hytalePassword,
@@ -134,6 +140,10 @@ async function start(): Promise<void> {
         new EditTimeZoneCommand(),
         new MapCommand(),
         new ClaimRewardsCommand(),
+        new MilestoneAddCommand(),
+        new MilestoneRemoveCommand(),
+        new MilestoneIntervalCommand(),
+        new MilestoneListCommand(),
 
         // Chat Commands with a corresponding button implementation
         leaderboardCommand,
@@ -160,7 +170,7 @@ async function start(): Promise<void> {
 
     // Triggers
     let triggers: Trigger[] = [
-        new GenericTrigger(levelUpService),
+        new GenericTrigger(levelUpService, milestoneService),
         new OldPrefixTrigger(),
         new GoodMorningTrigger(),
         new GoodNightTrigger(),
@@ -177,7 +187,7 @@ async function start(): Promise<void> {
 
     // Jobs
     let jobs: Job[] = [
-        new GiveVoiceXpJob(client, orm, levelUpService),
+        new GiveVoiceXpJob(client, orm, levelUpService, milestoneService),
         new EventJob(client, orm),
         new GenerateXpEventsJob(client, orm),
         new CheckUsernameAvailabilityJob(client, hytaleAuthService),

@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { Trigger } from './index.js';
 import { EventDataType } from '../enums/index.js';
 import { EventData } from '../models/internal-models.js';
-import { LevelUpService, Logger } from '../services/index.js';
+import { LevelUpService, Logger, MilestoneService } from '../services/index.js';
 import { FormatUtils } from '../utils/format-utils.js';
 import { ExperienceUtils, GuildUserDataCache, StatisticsUtils, TimeUtils } from '../utils/index.js';
 import { MessageUtils } from '../utils/message-utils.js';
@@ -15,14 +15,21 @@ let Logs = require('../../lang/logs.json');
 
 export class GenericTrigger implements Trigger {
     public requireGuild = true;
-    public requireEventData: EventDataType[] = [EventDataType.GUILD_DATA, EventDataType.GUILD_USER_DATA, EventDataType.GUILD_USER_DATA_STATS_DATA_FOR_TODAY];
+    public requireEventData: EventDataType[] = [
+        EventDataType.GUILD_DATA,
+        EventDataType.GUILD_USER_DATA,
+        EventDataType.GUILD_USER_DATA_STATS_DATA_FOR_TODAY,
+    ];
 
     // TODO: don't earn xp for messages that contain certain words (slurs, etc)
     public triggered(_: Message): boolean {
         return true;
     }
 
-    constructor(private levelUpService: LevelUpService) {}
+    constructor(
+        private levelUpService: LevelUpService,
+        private milestoneService: MilestoneService
+    ) {}
 
     public async execute(msg: Message, data: EventData): Promise<void> {
         // This trigger is used for all messages, we use it to reward xp
@@ -39,8 +46,7 @@ export class GenericTrigger implements Trigger {
         }
 
         if (ExperienceUtils.canEarnXp(guildUserData.lastGivenMessageXp)) {
-            let memberXpBefore = guildUserData.experience;
-            let currentLevel = ExperienceUtils.getLevelFromXp(memberXpBefore); // Get current level
+            let startingXp = guildUserData.experience;
 
             let xpGranted = ExperienceUtils.generateMessageXp(
                 msg.member,
@@ -54,15 +60,14 @@ export class GenericTrigger implements Trigger {
                 guildUserObjectId: guildUserData._id,
                 dayString,
                 messagesIncrement: 1,
-                startingXp: memberXpBefore,
+                startingXp,
                 createdIso: TimeUtils.now().toISO(),
             });
-            await StatisticsUtils.flushMessageStatsForGuild(
-                data.em,
-                msg.guild.id,
-                true
-            );
+            await StatisticsUtils.flushMessageStatsForGuild(data.em, msg.guild.id, true);
 
+            // Read right before granting, the voice XP job can update this shared cached entity
+            // during the awaits above, which would otherwise announce a level up or milestone twice
+            let memberXpBefore = guildUserData.experience;
             guildUserData.experience += xpGranted;
 
             Logger.info(
@@ -87,11 +92,15 @@ export class GenericTrigger implements Trigger {
                 await this.levelUpService.handleLevelUpsForGuild(msg.guild, guildData, [
                     {
                         userId: msg.author.id,
-                        oldLevel: currentLevel,
+                        oldLevel: ExperienceUtils.getLevelFromXp(memberXpBefore),
                         newLevel: ExperienceUtils.getLevelFromXp(memberXpAfter),
                     },
                 ]);
             }
+
+            await this.milestoneService.handleMilestonesForGuild(msg.guild, guildData, [
+                { userId: msg.author.id, oldXp: memberXpBefore, newXp: memberXpAfter },
+            ]);
         }
     }
 }

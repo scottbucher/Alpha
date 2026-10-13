@@ -20,7 +20,8 @@ export class ClaimRewardsCommand implements Command {
     public async execute(intr: ChatInputCommandInteraction, data: EventData): Promise<void> {
         let guildData = data.guildData;
         let levelingRewardDatas = guildData.levelingRewardDatas.getItems();
-        let currentMemberLevel = ExperienceUtils.getLevelFromXp(data.guildUserData.experience);
+        let currentMemberXp = data.guildUserData.experience;
+        let currentMemberLevel = ExperienceUtils.getLevelFromXp(currentMemberXp);
 
         let levelingRewardData = levelingRewardDatas.filter(
             rewardData => rewardData.level <= currentMemberLevel
@@ -39,10 +40,16 @@ export class ClaimRewardsCommand implements Command {
         let levelingRewardRoleIds = levelingRewardData.flatMap(
             rewardData => rewardData.roleDiscordIds
         );
+        let milestoneRoleIds = ExperienceUtils.getMilestoneSettings(guildData)
+            .xpMilestones.filter(
+                milestone => milestone.roleDiscordId && milestone.xp <= currentMemberXp
+            )
+            .map(milestone => milestone.roleDiscordId);
 
-        let rolesToAdd = levelingRewardRoleIds
+        let rolesToAdd = [...new Set([...levelingRewardRoleIds, ...milestoneRoleIds])]
             .filter(roleId => !currentMemberRoleIds.includes(roleId))
-            .map(roleId => intr.guild.roles.cache.get(roleId));
+            .map(roleId => intr.guild.roles.cache.get(roleId))
+            .filter(role => role);
 
         if (rolesToAdd.length === 0) {
             await InteractionUtils.send(

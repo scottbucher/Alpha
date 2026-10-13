@@ -149,6 +149,16 @@ export class Args {
         max_value: 1000,
     };
 
+    public static readonly XP_OPTION: APIApplicationCommandBasicOption = {
+        name: Lang.getRef('commands', 'arguments.xp', Language.Default),
+        name_localizations: Lang.getRefLocalizationMap('commands', 'arguments.xp'),
+        description: Lang.getRef('commands', 'argDescs.milestoneXp', Language.Default),
+        description_localizations: Lang.getRefLocalizationMap('commands', 'argDescs.milestoneXp'),
+        type: ApplicationCommandOptionType.Integer,
+        min_value: 1_000,
+        max_value: 1_000_000_000,
+    };
+
     public static readonly LEVELING_REWARD_ALIAS_OPTION: APIApplicationCommandBasicOption = {
         name: Lang.getRef('commands', 'arguments.levelingRewardAlias', Language.Default),
         name_localizations: Lang.getRefLocalizationMap('commands', 'arguments.levelingRewardAlias'),

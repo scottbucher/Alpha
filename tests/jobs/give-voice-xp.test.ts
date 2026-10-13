@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GuildData, GuildUserData } from '../../src/database/entities/index.js';
 import { LangCode } from '../../src/enums/index.js';
 import { GiveVoiceXpJob } from '../../src/jobs/give-voice-xp-job.js';
-import { LevelUpService } from '../../src/services/index.js';
+import { LevelUpService, MilestoneService } from '../../src/services/index.js';
 import {
     DatabaseUtils,
     ExperienceUtils,
@@ -36,6 +36,7 @@ describe('GiveVoiceXpJob', () => {
     let mockOrm: MikroORM<MongoDriver>;
     let mockEntityManager: EntityManager<MongoDriver>;
     let mockLevelUpService: LevelUpService;
+    let mockMilestoneService: MilestoneService;
     let mockGuild: any;
     let mockVoiceStates: Collection<string, VoiceState>;
     let mockGuildUserDatas: GuildUserData[];
@@ -63,12 +64,12 @@ describe('GiveVoiceXpJob', () => {
         },
     }));
 
-vi.mock('../../src/utils/statistics-utils.js', () => ({
-    StatisticsUtils: {
-        queueVoiceMinutesForGuild: vi.fn(),
-        flushVoiceMinutesForGuild: vi.fn().mockResolvedValue(undefined),
-    },
-}));
+    vi.mock('../../src/utils/statistics-utils.js', () => ({
+        StatisticsUtils: {
+            queueVoiceMinutesForGuild: vi.fn(),
+            flushVoiceMinutesForGuild: vi.fn().mockResolvedValue(undefined),
+        },
+    }));
 
     beforeEach(() => {
         // Setup common mocks using the shared helpers
@@ -131,8 +132,18 @@ vi.mock('../../src/utils/statistics-utils.js', () => ({
             handleLevelUpsForGuild: vi.fn().mockResolvedValue(undefined),
         } as unknown as LevelUpService;
 
+        // Setup milestone service
+        mockMilestoneService = {
+            handleMilestonesForGuild: vi.fn().mockResolvedValue(undefined),
+        } as unknown as MilestoneService;
+
         // Create job instance
-        giveVoiceXpJob = new GiveVoiceXpJob(mockClient, mockOrm, mockLevelUpService);
+        giveVoiceXpJob = new GiveVoiceXpJob(
+            mockClient,
+            mockOrm,
+            mockLevelUpService,
+            mockMilestoneService
+        );
 
         // Setup XP multiplier
         ExperienceUtils.setMultiplierCache('guild123', 1);
@@ -382,6 +393,90 @@ vi.mock('../../src/utils/statistics-utils.js', () => ({
                 createdIso: expect.any(String),
             })
         );
+    });
+
+    describe('Milestones', () => {
+        it('should call the milestone service with the XP before and after the grant', async () => {
+            await giveVoiceXpJob.run();
+
+            expect(mockMilestoneService.handleMilestonesForGuild).toHaveBeenCalledTimes(1);
+            expect(mockMilestoneService.handleMilestonesForGuild).toHaveBeenCalledWith(
+                mockGuild,
+                mockGuildData,
+                [{ userId: 'user123', oldXp: 95, newXp: 100 }]
+            );
+        });
+
+        it('should call the milestone service when nobody leveled up', async () => {
+            mockGuildUserDatas[0].experience = 10;
+
+            await giveVoiceXpJob.run();
+
+            expect(mockLevelUpService.handleLevelUpsForGuild).not.toHaveBeenCalled();
+            expect(mockMilestoneService.handleMilestonesForGuild).toHaveBeenCalledWith(
+                mockGuild,
+                mockGuildData,
+                [{ userId: 'user123', oldXp: 10, newXp: 15 }]
+            );
+        });
+
+        it('should include every member granted XP in one call per guild', async () => {
+            const secondMember = createMockGuildMember('user456', 'SecondUser');
+            mockVoiceStates.set(
+                'user456',
+                createMockVoiceState(secondMember, 'voice123', 'Test Voice Channel')
+            );
+            mockGuildUserDatas.push({
+                userDiscordId: 'user456',
+                guildDiscordId: 'guild123',
+                experience: 500,
+            } as unknown as GuildUserData);
+
+            await giveVoiceXpJob.run();
+
+            const milestoneCalls = vi.mocked(mockMilestoneService.handleMilestonesForGuild).mock
+                .calls;
+            expect(milestoneCalls).toHaveLength(1);
+            expect(milestoneCalls[0][2]).toEqual([
+                {
+                    userId: 'user123',
+                    oldXp: 95,
+                    newXp: mockGuildUserDatas[0].experience,
+                },
+                {
+                    userId: 'user456',
+                    oldXp: 500,
+                    newXp: mockGuildUserDatas[1].experience,
+                },
+            ]);
+        });
+
+        it('should handle level ups before milestones after persisting', async () => {
+            const callOrder: string[] = [];
+            vi.mocked(mockEntityManager.persistAndFlush).mockImplementation(async () => {
+                callOrder.push('persist');
+            });
+            vi.mocked(mockLevelUpService.handleLevelUpsForGuild).mockImplementation(async () => {
+                callOrder.push('levelUp');
+            });
+            vi.mocked(mockMilestoneService.handleMilestonesForGuild).mockImplementation(
+                async () => {
+                    callOrder.push('milestone');
+                }
+            );
+
+            await giveVoiceXpJob.run();
+
+            expect(callOrder).toEqual(['persist', 'levelUp', 'milestone']);
+        });
+
+        it('should not call the milestone service for guilds with no valid voice states', async () => {
+            mockVoiceStates.clear();
+
+            await giveVoiceXpJob.run();
+
+            expect(mockMilestoneService.handleMilestonesForGuild).not.toHaveBeenCalled();
+        });
     });
 
     describe('XP Cache Integration', () => {

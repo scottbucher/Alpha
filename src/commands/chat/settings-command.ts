@@ -4,7 +4,7 @@ import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
 import { Lang } from '../../services/index.js';
-import { InteractionUtils } from '../../utils/index.js';
+import { ExperienceUtils, InteractionUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
 
 export class SettingsCommand implements Command {
@@ -27,6 +27,7 @@ export class SettingsCommand implements Command {
             QUOTE_CHANNEL: guildData.quoteSettings.channelDiscordId,
             POLL_CHANNEL: guildData.pollSettings.channelDiscordId,
             EVENT_CHANNEL: guildData.eventSettings.channelDiscordId,
+            MILESTONE_CHANNEL: ExperienceUtils.getMilestoneSettings(guildData).channelDiscordId,
         };
 
         let channelDisplays = await Promise.all(
