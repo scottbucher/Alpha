@@ -5,6 +5,7 @@ import {
     Guild,
     GuildMember,
     Locale,
+    NewsChannel,
     Role,
     Snowflake,
     TextChannel,
@@ -135,7 +136,7 @@ export class MilestoneService {
     public static async getAnnouncementChannel(
         guild: Guild,
         guildData: GuildData
-    ): Promise<{ channel: TextChannel | null; isFallback: boolean }> {
+    ): Promise<{ channel: NewsChannel | TextChannel | null; isFallback: boolean }> {
         let milestoneChannelId = guildData.milestoneSettings?.channelDiscordId;
         let milestoneChannel = await MilestoneService.getTextChannel(guild, milestoneChannelId);
         if (milestoneChannel) {
@@ -183,7 +184,7 @@ export class MilestoneService {
     private static async getTextChannel(
         guild: Guild,
         channelId?: string
-    ): Promise<TextChannel | null> {
+    ): Promise<NewsChannel | TextChannel | null> {
         if (!channelId) {
             return null;
         }
