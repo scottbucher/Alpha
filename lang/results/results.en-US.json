@@ -13,7 +13,13 @@
             "joinRoleIdRemoved": "Successfully removed the {{ROLE_ID}} role ID as a join role!",
             "joinRolesCleared": "Successfully cleared all join roles!",
             "timeZoneSet": "Successfully set the time zone to {{TIME_ZONE}}!",
-            "rewardsClaimed": "Successfully claimed the following roles: {{ROLES_ADDED}}!"
+            "rewardsClaimed": "Successfully claimed the following roles: {{ROLES_ADDED}}!",
+            "milestoneAdded": "Successfully added an XP milestone at **{{XP}} XP**! Members already past it won't be announced.",
+            "milestoneAddedWithRole": "Successfully added an XP milestone at **{{XP}} XP** with the {{ROLE}} role! Members already past it won't be announced, but can get the role with {{CMD_CLAIM_REWARDS}}.",
+            "milestoneRoleUpdated": "Successfully updated the **{{XP}} XP** milestone's role to {{ROLE}}! Members already past it can get the role with {{CMD_CLAIM_REWARDS}}.",
+            "milestoneRemoved": "Successfully removed the **{{XP}} XP** milestone!",
+            "milestoneIntervalSet": "Successfully set the XP milestone interval! Every multiple of **{{XP}} XP** will now be announced.",
+            "milestoneIntervalCleared": "Successfully cleared the XP milestone interval!"
         },
         "triggerResponses": {
             "goodMorning": {

@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
 import { GuildData, GuildUserData } from '../database/entities/index.js';
-import { LevelUpService, Logger } from '../services/index.js';
+import { LevelUpService, Logger, MilestoneService } from '../services/index.js';
 import { ExperienceUtils, GuildUserDataCache, StatisticsUtils, TimeUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
@@ -22,7 +22,8 @@ export class GiveVoiceXpJob extends Job {
     constructor(
         private client: Client,
         private orm: MikroORM<MongoDriver>,
-        private levelUpService: LevelUpService
+        private levelUpService: LevelUpService,
+        private milestoneService: MilestoneService
     ) {
         super();
     }
@@ -59,6 +60,7 @@ export class GiveVoiceXpJob extends Job {
             const minutesIncrement = Config.jobs.giveVoiceXp.minutesPerRun;
 
             let leveledUpUsers: { userId: string; oldLevel: number; newLevel: number }[] = [];
+            let xpChangedUsers: { userId: string; oldXp: number; newXp: number }[] = [];
             let updatedGuildUserDatas: GuildUserData[] = [];
 
             for (let voiceState of guildVoiceStates) {
@@ -66,8 +68,7 @@ export class GiveVoiceXpJob extends Job {
                     userData => userData.userDiscordId === voiceState.member.id && voiceState
                 );
                 if (guildUserData) {
-                    let memberXpBefore = guildUserData.experience;
-                    let memberLevelBefore = ExperienceUtils.getLevelFromXp(memberXpBefore);
+                    let startingXp = guildUserData.experience;
 
                     let currentVoiceChannelMembers = guild.voiceStates.cache.filter(
                         vs => vs.channelId === voiceState.channelId
@@ -89,10 +90,13 @@ export class GiveVoiceXpJob extends Job {
                         guildUserObjectId: guildUserData._id,
                         dayString,
                         minutesIncrement,
-                        startingXp: memberXpBefore,
+                        startingXp,
                         createdIso: TimeUtils.now().toISO(),
                     });
 
+                    // Read right before granting, message XP can update this shared cached entity
+                    // during the await above, which would otherwise announce a level up or milestone twice
+                    let memberXpBefore = guildUserData.experience;
                     guildUserData.experience += xpGranted;
 
                     Logger.info(
@@ -106,12 +110,17 @@ export class GiveVoiceXpJob extends Job {
 
                     let memberXpAfter = guildUserData.experience;
                     updatedGuildUserDatas.push(guildUserData);
+                    xpChangedUsers.push({
+                        userId: voiceState.member.id,
+                        oldXp: memberXpBefore,
+                        newXp: memberXpAfter,
+                    });
 
                     let hasLeveledUp = ExperienceUtils.hasLeveledUp(memberXpBefore, memberXpAfter);
                     if (hasLeveledUp) {
                         leveledUpUsers.push({
                             userId: voiceState.member.id,
-                            oldLevel: memberLevelBefore, // not sure I need this, only scenario I can think of where we would is if they leveled up multiple times, is that possible?
+                            oldLevel: ExperienceUtils.getLevelFromXp(memberXpBefore), // not sure I need this, only scenario I can think of where we would is if they leveled up multiple times, is that possible?
                             newLevel: ExperienceUtils.getLevelFromXp(memberXpAfter),
                         });
                     }
@@ -142,11 +151,44 @@ export class GiveVoiceXpJob extends Job {
                 }
             }
 
-            if (leveledUpUsers.length === 0) {
+            if (xpChangedUsers.length === 0) {
                 continue;
             }
 
-            await this.levelUpService.handleLevelUpsForGuild(guild, guildData, leveledUpUsers);
+            // The cached guild data is not reloaded while the guild is active, so load fresh settings.
+            // A separate fork avoids identity map conflicts with the cached guild data.
+            let freshGuildData = guildData;
+            try {
+                freshGuildData =
+                    (await this.orm.em.fork().findOne(GuildData, { discordId: guild.id })) ??
+                    guildData;
+            } catch (error) {
+                Logger.error(
+                    Logs.error.guildDataReloadError.replaceAll('{GUILD_ID}', guild.id),
+                    error
+                );
+            }
+
+            if (leveledUpUsers.length > 0) {
+                try {
+                    await this.levelUpService.handleLevelUpsForGuild(
+                        guild,
+                        freshGuildData,
+                        leveledUpUsers
+                    );
+                } catch (error) {
+                    Logger.error(
+                        Logs.error.levelUpGuildError.replaceAll('{GUILD_ID}', guild.id),
+                        error
+                    );
+                }
+            }
+
+            await this.milestoneService.handleMilestonesForGuild(
+                guild,
+                freshGuildData,
+                xpChangedUsers
+            );
         }
     }
 

@@ -58,6 +58,27 @@ export class PollSettings {
     channelDiscordId?: string;
 }
 
+@Embeddable()
+export class XpMilestone {
+    @Property()
+    xp!: number;
+
+    @Property()
+    roleDiscordId?: string;
+}
+
+@Embeddable()
+export class MilestoneSettings {
+    @Property()
+    channelDiscordId?: string;
+
+    @Embedded(() => XpMilestone, { array: true, object: true })
+    xpMilestones: XpMilestone[] = [];
+
+    @Property()
+    xpInterval?: number;
+}
+
 @Entity({ collection: 'guilds' })
 @Unique({ properties: ['discordId'] })
 export class GuildData {
@@ -87,6 +108,9 @@ export class GuildData {
 
     @Embedded({ object: true })
     eventSettings = new EventSettings();
+
+    @Embedded({ object: true })
+    milestoneSettings = new MilestoneSettings();
 
     @Property()
     created = TimeUtils.now().toISO();

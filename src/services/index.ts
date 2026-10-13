@@ -7,3 +7,4 @@ export { Lang } from './lang.js';
 export { Logger } from './logger.js';
 export { MasterApiService } from './master-api-service.js';
 export { LevelUpService } from './level-up-service.js';
+export { MilestoneService } from './milestone-service.js';

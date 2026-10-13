@@ -4,4 +4,5 @@ export enum ChannelType {
     QUOTE = 'QUOTE',
     POLL = 'POLL',
     EVENT = 'EVENT',
+    MILESTONE = 'MILESTONE',
 }

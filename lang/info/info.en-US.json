@@ -203,6 +203,11 @@
                         "inline": true
                     },
                     {
+                        "name": "{{REF:terms.milestoneChannel}}",
+                        "value": "{{MILESTONE_CHANNEL}}",
+                        "inline": true
+                    },
+                    {
                         "name": "{{REF:terms.serverTimeZone}}",
                         "value": "{{SERVER_TIME_ZONE}}",
                         "inline": true
@@ -224,6 +229,40 @@
                 },
                 "thumbnail": "{{ICON}}",
                 "timestamp": true
+            },
+            "xpMilestone": {
+                "title": "🎉 XP Milestone Reached!",
+                "description": "{{USER_MENTION}} just passed **{{XP}} XP**! They're now level **{{LEVEL}}**.",
+                "color": "{{COM:colors.success}}"
+            },
+            "xpMilestoneWithRoles": {
+                "title": "🎉 XP Milestone Reached!",
+                "description": [
+                    "{{USER_MENTION}} just passed **{{XP}} XP**! They're now level **{{LEVEL}}**.",
+                    "",
+                    "They've earned the {{ROLES}} role{{PLURAL}}!"
+                ],
+                "color": "{{COM:colors.success}}"
+            },
+            "milestoneList": {
+                "title": "{{REF:terms.xpMilestones}}",
+                "description": "{{MILESTONES}}",
+                "fields": [
+                    {
+                        "name": "{{REF:terms.milestoneInterval}}",
+                        "value": "{{INTERVAL}}",
+                        "inline": true
+                    },
+                    {
+                        "name": "{{REF:terms.announcementChannel}}",
+                        "value": "{{CHANNEL}}",
+                        "inline": true
+                    }
+                ]
+            },
+            "milestoneListEmpty": {
+                "title": "{{REF:terms.xpMilestones}}",
+                "description": "No XP milestones are set up yet! Add one with {{CMD_MILESTONE_ADD}}, or announce every multiple of an XP amount with {{CMD_MILESTONE_INTERVAL}}."
             }
         },
         "help": {
@@ -270,6 +309,10 @@
                     {
                         "name": "Leveling Up & Usage",
                         "value": " - View your current (or another member's) XP and level using {{CMD_XP}}, and view the leaderboard using {{CMD_LEADERBOARD}}.\n - When you get enough XP to level up, you will be notified in the server's leveling channel, if it is set.\n- A server can configure leveling rewards for each level using {{CMD_REWARD_ADD_ROLE}}, {{CMD_REWARD_REMOVE_ROLE}}, {{CMD_REWARD_REMOVE_ID}}, {{CMD_REWARD_CLEAR_ROLES}}, and {{CMD_VIEW_REWARDS}}.\n - There can be multiple rewards for each level.\n - Members can claim possible missed rewards using {{CMD_CLAIM_REWARDS}}.\n - Each subsequent level requires more XP than the previous level, following the following formula: 5x² + 50x + 100, where x is the level."
+                    },
+                    {
+                        "name": "XP Milestones",
+                        "value": " - Members get an announcement when they pass an XP milestone (ex: 1,000,000 total XP), and the milestone's role if it has one. Announcements are sent to the server's milestone channel, or the leveling channel if no milestone channel is set.\n - Members can claim missed milestone roles using {{CMD_CLAIM_REWARDS}}.\n - Admins can add and remove milestones using {{CMD_MILESTONE_ADD}} and {{CMD_MILESTONE_REMOVE}}, optionally with a role to give members who reach them.\n - Admins can set a recurring milestone (ex: every 1,000,000 XP) using {{CMD_MILESTONE_INTERVAL}} and view the server's milestones using {{CMD_MILESTONE_LIST}}."
                     }
                 ]
             }
@@ -495,6 +538,14 @@
             "quoteChannel": "Quote Channel",
             "pollChannel": "Poll Channel",
             "eventChannel": "Event Channel",
+            "milestoneChannel": "Milestone Channel",
+            "xpMilestones": "XP Milestones",
+            "milestoneInterval": "Recurring Interval",
+            "milestoneIntervalValue": "Every **{{XP}} XP**",
+            "announcementChannel": "Announcement Channel",
+            "levelingChannelFallback": "{{CHANNEL}} (leveling channel fallback)",
+            "milestoneChannelUnusable": "Configured channel is missing or I can't send messages there",
+            "none": "None",
             "notSet": "Not Set",
             "deletedChannel": "Deleted Channel",
             "serverLanguage": "Server Language",
@@ -524,7 +575,9 @@
             "rewardListEntry": "__**Level {{LEVEL}} Rewards**__: (Total XP Needed: **{{TOTAL_XP}}**)",
             "rewardListEntryInfo": "{{TYPE}}: {{LIST}}",
             "joinRoleListTitle": "**__{{REF:terms.joinRoleList}}__ | {{REF:lists.pageTitle}}**",
-            "joinRoleListEntry": "#{{ROLE_NUMBER}}: {{ROLE_DISPLAY}}"
+            "joinRoleListEntry": "#{{ROLE_NUMBER}}: {{ROLE_DISPLAY}}",
+            "milestoneListEntry": "**{{XP}} XP**",
+            "milestoneListEntryWithRole": "**{{XP}} XP**: {{ROLE}}"
         }
     }
 }

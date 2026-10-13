@@ -2,7 +2,7 @@ import { GuildMember } from 'discord.js';
 import { DateTime } from 'luxon';
 import { createRequire } from 'node:module';
 
-import { GuildData } from '../database/entities/index.js';
+import { GuildData, MilestoneSettings, XpMilestone } from '../database/entities/index.js';
 
 const require = createRequire(import.meta.url);
 const Config = require('../../config/config.json');
@@ -280,6 +280,67 @@ export abstract class ExperienceUtils {
      */
     public static hasLeveledUp(previousXp: number, newXp: number): boolean {
         return this.getLevelFromXp(newXp) > this.getLevelFromXp(previousXp);
+    }
+
+    /**
+     * Get a guild's milestone settings with defaults applied, without modifying the guild data.
+     * Guilds created before milestones existed have no milestone settings stored.
+     * @param guildData The guild data to get the milestone settings for
+     * @returns The milestone settings for the guild, intended for reading only
+     */
+    public static getMilestoneSettings(guildData: GuildData): MilestoneSettings {
+        let settings = Object.assign(new MilestoneSettings(), guildData.milestoneSettings);
+        settings.xpMilestones ??= [];
+        return settings;
+    }
+
+    /**
+     * Get a guild's milestone settings, creating and assigning defaults on the guild data if missing.
+     * Use this when the settings will be modified and persisted.
+     * @param guildData The guild data to get the milestone settings for
+     * @returns The milestone settings stored on the guild data
+     */
+    public static ensureMilestoneSettings(guildData: GuildData): MilestoneSettings {
+        guildData.milestoneSettings ??= new MilestoneSettings();
+        guildData.milestoneSettings.xpMilestones ??= [];
+        return guildData.milestoneSettings;
+    }
+
+    /**
+     * Get the XP milestones crossed when a member's XP goes from oldXp to newXp
+     * A milestone is crossed when oldXp < milestone <= newXp
+     * @param oldXp XP before the grant
+     * @param newXp XP after the grant
+     * @param settings The guild's milestone settings
+     * @returns The highest milestone crossed (manual or interval) and the crossed manual milestones that have a role, or undefined if no milestone was crossed
+     */
+    public static getMilestonesCrossed(
+        oldXp: number,
+        newXp: number,
+        settings: MilestoneSettings
+    ): { highestXp: number; roleMilestones: XpMilestone[] } | undefined {
+        if (!(newXp > oldXp)) {
+            return undefined;
+        }
+
+        let crossedMilestones = settings.xpMilestones.filter(
+            milestone => oldXp < milestone.xp && milestone.xp <= newXp
+        );
+        let crossedXps = crossedMilestones.map(milestone => milestone.xp);
+
+        let interval = settings.xpInterval;
+        if (interval > 0 && Math.floor(newXp / interval) > Math.floor(oldXp / interval)) {
+            crossedXps.push(Math.floor(newXp / interval) * interval);
+        }
+
+        if (crossedXps.length === 0) {
+            return undefined;
+        }
+
+        return {
+            highestXp: Math.max(...crossedXps),
+            roleMilestones: crossedMilestones.filter(milestone => milestone.roleDiscordId),
+        };
     }
 
     /**

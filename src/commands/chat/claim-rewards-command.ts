@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, PermissionsString } from 'discord.js';
+import { ChatInputCommandInteraction, PermissionsString, Role } from 'discord.js';
 
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
@@ -20,7 +20,8 @@ export class ClaimRewardsCommand implements Command {
     public async execute(intr: ChatInputCommandInteraction, data: EventData): Promise<void> {
         let guildData = data.guildData;
         let levelingRewardDatas = guildData.levelingRewardDatas.getItems();
-        let currentMemberLevel = ExperienceUtils.getLevelFromXp(data.guildUserData.experience);
+        let currentMemberXp = data.guildUserData.experience;
+        let currentMemberLevel = ExperienceUtils.getLevelFromXp(currentMemberXp);
 
         let levelingRewardData = levelingRewardDatas.filter(
             rewardData => rewardData.level <= currentMemberLevel
@@ -39,10 +40,16 @@ export class ClaimRewardsCommand implements Command {
         let levelingRewardRoleIds = levelingRewardData.flatMap(
             rewardData => rewardData.roleDiscordIds
         );
+        let milestoneRoleIds = ExperienceUtils.getMilestoneSettings(guildData)
+            .xpMilestones.filter(
+                milestone => milestone.roleDiscordId && milestone.xp <= currentMemberXp
+            )
+            .map(milestone => milestone.roleDiscordId);
 
-        let rolesToAdd = levelingRewardRoleIds
+        let rolesToAdd = [...new Set([...levelingRewardRoleIds, ...milestoneRoleIds])]
             .filter(roleId => !currentMemberRoleIds.includes(roleId))
-            .map(roleId => intr.guild.roles.cache.get(roleId));
+            .map(roleId => intr.guild.roles.cache.get(roleId))
+            .filter(role => role);
 
         if (rolesToAdd.length === 0) {
             await InteractionUtils.send(
@@ -52,15 +59,26 @@ export class ClaimRewardsCommand implements Command {
             return;
         }
 
+        let rolesAdded: Role[] = [];
         for (let role of rolesToAdd) {
-            await ActionUtils.giveRole(member, role);
+            if (await ActionUtils.giveRole(member, role)) {
+                rolesAdded.push(role);
+            }
+        }
+
+        if (rolesAdded.length === 0) {
+            await InteractionUtils.send(
+                intr,
+                Lang.getErrorEmbed('validation', 'errorEmbeds.rewardsCouldNotBeGiven', data.lang)
+            );
+            return;
         }
 
         await InteractionUtils.send(
             intr,
             Lang.getSuccessEmbed('results', 'successEmbeds.rewardsClaimed', data.lang, {
                 ROLES_ADDED: FormatUtils.joinWithAnd(
-                    rolesToAdd.map(role => FormatUtils.roleMention(intr.guild, role.id)),
+                    rolesAdded.map(role => FormatUtils.roleMention(intr.guild, role.id)),
                     data.lang
                 ),
             })

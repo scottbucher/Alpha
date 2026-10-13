@@ -56,6 +56,22 @@ export class HelpCommand implements Command {
                         intr.client,
                         'claimRewards'
                     ),
+                    CMD_MILESTONE_ADD: await FormatUtils.commandMention(intr.client, 'milestone', [
+                        'add',
+                    ]),
+                    CMD_MILESTONE_REMOVE: await FormatUtils.commandMention(
+                        intr.client,
+                        'milestone',
+                        ['remove']
+                    ),
+                    CMD_MILESTONE_INTERVAL: await FormatUtils.commandMention(
+                        intr.client,
+                        'milestone',
+                        ['interval']
+                    ),
+                    CMD_MILESTONE_LIST: await FormatUtils.commandMention(intr.client, 'milestone', [
+                        'list',
+                    ]),
                 });
                 break;
             }

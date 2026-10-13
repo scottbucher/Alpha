@@ -1,7 +1,7 @@
 import { GuildMember } from 'discord.js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { GuildData } from '../../src/database/entities/index.js';
+import { GuildData, MilestoneSettings } from '../../src/database/entities/index.js';
 import { ExperienceUtils } from '../../src/utils/index.js';
 import { mockRandomValues } from '../helpers/test-utils.js';
 
@@ -435,6 +435,154 @@ describe('ExperienceUtils', () => {
                 nitroMultiplier: undefined,
                 totalMultiplier: 1,
             });
+        });
+    });
+
+    describe('getMilestonesCrossed', () => {
+        function createSettings(
+            xpMilestones: { xp: number; roleDiscordId?: string }[] = [],
+            xpInterval?: number
+        ): MilestoneSettings {
+            return { xpMilestones, xpInterval } as MilestoneSettings;
+        }
+
+        it('should return undefined when settings are empty', () => {
+            expect(ExperienceUtils.getMilestonesCrossed(99, 101, createSettings())).toBeUndefined();
+        });
+
+        it('should return undefined when no milestone was crossed', () => {
+            const settings = createSettings([{ xp: 1000 }, { xp: 5000 }], 10000);
+            expect(ExperienceUtils.getMilestonesCrossed(1000, 1500, settings)).toBeUndefined();
+        });
+
+        it('should return undefined when XP did not increase', () => {
+            const settings = createSettings([{ xp: 1000 }], 1000);
+            expect(ExperienceUtils.getMilestonesCrossed(1500, 1500, settings)).toBeUndefined();
+            expect(ExperienceUtils.getMilestonesCrossed(1500, 500, settings)).toBeUndefined();
+        });
+
+        it('should return a single crossed manual milestone', () => {
+            const settings = createSettings([{ xp: 1000 }, { xp: 5000 }]);
+            expect(ExperienceUtils.getMilestonesCrossed(990, 1010, settings)).toEqual({
+                highestXp: 1000,
+                roleMilestones: [],
+            });
+        });
+
+        it('should count a milestone crossed when new XP equals it exactly', () => {
+            const settings = createSettings([{ xp: 1000 }]);
+            expect(ExperienceUtils.getMilestonesCrossed(990, 1000, settings)?.highestXp).toBe(1000);
+        });
+
+        it('should not count a milestone crossed when old XP equals it exactly', () => {
+            const settings = createSettings([{ xp: 1000 }]);
+            expect(ExperienceUtils.getMilestonesCrossed(1000, 1010, settings)).toBeUndefined();
+        });
+
+        it('should return the highest milestone and all crossed role milestones', () => {
+            const settings = createSettings([
+                { xp: 1000, roleDiscordId: 'role1' },
+                { xp: 2000 },
+                { xp: 3000, roleDiscordId: 'role3' },
+                { xp: 5000, roleDiscordId: 'role5' },
+            ]);
+            expect(ExperienceUtils.getMilestonesCrossed(500, 3500, settings)).toEqual({
+                highestXp: 3000,
+                roleMilestones: [
+                    { xp: 1000, roleDiscordId: 'role1' },
+                    { xp: 3000, roleDiscordId: 'role3' },
+                ],
+            });
+        });
+
+        it('should return an interval milestone', () => {
+            const settings = createSettings([], 1000000);
+            expect(ExperienceUtils.getMilestonesCrossed(1999990, 2000010, settings)).toEqual({
+                highestXp: 2000000,
+                roleMilestones: [],
+            });
+        });
+
+        it('should return the highest interval multiple when crossing several', () => {
+            const settings = createSettings([], 100);
+            expect(ExperienceUtils.getMilestonesCrossed(150, 420, settings)?.highestXp).toBe(400);
+        });
+
+        it('should ignore an interval of 0', () => {
+            const settings = createSettings([], 0);
+            expect(ExperienceUtils.getMilestonesCrossed(150, 420, settings)).toBeUndefined();
+        });
+
+        it('should return the highest of interval and manual milestones', () => {
+            const intervalHigher = createSettings([{ xp: 950, roleDiscordId: 'role1' }], 1000);
+            expect(ExperienceUtils.getMilestonesCrossed(940, 1010, intervalHigher)).toEqual({
+                highestXp: 1000,
+                roleMilestones: [{ xp: 950, roleDiscordId: 'role1' }],
+            });
+
+            const manualHigher = createSettings([{ xp: 1005, roleDiscordId: 'role1' }], 1000);
+            expect(ExperienceUtils.getMilestonesCrossed(990, 1010, manualHigher)).toEqual({
+                highestXp: 1005,
+                roleMilestones: [{ xp: 1005, roleDiscordId: 'role1' }],
+            });
+        });
+
+        it('should handle fractional XP', () => {
+            const settings = createSettings([{ xp: 1000 }], 500);
+            expect(ExperienceUtils.getMilestonesCrossed(999.5, 1000.7, settings)?.highestXp).toBe(
+                1000
+            );
+            expect(ExperienceUtils.getMilestonesCrossed(1000.2, 1000.9, settings)).toBeUndefined();
+            expect(ExperienceUtils.getMilestonesCrossed(499.9, 500, settings)?.highestXp).toBe(500);
+        });
+    });
+
+    describe('getMilestoneSettings', () => {
+        it('should return defaults when the guild has no milestone settings', () => {
+            const guildData = createMockGuildData('guild-1');
+            const settings = ExperienceUtils.getMilestoneSettings(guildData);
+
+            expect(settings).toBeInstanceOf(MilestoneSettings);
+            expect(settings.xpMilestones).toEqual([]);
+            expect(settings.channelDiscordId).toBeUndefined();
+            expect(settings.xpInterval).toBeUndefined();
+            expect(guildData.milestoneSettings).toBeUndefined();
+        });
+
+        it('should return stored values and default missing xpMilestones', () => {
+            const guildData = createMockGuildData('guild-1');
+            guildData.milestoneSettings = { channelDiscordId: 'channel1' } as MilestoneSettings;
+            const settings = ExperienceUtils.getMilestoneSettings(guildData);
+
+            expect(settings.channelDiscordId).toBe('channel1');
+            expect(settings.xpMilestones).toEqual([]);
+            expect(guildData.milestoneSettings.xpMilestones).toBeUndefined();
+        });
+    });
+
+    describe('ensureMilestoneSettings', () => {
+        it('should create and assign settings when the guild has none', () => {
+            const guildData = createMockGuildData('guild-1');
+            const settings = ExperienceUtils.ensureMilestoneSettings(guildData);
+
+            expect(settings).toBeInstanceOf(MilestoneSettings);
+            expect(guildData.milestoneSettings).toBe(settings);
+            expect(settings.xpMilestones).toEqual([]);
+        });
+
+        it('should keep existing settings and default missing xpMilestones', () => {
+            const guildData = createMockGuildData('guild-1');
+            const existing = {
+                channelDiscordId: 'channel1',
+                xpInterval: 1000,
+            } as MilestoneSettings;
+            guildData.milestoneSettings = existing;
+            const settings = ExperienceUtils.ensureMilestoneSettings(guildData);
+
+            expect(settings).toBe(existing);
+            expect(settings.channelDiscordId).toBe('channel1');
+            expect(settings.xpInterval).toBe(1000);
+            expect(settings.xpMilestones).toEqual([]);
         });
     });
 });

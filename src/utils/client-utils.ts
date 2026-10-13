@@ -157,15 +157,15 @@ export class ClientUtils {
     }
 
     /**
-     * Returns a text channel if it exists and the bot has permission to send messages to it.
+     * Returns a text or news channel if it exists and the bot has permission to send messages to it.
      * @param guild The guild to search in
      * @param discordId The discord id of the channel to search for
-     * @returns The text channel if it exists and the bot has permission to send messages to it, otherwise null
+     * @returns The text or news channel if it exists and the bot has permission to send messages to it, otherwise null
      */
     public static async getConfiguredTextChannelIfExists(
         guild: Guild,
         discordId?: string
-    ): Promise<TextChannel | null> {
+    ): Promise<NewsChannel | TextChannel | null> {
         if (!discordId) {
             return null;
         }
@@ -174,7 +174,7 @@ export class ClientUtils {
 
         if (
             !channel ||
-            !(channel instanceof TextChannel) ||
+            !(channel instanceof NewsChannel || channel instanceof TextChannel) ||
             !PermissionUtils.canSend(channel, true)
         ) {
             return null;

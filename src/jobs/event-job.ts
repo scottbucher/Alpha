@@ -1,6 +1,6 @@
 import { MikroORM } from '@mikro-orm/core';
 import { MongoDriver } from '@mikro-orm/mongodb';
-import { BaseMessageOptions, Client, Guild, TextChannel } from 'discord.js';
+import { BaseMessageOptions, Client, Guild, NewsChannel, TextChannel } from 'discord.js';
 import { DateTime } from 'luxon';
 import { createRequire } from 'node:module';
 
@@ -139,7 +139,7 @@ export class EventJob extends Job {
         guild: Guild,
         guildData: GuildData,
         eventDatas: EventData[],
-        channel: TextChannel | null,
+        channel: NewsChannel | TextChannel | null,
         now: DateTime
     ): Promise<boolean> {
         let hasChangedEventsForGuild = false;
@@ -252,7 +252,7 @@ export class EventJob extends Job {
         guild: Guild,
         guildData: GuildData,
         event: EventData,
-        eventChannel: TextChannel | null,
+        eventChannel: NewsChannel | TextChannel | null,
         type: EventStage
     ): Promise<void> {
         if (!eventChannel) return;

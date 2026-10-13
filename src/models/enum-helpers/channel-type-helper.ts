@@ -52,5 +52,13 @@ export class ChannelTypeHelper {
                 return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.event');
             },
         },
+        MILESTONE: {
+            displayName(langCode: Locale): string {
+                return Lang.getRef('commands', 'editChannelOptionDescs.milestone', langCode);
+            },
+            localizationMap(): LocalizationMap {
+                return Lang.getRefLocalizationMap('commands', 'editChannelOptionDescs.milestone');
+            },
+        },
     };
 }

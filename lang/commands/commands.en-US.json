@@ -30,7 +30,9 @@
             "channelPermissions": "channel_permissions",
             "timeZone": "time_zone",
             "map": "map",
-            "claimRewards": "claim_rewards"
+            "claimRewards": "claim_rewards",
+            "milestone": "milestone",
+            "interval": "interval"
         },
         "userCommands": {},
         "messageCommands": {
@@ -51,7 +53,8 @@
             "quote": "quote",
             "question": "question",
             "timeZone": "time_zone",
-            "claimRewards": "claim_rewards"
+            "claimRewards": "claim_rewards",
+            "xp": "xp"
         },
         "commandDescs": {
             "dev": "Developer use only.",
@@ -81,7 +84,12 @@
             "channelPermissions": "Check the bot's permissions for a channel.",
             "timeZone": "Set the time zone for the server.",
             "map": "View the time zone map.",
-            "claimRewards": "Claim your rewards."
+            "claimRewards": "Claim your rewards.",
+            "milestone": "Configure XP milestone announcements and roles.",
+            "addMilestone": "Add an XP milestone, or set the role for an existing one.",
+            "removeMilestone": "Remove an XP milestone.",
+            "milestoneInterval": "Announce every multiple of an XP amount. Leave blank to clear.",
+            "listMilestones": "View the configured XP milestones."
         },
         "argDescs": {
             "devCommand": "Command.",
@@ -99,7 +107,10 @@
             "quote": "The text you would like to quote.",
             "quoteUser": "The user you would like to quote. If blank, the quote will be from Unknown.",
             "question": "The question you would like to ask the bot.",
-            "timeZone": "The time zone you would like to set for the server."
+            "timeZone": "The time zone you would like to set for the server.",
+            "milestoneXp": "The total XP amount for the milestone.",
+            "milestoneRole": "A role to give members when they reach this milestone.",
+            "milestoneInterval": "Announce every multiple of this XP amount. Leave blank to clear."
         },
         "helpOptions": {
             "commands": "Commands",
@@ -122,21 +133,24 @@
             "leveling": "Leveling",
             "quote": "Quote",
             "poll": "Poll",
-            "event": "Event"
+            "event": "Event",
+            "milestone": "Milestone"
         },
         "editChannelOptionDescs": {
             "welcome": "{{REF:editChannelOptions.welcome}} -- Where to send the welcome message to when a user joins the server.",
             "leveling": "{{REF:editChannelOptions.leveling}} -- Where to send the leveling message to when a user levels up.",
             "quote": "{{REF:editChannelOptions.quote}} -- Where to send the quote message to when a user posts a quote.",
             "poll": "{{REF:editChannelOptions.poll}} -- Where to send the poll message to when a user posts a poll.",
-            "event": "{{REF:editChannelOptions.event}} -- Where to send event messages."
+            "event": "{{REF:editChannelOptions.event}} -- Where to send event messages.",
+            "milestone": "{{REF:editChannelOptions.milestone}} -- Where to send XP milestone messages. Defaults to the leveling channel."
         },
         "channelTypes": {
             "welcome": "Welcome",
             "leveling": "Leveling",
             "quote": "Quote",
             "poll": "Poll",
-            "event": "Event"
+            "event": "Event",
+            "milestone": "Milestone"
         },
         "linkChoices": {
             "docs": "Docs",
