@@ -57,7 +57,7 @@
             "noJoinRoles": "There are no join roles set for this server!",
             "unsupportedChannelType": "Unsupported channel type! Please try again.",
             "noRewardsToClaim": "You have no rewards to claim!",
-            "rewardsCouldNotBeGiven": "I couldn't give you your reward roles. Ask a server admin to make sure my role is above them.",
+            "rewardsCouldNotBeGiven": "I couldn't give you your reward roles. Ask a server admin to make sure I have the Manage Roles permission and my role is above them.",
             "cannotViewBotXp": "Bots are not eligible for XP!",
             "milestoneAlreadyExists": "An XP milestone at **{{XP}} XP** already exists! To give it a role, run this command again with a role.",
             "milestoneLimitReached": "You can only have up to {{MAX}} XP milestones! Please remove one before adding another.",

@@ -67,29 +67,12 @@ export class MilestoneListCommand implements Command {
             Lang.getEmbed('info', 'embeds.milestoneList', data.lang, {
                 MILESTONES: milestoneList,
                 INTERVAL: interval,
-                CHANNEL: await this.getChannelDisplay(intr, data),
+                CHANNEL: await MilestoneService.getAnnouncementChannelDisplay(
+                    intr.guild,
+                    data.guildData,
+                    data.lang
+                ),
             })
         );
-    }
-
-    private async getChannelDisplay(
-        intr: ChatInputCommandInteraction,
-        data: EventData
-    ): Promise<string> {
-        let { channel, isFallback } = await MilestoneService.getAnnouncementChannel(
-            intr.guild,
-            data.guildData
-        );
-        if (!channel) {
-            return ExperienceUtils.getMilestoneSettings(data.guildData).channelDiscordId
-                ? Lang.getRef('info', 'terms.milestoneChannelUnusable', data.lang)
-                : Lang.getRef('info', 'terms.notSet', data.lang);
-        }
-
-        return isFallback
-            ? Lang.getRef('info', 'terms.levelingChannelFallback', data.lang, {
-                  CHANNEL: channel.toString(),
-              })
-            : channel.toString();
     }
 }

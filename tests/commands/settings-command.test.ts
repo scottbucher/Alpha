@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsCommand } from '../../src/commands/chat/index.js';
 import { EventData } from '../../src/models/internal-models.js';
 import { Lang } from '../../src/services/index.js';
-import { InteractionUtils } from '../../src/utils/index.js';
+import { ClientUtils, InteractionUtils } from '../../src/utils/index.js';
 import {
     createMockCommandInteraction,
     createMockEntityManager,
@@ -30,6 +30,12 @@ describe('SettingsCommand', () => {
 
         vi.spyOn(InteractionUtils, 'send').mockResolvedValue(undefined);
         vi.spyOn(Lang, 'getEmbed');
+        vi.spyOn(ClientUtils, 'getConfiguredTextChannelIfExists').mockImplementation(
+            async (_guild, id) =>
+                ['levelingChannel', 'milestoneChannel'].includes(id)
+                    ? ({ toString: () => `<#${id}>` } as any)
+                    : null
+        );
 
         let guild = createMockGuild();
         guild.channels.resolve = vi.fn((id: string) =>
@@ -69,6 +75,22 @@ describe('SettingsCommand', () => {
         expect(getSettingsVariables().MILESTONE_CHANNEL).toBe('<#milestoneChannel>');
     });
 
+    it('should show the leveling channel fallback when the milestone channel is unusable', async () => {
+        mockGuildData.milestoneSettings.channelDiscordId = 'voiceChannel';
+
+        await command.execute(mockIntr, data);
+
+        expect(ClientUtils.getConfiguredTextChannelIfExists).toHaveBeenCalledWith(
+            mockIntr.guild,
+            'voiceChannel'
+        );
+        expect(getSettingsVariables().MILESTONE_CHANNEL).toBe(
+            Lang.getRef('info', 'terms.levelingChannelFallback', Locale.EnglishUS, {
+                CHANNEL: '<#levelingChannel>',
+            })
+        );
+    });
+
     it('should show the leveling channel fallback when no milestone channel is set', async () => {
         await command.execute(mockIntr, data);
 
@@ -76,6 +98,17 @@ describe('SettingsCommand', () => {
             Lang.getRef('info', 'terms.levelingChannelFallback', Locale.EnglishUS, {
                 CHANNEL: '<#levelingChannel>',
             })
+        );
+    });
+
+    it('should show that the configured channel is unusable when no channel resolves', async () => {
+        mockGuildData.levelingSettings = { channelDiscordId: 'deletedChannel' };
+        mockGuildData.milestoneSettings.channelDiscordId = 'voiceChannel';
+
+        await command.execute(mockIntr, data);
+
+        expect(getSettingsVariables().MILESTONE_CHANNEL).toBe(
+            Lang.getRef('info', 'terms.milestoneChannelUnusable', Locale.EnglishUS)
         );
     });
 

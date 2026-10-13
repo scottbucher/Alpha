@@ -4,6 +4,7 @@ import {
     RESTJSONErrorCodes as DiscordApiErrors,
     Guild,
     GuildMember,
+    Locale,
     Role,
     Snowflake,
     TextChannel,
@@ -147,6 +148,36 @@ export class MilestoneService {
                 ? await MilestoneService.getTextChannel(guild, levelingChannelId)
                 : null;
         return { channel: levelingChannel, isFallback: levelingChannel !== null };
+    }
+
+    /**
+     * Describe the channel milestones are announced in, for display in settings and lists.
+     * @param guild The guild to resolve the channel in
+     * @param guildData The guild's data
+     * @param langCode The language to display in
+     * @returns The channel mention, the leveling channel fallback, or why no channel is used
+     */
+    public static async getAnnouncementChannelDisplay(
+        guild: Guild,
+        guildData: GuildData,
+        langCode: Locale
+    ): Promise<string> {
+        let { channel, isFallback } = await MilestoneService.getAnnouncementChannel(
+            guild,
+            guildData
+        );
+        if (!channel) {
+            return guildData.milestoneSettings?.channelDiscordId ||
+                guildData.levelingSettings?.channelDiscordId
+                ? Lang.getRef('info', 'terms.milestoneChannelUnusable', langCode)
+                : Lang.getRef('info', 'terms.notSet', langCode);
+        }
+
+        return isFallback
+            ? Lang.getRef('info', 'terms.levelingChannelFallback', langCode, {
+                  CHANNEL: channel.toString(),
+              })
+            : channel.toString();
     }
 
     private static async getTextChannel(

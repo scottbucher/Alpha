@@ -436,5 +436,16 @@ describe('Milestone commands', () => {
                 Lang.getRef('info', 'terms.milestoneChannelUnusable', Locale.EnglishUS)
             );
         });
+
+        it('should show that the leveling channel is unusable when it is the only channel set', async () => {
+            mockGuildData.levelingSettings = { channelDiscordId: 'deletedChannel' };
+            mockGuildData.milestoneSettings = { xpMilestones: [{ xp: 100_000 }] };
+
+            await command.execute(mockIntr, data);
+
+            expect(getListVariables().CHANNEL).toBe(
+                Lang.getRef('info', 'terms.milestoneChannelUnusable', Locale.EnglishUS)
+            );
+        });
     });
 });

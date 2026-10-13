@@ -3,8 +3,8 @@ import { ChatInputCommandInteraction, Guild, PermissionsString } from 'discord.j
 import { EventDataType } from '../../enums/index.js';
 import { Language } from '../../models/enum-helpers/index.js';
 import { EventData } from '../../models/internal-models.js';
-import { Lang } from '../../services/index.js';
-import { ExperienceUtils, InteractionUtils } from '../../utils/index.js';
+import { Lang, MilestoneService } from '../../services/index.js';
+import { InteractionUtils } from '../../utils/index.js';
 import { Command, CommandDeferType } from '../index.js';
 
 export class SettingsCommand implements Command {
@@ -27,7 +27,6 @@ export class SettingsCommand implements Command {
             QUOTE_CHANNEL: guildData.quoteSettings.channelDiscordId,
             POLL_CHANNEL: guildData.pollSettings.channelDiscordId,
             EVENT_CHANNEL: guildData.eventSettings.channelDiscordId,
-            MILESTONE_CHANNEL: ExperienceUtils.getMilestoneSettings(guildData).channelDiscordId,
         };
 
         let channelDisplays = await Promise.all(
@@ -37,21 +36,13 @@ export class SettingsCommand implements Command {
             ])
         );
 
-        // Milestone messages fall back to the leveling channel when no milestone channel is set
-        let levelingChannel = channelSettings.LEVELING_CHANNEL
-            ? intr.guild.channels.resolve(channelSettings.LEVELING_CHANNEL)
-            : null;
-        if (!channelSettings.MILESTONE_CHANNEL && levelingChannel) {
-            channelDisplays.push([
-                'MILESTONE_CHANNEL',
-                Lang.getRef('info', 'terms.levelingChannelFallback', data.lang, {
-                    CHANNEL: levelingChannel.toString(),
-                }),
-            ]);
-        }
-
         let embed = Lang.getEmbed('info', 'embeds.settings', data.lang, {
             ...Object.fromEntries(channelDisplays),
+            MILESTONE_CHANNEL: await MilestoneService.getAnnouncementChannelDisplay(
+                intr.guild,
+                guildData,
+                data.lang
+            ),
             SERVER_LANGUAGE: serverLanguage,
             SERVER_TIME_ZONE: serverTimeZone,
             SERVER_NAME: intr.guild.name,
