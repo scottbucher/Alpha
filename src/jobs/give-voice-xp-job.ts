@@ -157,8 +157,17 @@ export class GiveVoiceXpJob extends Job {
 
             // The cached guild data is not reloaded while the guild is active, so load fresh settings.
             // A separate fork avoids identity map conflicts with the cached guild data.
-            let freshGuildData =
-                (await this.orm.em.fork().findOne(GuildData, { discordId: guild.id })) ?? guildData;
+            let freshGuildData = guildData;
+            try {
+                freshGuildData =
+                    (await this.orm.em.fork().findOne(GuildData, { discordId: guild.id })) ??
+                    guildData;
+            } catch (error) {
+                Logger.error(
+                    Logs.error.guildDataReloadError.replaceAll('{GUILD_ID}', guild.id),
+                    error
+                );
+            }
 
             if (leveledUpUsers.length > 0) {
                 try {

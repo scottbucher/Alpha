@@ -142,7 +142,7 @@
             "quote": "{{REF:editChannelOptions.quote}} -- Where to send the quote message to when a user posts a quote.",
             "poll": "{{REF:editChannelOptions.poll}} -- Where to send the poll message to when a user posts a poll.",
             "event": "{{REF:editChannelOptions.event}} -- Where to send event messages.",
-            "milestone": "{{REF:editChannelOptions.milestone}} -- Where to send XP milestone messages."
+            "milestone": "{{REF:editChannelOptions.milestone}} -- Where to send XP milestone messages. Defaults to the leveling channel."
         },
         "channelTypes": {
             "welcome": "Welcome",

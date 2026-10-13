@@ -607,6 +607,76 @@ describe('GiveVoiceXpJob', () => {
             );
         });
 
+        it('should log guild data reload errors and fall back to the cached guild data', async () => {
+            const reloadError = new Error('Mongo connection lost');
+            const loggerErrorSpy = vi.spyOn(Logger, 'error').mockResolvedValue(undefined);
+
+            const secondMember = createMockGuildMember('user456', 'SecondUser');
+            const secondVoiceStates = new Collection<string, VoiceState>();
+            secondVoiceStates.set(
+                'user456',
+                createMockVoiceState(secondMember, 'voice456', 'Second Voice Channel')
+            );
+            const secondGuild = {
+                id: 'guild456',
+                name: 'Second Guild',
+                voiceStates: { cache: secondVoiceStates },
+                afkChannel: null,
+                fetch: vi.fn().mockReturnThis(),
+            };
+            mockClient.guilds.cache.set('guild456', secondGuild);
+            const secondGuildData = createMockGuildData('guilddata456', 'guild456');
+            vi.mocked(DatabaseUtils.getOrCreateDataForGuild).mockImplementation((_em, guild) =>
+                Promise.resolve(
+                    guild.id === 'guild456'
+                        ? {
+                              GuildUserData: [
+                                  {
+                                      userDiscordId: 'user456',
+                                      guildDiscordId: 'guild456',
+                                      experience: 95,
+                                  } as unknown as GuildUserData,
+                              ],
+                              GuildData: secondGuildData,
+                          }
+                        : { GuildUserData: mockGuildUserDatas, GuildData: mockGuildData }
+                )
+            );
+            vi.mocked(mockEntityManager.findOne).mockRejectedValue(reloadError);
+
+            await expect(giveVoiceXpJob.run()).resolves.toBeUndefined();
+
+            expect(loggerErrorSpy).toHaveBeenCalledTimes(2);
+            expect(loggerErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('guild123'),
+                reloadError
+            );
+            expect(loggerErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('guild456'),
+                reloadError
+            );
+            expect(mockLevelUpService.handleLevelUpsForGuild).toHaveBeenCalledWith(
+                mockGuild,
+                mockGuildData,
+                [{ userId: 'user123', oldLevel: 0, newLevel: 1 }]
+            );
+            expect(mockLevelUpService.handleLevelUpsForGuild).toHaveBeenCalledWith(
+                secondGuild,
+                secondGuildData,
+                [{ userId: 'user456', oldLevel: 0, newLevel: 1 }]
+            );
+            expect(mockMilestoneService.handleMilestonesForGuild).toHaveBeenCalledWith(
+                mockGuild,
+                mockGuildData,
+                [{ userId: 'user123', oldXp: 95, newXp: 100 }]
+            );
+            expect(mockMilestoneService.handleMilestonesForGuild).toHaveBeenCalledWith(
+                secondGuild,
+                secondGuildData,
+                [{ userId: 'user456', oldXp: 95, newXp: 100 }]
+            );
+        });
+
         it('should not call the milestone service for guilds with no valid voice states', async () => {
             mockVoiceStates.clear();
 

@@ -422,5 +422,19 @@ describe('Milestone commands', () => {
             expect(variables.MILESTONES).toBe(Lang.getRef('info', 'terms.none', Locale.EnglishUS));
             expect(variables.CHANNEL).toBe(Lang.getRef('info', 'terms.notSet', Locale.EnglishUS));
         });
+
+        it('should show that the configured channel is unusable when no channel resolves', async () => {
+            mockGuildData.levelingSettings = {};
+            mockGuildData.milestoneSettings = {
+                channelDiscordId: 'deletedChannel',
+                xpMilestones: [{ xp: 100_000 }],
+            };
+
+            await command.execute(mockIntr, data);
+
+            expect(getListVariables().CHANNEL).toBe(
+                Lang.getRef('info', 'terms.milestoneChannelUnusable', Locale.EnglishUS)
+            );
+        });
     });
 });

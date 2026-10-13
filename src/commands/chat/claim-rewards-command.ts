@@ -51,6 +51,14 @@ export class ClaimRewardsCommand implements Command {
             .map(roleId => intr.guild.roles.cache.get(roleId))
             .filter(role => role);
 
+        if (rolesToAdd.length === 0) {
+            await InteractionUtils.send(
+                intr,
+                Lang.getErrorEmbed('validation', 'errorEmbeds.noRewardsToClaim', data.lang)
+            );
+            return;
+        }
+
         let rolesAdded: Role[] = [];
         for (let role of rolesToAdd) {
             if (await ActionUtils.giveRole(member, role)) {
@@ -61,7 +69,7 @@ export class ClaimRewardsCommand implements Command {
         if (rolesAdded.length === 0) {
             await InteractionUtils.send(
                 intr,
-                Lang.getErrorEmbed('validation', 'errorEmbeds.noRewardsToClaim', data.lang)
+                Lang.getErrorEmbed('validation', 'errorEmbeds.rewardsCouldNotBeGiven', data.lang)
             );
             return;
         }

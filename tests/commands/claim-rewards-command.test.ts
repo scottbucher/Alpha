@@ -153,7 +153,7 @@ describe('ClaimRewardsCommand', () => {
         );
     });
 
-    it('should send no rewards to claim when no role could be given', async () => {
+    it('should send rewards could not be given when no role could be given', async () => {
         mockGuildData.milestoneSettings.xpMilestones = [{ xp: 100_000, roleDiscordId: 'role1' }];
         vi.mocked(ActionUtils.giveRole).mockResolvedValue(undefined);
 
@@ -162,6 +162,11 @@ describe('ClaimRewardsCommand', () => {
         expect(getGivenRoleIds()).toEqual(['role1']);
         expect(Lang.getSuccessEmbed).not.toHaveBeenCalled();
         expect(Lang.getErrorEmbed).toHaveBeenCalledWith(
+            'validation',
+            'errorEmbeds.rewardsCouldNotBeGiven',
+            Locale.EnglishUS
+        );
+        expect(Lang.getErrorEmbed).not.toHaveBeenCalledWith(
             'validation',
             'errorEmbeds.noRewardsToClaim',
             Locale.EnglishUS

@@ -81,7 +81,9 @@ export class MilestoneListCommand implements Command {
             data.guildData
         );
         if (!channel) {
-            return Lang.getRef('info', 'terms.notSet', data.lang);
+            return ExperienceUtils.getMilestoneSettings(data.guildData).channelDiscordId
+                ? Lang.getRef('info', 'terms.milestoneChannelUnusable', data.lang)
+                : Lang.getRef('info', 'terms.notSet', data.lang);
         }
 
         return isFallback

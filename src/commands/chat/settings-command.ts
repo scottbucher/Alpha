@@ -37,6 +37,19 @@ export class SettingsCommand implements Command {
             ])
         );
 
+        // Milestone messages fall back to the leveling channel when no milestone channel is set
+        let levelingChannel = channelSettings.LEVELING_CHANNEL
+            ? intr.guild.channels.resolve(channelSettings.LEVELING_CHANNEL)
+            : null;
+        if (!channelSettings.MILESTONE_CHANNEL && levelingChannel) {
+            channelDisplays.push([
+                'MILESTONE_CHANNEL',
+                Lang.getRef('info', 'terms.levelingChannelFallback', data.lang, {
+                    CHANNEL: levelingChannel.toString(),
+                }),
+            ]);
+        }
+
         let embed = Lang.getEmbed('info', 'embeds.settings', data.lang, {
             ...Object.fromEntries(channelDisplays),
             SERVER_LANGUAGE: serverLanguage,

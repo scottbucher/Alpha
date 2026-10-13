@@ -312,7 +312,7 @@
                     },
                     {
                         "name": "XP Milestones",
-                        "value": " - A server can announce when members pass XP milestones (ex: 1,000,000 total XP) in the server's milestone channel, or in the leveling channel if no milestone channel is set.\n - Milestones can be added and removed using {{CMD_MILESTONE_ADD}} and {{CMD_MILESTONE_REMOVE}}, optionally with a role that members are given when they reach the milestone.\n - A recurring milestone (ex: every 1,000,000 XP) can be set using {{CMD_MILESTONE_INTERVAL}}.\n - View the server's milestones using {{CMD_MILESTONE_LIST}}. Members can claim missed milestone roles using {{CMD_CLAIM_REWARDS}}."
+                        "value": " - Members get an announcement when they pass an XP milestone (ex: 1,000,000 total XP), and the milestone's role if it has one. Announcements are sent to the server's milestone channel, or the leveling channel if no milestone channel is set.\n - Members can claim missed milestone roles using {{CMD_CLAIM_REWARDS}}.\n - Admins can add and remove milestones using {{CMD_MILESTONE_ADD}} and {{CMD_MILESTONE_REMOVE}}, optionally with a role to give members who reach them.\n - Admins can set a recurring milestone (ex: every 1,000,000 XP) using {{CMD_MILESTONE_INTERVAL}} and view the server's milestones using {{CMD_MILESTONE_LIST}}."
                     }
                 ]
             }
@@ -544,6 +544,7 @@
             "milestoneIntervalValue": "Every **{{XP}} XP**",
             "announcementChannel": "Announcement Channel",
             "levelingChannelFallback": "{{CHANNEL}} (leveling channel fallback)",
+            "milestoneChannelUnusable": "Configured channel is missing or I can't send messages there",
             "none": "None",
             "notSet": "Not Set",
             "deletedChannel": "Deleted Channel",
