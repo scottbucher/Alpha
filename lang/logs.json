@@ -78,6 +78,7 @@
         "checkUsernameAvailabilityRateLimited": "A rate limit was hit while checking username availability.",
         "checkUsernameAvailabilityUnexpectedStatus": "An unexpected status was returned while checking username availability: {STATUS}.",
         "checkUsernameAvailabilityError": "An error occurred while checking username availability: {ERROR}.",
+        "checkUsernameAvailabilityLoginError": "Authentication error occurred during username availability check. Stopping job iteration: {ERROR}",
         "generateXpEventsError": "An error occurred while generating XP events for guild '{GUILD_ID}'.",
         "generateXpEventsJobError": "An error occurred while generating XP events.",
         "guildDataRequiredForGuildUserDailyStatisticsDataForToday": "Guild data is required when includeGuildUserDailyStatisticsDataForToday is true!"

@@ -1,9 +1,9 @@
-import { Client } from 'discord.js';
+import { Client, EmbedBuilder } from 'discord.js';
 import { createRequire } from 'node:module';
 
 import { Job } from './index.js';
 import { Language } from '../models/enum-helpers/index.js';
-import { HytaleAuthService, Lang, Logger } from '../services/index.js';
+import { HytaleAuthError, HytaleAuthService, Lang, Logger } from '../services/index.js';
 import { ClientUtils, FormatUtils, MessageUtils, TimeUtils } from '../utils/index.js';
 
 const require = createRequire(import.meta.url);
@@ -16,6 +16,8 @@ export class CheckUsernameAvailabilityJob extends Job {
     public log: boolean = Config.jobs.checkUsernameAvailability.log;
     public runOnce: boolean = Config.jobs.checkUsernameAvailability.runOnce;
     public initialDelaySecs: number = Config.jobs.checkUsernameAvailability.initialDelaySecs;
+    // Only DM users once per distinct auth problem so a broken login doesn't spam them every run.
+    private lastNotifiedAuthError: string | null = null;
 
     constructor(
         private client: Client,
@@ -78,6 +80,7 @@ export class CheckUsernameAvailabilityJob extends Job {
                 // Check if this is a login/auth error - if so, stop the entire job iteration
                 // These are unrecoverable errors that will affect all subsequent usernames
                 const isAuthError =
+                    error instanceof HytaleAuthError ||
                     // Login errors
                     errorMessage.includes('Login failed') ||
                     errorMessage.includes('Could not extract flow ID') ||
@@ -97,24 +100,24 @@ export class CheckUsernameAvailabilityJob extends Job {
 
                 if (isAuthError) {
                     Logger.error(
-                        Logs.error?.checkUsernameAvailabilityLoginError?.replace(
+                        Logs.error.checkUsernameAvailabilityLoginError.replace(
                             '{ERROR}',
                             errorMessage
-                        ) ||
-                            `Authentication error occurred during username availability check. Stopping job iteration: ${errorMessage}`,
+                        ),
                         error
                     );
+                    await this.notifyAuthError(errorMessage);
                     // Stop the entire job iteration - these errors will affect all subsequent usernames
                     return;
                 }
 
-                // For other errors, log and continue with the next username
+                // For other errors (e.g. network failures), log and continue with the next username.
+                // The result for this username is unknown, so it is neither available nor unavailable.
                 Logger.error(
                     Logs.error.checkUsernameAvailabilityError
                         .replace('{USERNAME}', username)
                         .replace('{ERROR}', errorMessage)
                 );
-                usernamesUnavailable.push(username);
             }
         }
 
@@ -154,15 +157,30 @@ export class CheckUsernameAvailabilityJob extends Job {
         type: 'available' | 'unavailable',
         usernames: string[]
     ): Promise<void> {
+        const embed = Lang.getEmbed('results', `usernameChecker.${type}`, Language.Default, {
+            USERNAME_LIST: FormatUtils.joinWithAnd(usernames, Language.Default),
+            USERNAME_LIST_SPLIT: usernames.join('\n'),
+            IS_OR_ARE: usernames.length === 1 ? 'is' : 'are',
+            PLURAL: usernames.length === 1 ? '' : 's',
+        });
+        await this.sendToUsersToNotify(embed);
+    }
+
+    private async notifyAuthError(errorMessage: string): Promise<void> {
+        if (this.lastNotifiedAuthError === errorMessage) return;
+        this.lastNotifiedAuthError = errorMessage;
+
+        const embed = Lang.getEmbed('results', 'usernameChecker.authError', Language.Default, {
+            // Discord embed field values are capped at 1024 characters
+            ERROR: errorMessage.slice(0, 1000),
+        });
+        await this.sendToUsersToNotify(embed);
+    }
+
+    private async sendToUsersToNotify(embed: EmbedBuilder): Promise<void> {
         const usersToNotify: string[] = [...Config.usernameChecker.usersToNotify];
         for (const userId of usersToNotify) {
             const user = await ClientUtils.getUser(this.client, userId);
-            const embed = Lang.getEmbed('results', `usernameChecker.${type}`, Language.Default, {
-                USERNAME_LIST: FormatUtils.joinWithAnd(usernames, Language.Default),
-                USERNAME_LIST_SPLIT: usernames.join('\n'),
-                IS_OR_ARE: usernames.length === 1 ? 'is' : 'are',
-                PLURAL: usernames.length === 1 ? '' : 's',
-            });
             await MessageUtils.send(user, embed);
         }
     }

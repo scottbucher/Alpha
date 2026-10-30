@@ -3,7 +3,7 @@ import { ImapFlow } from 'imapflow';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { URL } from 'node:url';
-import { CookieJar } from 'tough-cookie';
+import { Cookie, CookieJar } from 'tough-cookie';
 
 import { Logger } from './index.js';
 
@@ -13,10 +13,53 @@ interface TwoFactorChallenge {
     emailAddress: string;
 }
 
+interface LoginFlowUi {
+    messages?: Array<{ text?: string; type?: string }>;
+    nodes?: Array<{
+        group?: string;
+        attributes?: { name?: string; value?: string; type?: string };
+        messages?: Array<{ text?: string; type?: string }>;
+    }>;
+}
+
+export type HytaleAuthErrorCode = 'captcha_required' | 'login_failed' | 'session_cookie_invalid';
+
+/**
+ * Error thrown when the bot cannot obtain a usable Hytale session. The job treats these as
+ * unrecoverable for the current iteration and notifies the configured users.
+ */
+export class HytaleAuthError extends Error {
+    public constructor(
+        public readonly code: HytaleAuthErrorCode,
+        message: string
+    ) {
+        super(message);
+        this.name = 'HytaleAuthError';
+    }
+}
+
+const SESSION_COOKIE_NAME = 'ory_kratos_session';
+const BACKEND_URL = 'https://backend.accounts.hytale.com';
+const COOKIE_DOMAIN = 'hytale.com';
+// Once we know the password login is blocked by a captcha, don't hammer Hytale on every run.
+const CAPTCHA_BACKOFF_MS = 60 * 60 * 1000;
+// Warn (at most once a day) when a manually imported session is about to expire.
+const SESSION_EXPIRY_WARNING_MS = 7 * 24 * 60 * 60 * 1000;
+const SESSION_EXPIRY_WARNING_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+export const HYTALE_CAPTCHA_HELP =
+    'Hytale now requires a Cloudflare Turnstile captcha to log in with a password, which cannot be ' +
+    'completed automatically. Log in at https://accounts.hytale.com in a browser, copy the value of ' +
+    `the "${SESSION_COOKIE_NAME}" cookie, and set usernameChecker.hytaleSessionCookie in config.json.`;
+
 export class HytaleAuthService {
     private email: string;
     private password: string;
     private gmailAppPassword: string | null;
+    private sessionCookie: string | null;
+    private rejectedSessionCookie: string | null = null;
+    private captchaBlockedUntil = 0;
+    private lastExpiryWarningAt = 0;
     private isLoggingIn = false;
     private cookieJar: CookieJar;
     private fetchWithCookies: typeof globalThis.fetch;
@@ -27,11 +70,13 @@ export class HytaleAuthService {
         email: string,
         password: string,
         gmailAppPassword: string | null = null,
-        cachePath: string | null = null
+        cachePath: string | null = null,
+        sessionCookie: string | null = null
     ) {
         this.email = email;
         this.password = password;
         this.gmailAppPassword = gmailAppPassword;
+        this.sessionCookie = sessionCookie?.trim() || null;
         this.cachePath = cachePath;
         this.cookieJar = new CookieJar();
         this.fetchWithCookies = fetchCookie(globalThis.fetch, this.cookieJar);
@@ -67,17 +112,168 @@ export class HytaleAuthService {
         }
     }
 
-    private isSessionValid(): boolean {
+    private getSessionCookie(): Cookie | undefined {
         const accountsCookies = this.cookieJar.getCookiesSync('https://accounts.hytale.com');
-        const backendCookies = this.cookieJar.getCookiesSync('https://backend.accounts.hytale.com');
-        const allCookies = [...accountsCookies, ...backendCookies];
+        const backendCookies = this.cookieJar.getCookiesSync(BACKEND_URL);
+        return [...accountsCookies, ...backendCookies].find(c => c.key === SESSION_COOKIE_NAME);
+    }
 
-        const sessionCookie = allCookies.find(c => c.key === 'ory_kratos_session');
-        if (!sessionCookie?.expires) return false;
+    /** Expiry of the current session, or null if there is no session with a known expiry. */
+    public getSessionExpiry(): Date | null {
+        const expires = this.getSessionCookie()?.expires;
+        if (!expires || expires === 'Infinity') return null;
+        const date = new Date(expires);
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    private isSessionValid(): boolean {
+        const expiresAt = this.getSessionExpiry()?.getTime();
+        if (expiresAt === undefined) return false;
 
         // Consider session invalid 5 minutes before actual expiry for safety margin
-        const expiresAt = new Date(sessionCookie.expires).getTime();
         return Date.now() < expiresAt - 5 * 60 * 1000;
+    }
+
+    private warnIfSessionExpiringSoon(): void {
+        const expiresAt = this.getSessionExpiry();
+        if (!expiresAt) return;
+
+        const remainingMs = expiresAt.getTime() - Date.now();
+        if (remainingMs > SESSION_EXPIRY_WARNING_MS) return;
+        if (Date.now() - this.lastExpiryWarningAt < SESSION_EXPIRY_WARNING_INTERVAL_MS) return;
+
+        this.lastExpiryWarningAt = Date.now();
+        Logger.warn(`Hytale session expires at ${expiresAt.toISOString()}. ${HYTALE_CAPTCHA_HELP}`);
+    }
+
+    private async setSessionCookie(value: string, expires?: Date): Promise<void> {
+        const cookie = new Cookie({
+            key: SESSION_COOKIE_NAME,
+            value,
+            domain: COOKIE_DOMAIN,
+            hostOnly: false,
+            path: '/',
+            secure: true,
+            httpOnly: true,
+            sameSite: 'lax',
+            expires: expires ?? 'Infinity',
+        });
+        await this.cookieJar.setCookie(cookie, BACKEND_URL);
+    }
+
+    /**
+     * Imports a session cookie that was obtained by logging in through a browser. Hytale's
+     * password login is protected by a captcha, so this is the supported way to (re)authenticate
+     * the bot. The cookie is validated against the whoami endpoint to learn its expiry.
+     *
+     * @returns true if the cookie was accepted and the session is now valid.
+     */
+    private async importSessionCookie(): Promise<boolean> {
+        if (!this.sessionCookie || this.sessionCookie === this.rejectedSessionCookie) return false;
+
+        // Don't re-validate a cookie we have already imported (its expiry is already known).
+        const existing = this.getSessionCookie();
+        if (existing?.value === this.sessionCookie && existing.expires !== 'Infinity') {
+            return false;
+        }
+
+        await this.setSessionCookie(this.sessionCookie);
+
+        const whoamiResponse = await this.fetchWithCookies(`${BACKEND_URL}/sessions/whoami`, {
+            headers: { Accept: 'application/json' },
+        });
+
+        if (!whoamiResponse.ok) {
+            this.rejectedSessionCookie = this.sessionCookie;
+            await this.cookieJar.removeAllCookies();
+            Logger.warn(
+                `The configured Hytale session cookie was rejected (status ${whoamiResponse.status}). ` +
+                    'It has probably expired. Log in again in a browser and update ' +
+                    'usernameChecker.hytaleSessionCookie.'
+            );
+            return false;
+        }
+
+        const session = (await whoamiResponse.json()) as {
+            active?: boolean;
+            expires_at?: string;
+            authenticator_assurance_level?: string;
+        };
+
+        const expiresAt = session.expires_at ? new Date(session.expires_at) : null;
+        if (!session.active || !expiresAt || Number.isNaN(expiresAt.getTime())) {
+            this.rejectedSessionCookie = this.sessionCookie;
+            await this.cookieJar.removeAllCookies();
+            Logger.warn(
+                'The configured Hytale session cookie does not belong to an active session.'
+            );
+            return false;
+        }
+
+        await this.setSessionCookie(this.sessionCookie, expiresAt);
+        await this.saveToCache();
+        Logger.info(
+            `Imported Hytale session cookie (${session.authenticator_assurance_level ?? 'unknown aal'}), ` +
+                `expires at ${expiresAt.toISOString()}`
+        );
+        return this.isSessionValid();
+    }
+
+    /**
+     * Builds a descriptive error for a failed password login by reading the error messages Ory
+     * Kratos attached to the login flow (e.g. "Captcha verification failed").
+     */
+    private async describeLoginFailure(
+        flowId: string,
+        loginResponse: globalThis.Response
+    ): Promise<HytaleAuthError> {
+        const messages: string[] = [];
+        let captchaRequired = false;
+
+        try {
+            const flowResponse = await this.fetchWithCookies(
+                `${BACKEND_URL}/self-service/login/flows?id=${flowId}`,
+                { headers: { Accept: 'application/json' } }
+            );
+            const flow = (await flowResponse.json()) as { ui?: LoginFlowUi };
+
+            for (const message of flow.ui?.messages ?? []) {
+                if (message.text) messages.push(message.text);
+            }
+            for (const node of flow.ui?.nodes ?? []) {
+                const nodeMessages = node.messages ?? [];
+                for (const message of nodeMessages) {
+                    if (message.text) messages.push(message.text);
+                }
+                if (node.group === 'captcha' || node.attributes?.name === 'cf-turnstile-response') {
+                    captchaRequired = captchaRequired || nodeMessages.length > 0;
+                }
+            }
+        } catch {
+            // Fall through to a generic error below
+        }
+
+        if (!captchaRequired) {
+            captchaRequired = messages.some(m => /captcha/i.test(m));
+        }
+
+        if (captchaRequired) {
+            this.captchaBlockedUntil = Date.now() + CAPTCHA_BACKOFF_MS;
+            return new HytaleAuthError(
+                'captcha_required',
+                `Login failed: ${messages.join(' ') || 'captcha verification failed'}. ${HYTALE_CAPTCHA_HELP}`
+            );
+        }
+
+        let detail = messages.join(' ');
+        if (!detail) {
+            const body = await loginResponse.text();
+            detail = body.slice(0, 200);
+        }
+        return new HytaleAuthError(
+            'login_failed',
+            `Login failed: ${loginResponse.status} - ${detail}`
+        );
     }
 
     private extractVerificationCodeFromEmail(emailContent: string): string | null {
@@ -194,7 +390,9 @@ export class HytaleAuthService {
 
         if (sendResponse.status !== 303 && sendResponse.status !== 200) {
             const body = await sendResponse.text();
-            throw new Error(`Failed to trigger 2FA code send: ${sendResponse.status} - ${body.slice(0, 200)}`);
+            throw new Error(
+                `Failed to trigger 2FA code send: ${sendResponse.status} - ${body.slice(0, 200)}`
+            );
         }
 
         // Step 2: Wait for email and fetch code with retries
@@ -268,7 +466,9 @@ export class HytaleAuthService {
 
         if (submitResponse.status !== 303 || !redirectLocation) {
             const body = await submitResponse.text();
-            throw new Error(`2FA code submission failed: ${submitResponse.status} - ${body.slice(0, 200)}`);
+            throw new Error(
+                `2FA code submission failed: ${submitResponse.status} - ${body.slice(0, 200)}`
+            );
         }
 
         // Step 5: Follow redirect to complete authentication
@@ -289,6 +489,14 @@ export class HytaleAuthService {
         this.isLoggingIn = true;
 
         try {
+            if (Date.now() < this.captchaBlockedUntil) {
+                throw new HytaleAuthError(
+                    'captcha_required',
+                    `Login failed: password login is blocked by a captcha (retrying after ` +
+                        `${new Date(this.captchaBlockedUntil).toISOString()}). ${HYTALE_CAPTCHA_HELP}`
+                );
+            }
+
             const initResponse = await this.fetchWithCookies(
                 'https://backend.accounts.hytale.com/self-service/login/browser',
                 { redirect: 'manual' }
@@ -371,8 +579,7 @@ export class HytaleAuthService {
             } else if (loginResponse.status === 303 && redirectLocation?.includes('/settings')) {
                 await this.fetchWithCookies(redirectLocation, { redirect: 'follow' });
             } else {
-                const body = await loginResponse.text();
-                throw new Error(`Login failed: ${loginResponse.status} - ${body.slice(0, 200)}`);
+                throw await this.describeLoginFailure(flowId, loginResponse);
             }
 
             await this.saveToCache();
@@ -383,7 +590,16 @@ export class HytaleAuthService {
 
     public async ensureLoggedIn(): Promise<void> {
         this.loadFromCache();
-        if (this.isSessionValid()) return;
+        if (this.isSessionValid()) {
+            this.warnIfSessionExpiringSoon();
+            return;
+        }
+
+        if (await this.importSessionCookie()) {
+            this.warnIfSessionExpiringSoon();
+            return;
+        }
+
         await this.login();
     }
 

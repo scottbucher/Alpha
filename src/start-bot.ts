@@ -89,7 +89,8 @@ async function start(): Promise<void> {
         Config.usernameChecker.hytaleEmail,
         Config.usernameChecker.hytalePassword,
         Config.usernameChecker.gmailAppPassword,
-        '.cache/hytale-session.json'
+        '.cache/hytale-session.json',
+        Config.usernameChecker.hytaleSessionCookie ?? null
     );
 
     // Client

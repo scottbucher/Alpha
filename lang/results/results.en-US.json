@@ -45,6 +45,17 @@
                     }
                 ],
                 "color": "{{COM:colors.error}}"
+            },
+            "authError": {
+                "title": "{{COM:emojis.alarm}} Username Checker Needs Attention {{COM:emojis.alarm}}",
+                "description": "I could not log in to Hytale, so username availability checks are paused until this is fixed. You will only receive this message once per distinct error.",
+                "fields": [
+                    {
+                        "name": "Error",
+                        "value": "{{ERROR}}"
+                    }
+                ],
+                "color": "{{COM:colors.error}}"
             }
         },
         "info": {

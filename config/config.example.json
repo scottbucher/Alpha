@@ -41,6 +41,7 @@
         "hytaleEmail": "<HYTALE_EMAIL>",
         "hytalePassword": "<HYTALE_PASSWORD>",
         "gmailAppPassword": "<GMAIL_APP_PASSWORD>",
+        "hytaleSessionCookie": "<ORY_KRATOS_SESSION_COOKIE_FROM_BROWSER_OR_EMPTY>",
         "logAvailable": true,
         "logUnavailable": false
     },
