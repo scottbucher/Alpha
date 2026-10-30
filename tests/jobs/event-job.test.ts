@@ -71,11 +71,14 @@ describe('EventJob', () => {
 
     it('should announce an upcoming XP event', async () => {
         // Setup event that should be announced
+        // Use absolute millisecond offsets rather than setDate(): setDate() works in local
+        // calendar days, so crossing a DST change made the start 14 days + 1 hour away and
+        // pushed the announce window (start - 14 days) into the future, failing the test.
+        const DAY_MS = 24 * 60 * 60 * 1000;
         const now = new Date();
-        const startTime = new Date(now);
-        startTime.setDate(startTime.getDate() + 14); // 2 weeks from now
-        const endTime = new Date(startTime);
-        endTime.setDate(endTime.getDate() + 2); // 2 days duration
+        // 14 days from now, minus a minute so "now" in the job is safely past the announce point
+        const startTime = new Date(now.getTime() + 14 * DAY_MS - 60 * 1000);
+        const endTime = new Date(startTime.getTime() + 2 * DAY_MS); // 2 days duration
 
         const event = new EventData(
             { id: 'guilddata123' } as any,

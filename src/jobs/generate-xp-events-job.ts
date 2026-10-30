@@ -94,8 +94,12 @@ export class GenerateXpEventsJob extends Job {
             weekend => !this.hasExistingEvent(existingEvents, weekend.start, weekend.end)
         );
 
-        // Check if any of the new weekends is the anniversary weekend
-        const anniversaryInfo = this.findAnniversaryWeekend(guild, newWeekends, now);
+        // Check if any of the upcoming weekends is the anniversary weekend.
+        // IMPORTANT: this must be evaluated against ALL upcoming weekends, not just the new ones.
+        // If we only looked at new weekends, then on the run after the anniversary weekend was
+        // generated, that weekend would be filtered out and the *following* weekend would be
+        // picked as "the weekend after the anniversary", producing a second anniversary event.
+        const anniversaryInfo = this.findAnniversaryWeekend(guild, weekends, now);
 
         // Generate events for new weekends
         for (const weekend of newWeekends) {
@@ -221,6 +225,12 @@ export class GenerateXpEventsJob extends Job {
             return null;
         }
 
+        // Skip if an anniversary event has already been generated for this anniversary.
+        // This is a safety net so we never celebrate the same anniversary twice.
+        if (this.hasAnniversaryEventFor(guild, upcomingAnniversary)) {
+            return null;
+        }
+
         // Find the weekend that contains or follows the anniversary
         for (const weekend of weekends) {
             // Check if anniversary falls within the weekend
@@ -240,6 +250,31 @@ export class GenerateXpEventsJob extends Job {
         }
 
         return null;
+    }
+
+    /**
+     * Returns true if the guild already has an anniversary XP event that was created for the
+     * given anniversary date. An anniversary event is always scheduled on the weekend that
+     * contains the anniversary or the weekend immediately after it, so any existing anniversary
+     * event whose start time is within 7 days of the anniversary belongs to that anniversary.
+     */
+    private hasAnniversaryEventFor(guild: GuildData, anniversary: DateTime): boolean {
+        const timeZone = anniversary.zone.name;
+
+        return guild.eventDatas
+            .getItems()
+            .filter(event => event.eventType === EventType.ANNIVERSARY_XP_WEEKEND)
+            .some(event => {
+                const eventStart = DateTime.fromISO(event.timeProperties.startTime, {
+                    zone: timeZone,
+                });
+
+                if (!eventStart.isValid) {
+                    return false;
+                }
+
+                return Math.abs(eventStart.diff(anniversary, 'days').days) <= 7;
+            });
     }
 
     private getNextWeekends(

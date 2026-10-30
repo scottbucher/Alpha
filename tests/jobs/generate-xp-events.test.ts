@@ -9,6 +9,7 @@ import { EventData, GuildData } from '../../src/database/entities/index.js';
 import { EventType } from '../../src/enums/index.js';
 import { GenerateXpEventsJob } from '../../src/jobs/generate-xp-events-job.js';
 import { Logger } from '../../src/services/index.js';
+import { TimeUtils } from '../../src/utils/index.js';
 import {
     createMockClient,
     createMockEntityManager,
@@ -272,7 +273,10 @@ describe('GenerateXpEventsJob', () => {
         });
 
         it('should generate anniversary event on next weekend if anniversary is mid-week', async () => {
-            const now = DateTime.now().setZone('UTC');
+            // Pin "now" to a Monday so the mid-week anniversary is always in the future
+            // (deriving it from the real clock made this test fail when run on a Fri/Sat/Sun)
+            const now = DateTime.fromISO('2026-10-12T01:00:00', { zone: 'UTC' });
+            const getNowSpy = vi.spyOn(TimeUtils, 'getNowForGuild').mockReturnValue(now);
 
             // Find the next Friday
             let nextFriday = now;
@@ -314,6 +318,7 @@ describe('GenerateXpEventsJob', () => {
             expect(anniversaryEvents.length).toBeGreaterThan(0);
 
             // Cleanup
+            getNowSpy.mockRestore();
             cleanup();
         });
 
@@ -456,6 +461,111 @@ describe('GenerateXpEventsJob', () => {
             expect(regularEvents.length).toBeGreaterThan(0);
 
             // Cleanup
+            cleanup();
+        });
+
+        it('should not generate a second anniversary event on the run after the anniversary weekend was generated', async () => {
+            // Regression test: the anniversary falls on a weekend (Saturday). The first weekly
+            // run generates the anniversary event for that weekend. On the following weekly run,
+            // that weekend already has an event and is filtered out of the "new" weekends; the
+            // bug was that the *next* weekend then got picked as the anniversary weekend as well,
+            // resulting in two anniversary celebrations.
+            const zone = 'America/New_York';
+
+            // Guild created Saturday November 7th 2019 -> 7 year anniversary on Sat Nov 7th 2026
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = DateTime.fromISO('2019-11-07T15:00:00', {
+                zone,
+            }).toJSDate();
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+            mockGuildData.generalSettings.timeZone = zone;
+
+            const getNowSpy = vi.spyOn(TimeUtils, 'getNowForGuild');
+            const cleanup = mockRandomValues(0.9);
+
+            // ---- Run 1: Monday Oct 12th 2026 (weekends: Oct 16, Oct 23, Oct 30, Nov 6) ----
+            getNowSpy.mockReturnValue(DateTime.fromISO('2026-10-12T01:00:00', { zone }));
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([]);
+
+            await generateXpEventsJob.run();
+
+            let createdEvents = vi
+                .mocked(mockEntityManager.persist)
+                .mock.calls.map(call => call[0] as EventData);
+            const firstRunAnniversaries = createdEvents.filter(
+                event => event.eventType === EventType.ANNIVERSARY_XP_WEEKEND
+            );
+
+            expect(createdEvents.length).toBe(4);
+            expect(firstRunAnniversaries.length).toBe(1);
+            expect(firstRunAnniversaries[0].xpProperties.multiplier).toBe(3.5);
+            expect(
+                DateTime.fromISO(firstRunAnniversaries[0].timeProperties.startTime, { zone })
+                    .toISODate()
+            ).toBe('2026-11-06');
+
+            // ---- Run 2: Monday Oct 19th 2026 (weekends: Oct 23, Oct 30, Nov 6, Nov 13) ----
+            vi.mocked(mockEntityManager.persist).mockClear();
+            getNowSpy.mockReturnValue(DateTime.fromISO('2026-10-19T01:00:00', { zone }));
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue(createdEvents);
+
+            await generateXpEventsJob.run();
+
+            createdEvents = vi
+                .mocked(mockEntityManager.persist)
+                .mock.calls.map(call => call[0] as EventData);
+            const secondRunAnniversaries = createdEvents.filter(
+                event => event.eventType === EventType.ANNIVERSARY_XP_WEEKEND
+            );
+
+            // Only the new Nov 13 weekend should be generated, and it must NOT be an anniversary
+            expect(createdEvents.length).toBe(1);
+            expect(secondRunAnniversaries.length).toBe(0);
+            expect(createdEvents[0].eventType).toBe(EventType.NO_INCREASED_XP_WEEKEND);
+
+            getNowSpy.mockRestore();
+            cleanup();
+        });
+
+        it('should not generate a second anniversary event if the anniversary weekend already exists but was not auto-generated', async () => {
+            // Safety net: even if the existing anniversary event is not in the auto-generated
+            // list (so it is not used for weekend filtering), we must not create another one.
+            const zone = 'America/New_York';
+
+            const mockDiscordGuild = createMockGuild('guild123', 'Test Guild');
+            mockDiscordGuild.createdAt = DateTime.fromISO('2019-11-07T15:00:00', {
+                zone,
+            }).toJSDate();
+            mockClient.guilds.cache.get = vi.fn().mockReturnValue(mockDiscordGuild);
+            mockGuildData.generalSettings.timeZone = zone;
+
+            const existingAnniversary = new EventData(
+                { id: 'guilddata123' } as any,
+                EventType.ANNIVERSARY_XP_WEEKEND,
+                DateTime.fromISO('2026-11-06T18:00:00', { zone }).toISO() ?? '',
+                DateTime.fromISO('2026-11-09T00:00:00', { zone }).toISO() ?? ''
+            );
+            existingAnniversary.autoGenerated = false;
+            existingAnniversary.xpProperties.multiplier = 3.5;
+            mockGuildData.eventDatas.getItems = vi.fn().mockReturnValue([existingAnniversary]);
+
+            const getNowSpy = vi
+                .spyOn(TimeUtils, 'getNowForGuild')
+                .mockReturnValue(DateTime.fromISO('2026-10-19T01:00:00', { zone }));
+            const cleanup = mockRandomValues(0.9);
+
+            await generateXpEventsJob.run();
+
+            const createdEvents = vi
+                .mocked(mockEntityManager.persist)
+                .mock.calls.map(call => call[0] as EventData);
+
+            expect(
+                createdEvents.filter(event => event.eventType === EventType.ANNIVERSARY_XP_WEEKEND)
+                    .length
+            ).toBe(0);
+
+            getNowSpy.mockRestore();
             cleanup();
         });
 
